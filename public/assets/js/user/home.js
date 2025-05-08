@@ -1,0 +1,277 @@
+document.addEventListener("DOMContentLoaded", () => {
+    // Search Clear Button
+    const searchInput = document.querySelector(".search-input")
+    const searchClearBtn = document.querySelector(".search-clear-btn")
+  
+    if (searchInput && searchClearBtn) {
+      // Initially hide the clear button if input is empty
+      searchClearBtn.style.display = searchInput.value ? "block" : "none"
+  
+      searchInput.addEventListener("input", function () {
+        searchClearBtn.style.display = this.value ? "block" : "none"
+      })
+  
+      searchClearBtn.addEventListener("click", function () {
+        searchInput.value = ""
+        searchInput.focus()
+        this.style.display = "none"
+      })
+    }
+  
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.querySelector(".mobile-menu-btn")
+    const mainNav = document.querySelector(".main-nav")
+  
+    if (mobileMenuBtn && mainNav) {
+      mobileMenuBtn.addEventListener("click", function () {
+        this.classList.toggle("active")
+        mainNav.classList.toggle("active")
+      })
+    }
+  
+    // Mobile Dropdown Toggle
+    const dropdowns = document.querySelectorAll(".dropdown")
+  
+    dropdowns.forEach((dropdown) => {
+      const link = dropdown.querySelector("a")
+  
+      link.addEventListener("click", (e) => {
+        if (window.innerWidth <= 768) {
+          e.preventDefault()
+          dropdown.classList.toggle("active")
+        }
+      })
+    })
+  
+    // Hero Carousel
+    const slides = document.querySelectorAll(".carousel-slide")
+    const dots = document.querySelectorAll(".dot")
+    const prevBtn = document.querySelector(".prev-btn")
+    const nextBtn = document.querySelector(".next-btn")
+    let currentSlide = 0
+    let slideInterval
+  
+    function showSlide(index) {
+      slides.forEach((slide) => slide.classList.remove("active"))
+      dots.forEach((dot) => dot.classList.remove("active"))
+  
+      slides[index].classList.add("active")
+      dots[index].classList.add("active")
+      currentSlide = index
+    }
+  
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length
+      showSlide(currentSlide)
+    }
+  
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length
+      showSlide(currentSlide)
+    }
+  
+    function startSlideshow() {
+      slideInterval = setInterval(nextSlide, 5000)
+    }
+  
+    function stopSlideshow() {
+      clearInterval(slideInterval)
+    }
+  
+    if (slides.length > 0) {
+      // Set up event listeners for carousel controls
+      if (prevBtn && nextBtn) {
+        prevBtn.addEventListener("click", () => {
+          prevSlide()
+          stopSlideshow()
+          startSlideshow()
+        })
+  
+        nextBtn.addEventListener("click", () => {
+          nextSlide()
+          stopSlideshow()
+          startSlideshow()
+        })
+      }
+  
+      dots.forEach((dot, index) => {
+        dot.addEventListener("click", () => {
+          showSlide(index)
+          stopSlideshow()
+          startSlideshow()
+        })
+      })
+  
+      // Start the slideshow
+      startSlideshow()
+  
+      // Pause slideshow on hover
+      const carouselContainer = document.querySelector(".carousel-container")
+      if (carouselContainer) {
+        carouselContainer.addEventListener("mouseenter", stopSlideshow)
+        carouselContainer.addEventListener("mouseleave", startSlideshow)
+      }
+    }
+  
+    // Wishlist Button Toggle
+    const wishlistButtons = document.querySelectorAll(".btn-wishlist")
+  
+    wishlistButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const icon = this.querySelector("i")
+  
+        if (icon.classList.contains("far")) {
+          icon.classList.remove("far")
+          icon.classList.add("fas")
+          icon.style.color = "#e74c3c"
+  
+          // Show notification
+          showNotification("Product added to wishlist!")
+        } else {
+          icon.classList.remove("fas")
+          icon.classList.add("far")
+          icon.style.color = ""
+  
+          // Show notification
+          showNotification("Product removed from wishlist!")
+        }
+      })
+    })
+  
+    // Add to Cart Button
+    const addToCartButtons = document.querySelectorAll(".btn-add-to-cart")
+  
+    addToCartButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const productId = this.getAttribute("data-product-id")
+  
+        // Simulate adding to cart
+        showNotification("Product added to cart!")
+  
+        // You would typically send an AJAX request to add the item to the cart
+        console.log(`Product ${productId} added to cart`)
+      })
+    })
+  
+    // Quick View Button
+    const quickViewButtons = document.querySelectorAll(".btn-quick-view")
+  
+    quickViewButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const productId = this.getAttribute("data-product-id")
+  
+        // You would typically open a modal with product details
+        alert(`Quick view for product ${productId}`)
+      })
+    })
+  
+    // Newsletter Form Submission
+    const newsletterForm = document.querySelector(".newsletter-form")
+  
+    if (newsletterForm) {
+      newsletterForm.addEventListener("submit", function (e) {
+        e.preventDefault()
+        const email = this.querySelector('input[type="email"]').value
+  
+        if (!email) {
+          alert("Please enter your email address")
+          return
+        }
+  
+        // Here you would typically send the email to your server
+        showNotification("Thank you for subscribing to our newsletter!")
+        this.reset()
+      })
+    }
+  
+    // Pagination
+    const paginationLinks = document.querySelectorAll(".page-link")
+  
+    paginationLinks.forEach((link) => {
+      link.addEventListener("click", function (e) {
+        if (!this.parentElement.classList.contains("disabled")) {
+          e.preventDefault()
+  
+          // Remove active class from all links
+          paginationLinks.forEach((link) => {
+            link.parentElement.classList.remove("active")
+          })
+  
+          // Add active class to clicked link if it's a number
+          if (!this.getAttribute("aria-label")) {
+            this.parentElement.classList.add("active")
+          }
+  
+          // Here you would typically load new content or navigate to a new page
+          console.log(`Navigating to page ${this.textContent.trim()}`)
+        }
+      })
+    })
+  
+    // Notification function
+    function showNotification(message) {
+      // Create notification element
+      const notification = document.createElement("div")
+      notification.className = "notification"
+      notification.textContent = message
+  
+      // Style the notification
+      notification.style.position = "fixed"
+      notification.style.bottom = "20px"
+      notification.style.right = "20px"
+      notification.style.backgroundColor = "rgba(0, 0, 0, 0.8)"
+      notification.style.color = "#fff"
+      notification.style.padding = "12px 20px"
+      notification.style.borderRadius = "4px"
+      notification.style.zIndex = "1000"
+      notification.style.opacity = "0"
+      notification.style.transform = "translateY(20px)"
+      notification.style.transition = "opacity 0.3s, transform 0.3s"
+  
+      // Add to DOM
+      document.body.appendChild(notification)
+  
+      // Trigger animation
+      setTimeout(() => {
+        notification.style.opacity = "1"
+        notification.style.transform = "translateY(0)"
+      }, 10)
+  
+      // Remove after 3 seconds
+      setTimeout(() => {
+        notification.style.opacity = "0"
+        notification.style.transform = "translateY(20px)"
+  
+        setTimeout(() => {
+          document.body.removeChild(notification)
+        }, 300)
+      }, 3000)
+    }
+  
+    // Animation on Scroll
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll(".product-card, .brand-card, .gender-card")
+  
+      elements.forEach((element) => {
+        const elementPosition = element.getBoundingClientRect().top
+        const windowHeight = window.innerHeight
+  
+        if (elementPosition < windowHeight - 100) {
+          element.style.opacity = "1"
+          element.style.transform = "translateY(0)"
+        }
+      })
+    }
+  
+    // Set initial styles for animation
+    document.querySelectorAll(".product-card, .brand-card, .gender-card").forEach((element) => {
+      element.style.opacity = "0"
+      element.style.transform = "translateY(20px)"
+      element.style.transition = "all 0.5s ease"
+    })
+  
+    // Run animation on load and scroll
+    window.addEventListener("load", animateOnScroll)
+    window.addEventListener("scroll", animateOnScroll)
+  })
+  

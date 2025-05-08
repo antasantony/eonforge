@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eon Forge - User Management</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/admin/customers.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <%-include("../../views/partials/admin/sidebar")%>
+    
+    <div class="main-content">
+      <header class="header">
+        <button class="menu-toggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        
+         <!-- <div class="search-container">
+          <input type="text" name="search" placeholder="Search users..." class="search-input" value="<%= typeof search !== 'undefined' ? search : '' %>">
+          <button class="search-clear-btn">
+            <i class="fas fa-times"></i>
+          </button>
+          <button type="submit" class="search-btn">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>  -->
+            <form action="/admin/users" method="get" class="search-container">
+          <input 
+            type="text" 
+            name="search" 
+            placeholder="Search users..." 
+            class="search-input" 
+            value="<%= typeof search !== 'undefined' ? search : '' %>"
+          >
+          
+          <button type="submit" class="search-btn">
+            <i class="fas fa-search"></i>
+          </button>
+          
+          <% if(search){ %>
+            <a href="/admin/users" class="search-clear-btn">
+              <i class="fas fa-times"></i>
+            </a>
+          <% } %>
+        </form> 
+        
+        
+        <div class="account-wrapper">
+          <button class="icon-btn" title="Account">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="account-dropdown">
+            <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+            <a href="/admin/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+      </header>
+      
+      <main class="content">
+        <div class="page-header">
+          <h1>User Management</h1>
+        </div>
+        
+        <!-- User Management Table -->
+        <div class="user-management">
+          <!-- <div class="user-management-header">
+            <h2>User List</h2>
+            <div class="filter-options">
+              <select id="user-status-filter">
+                <option value="all">All Users</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="blocked">Blocked</option>
+              </select>
+              <select id="user-role-filter">
+                <option value="all">All Roles</option>
+                <option value="customer">Customer</option>
+                <option value="admin">Admin</option>
+                <option value="vendor">Vendor</option>
+              </select>
+            </div>
+          </div> -->
+          <div class="user-table-container">
+            <table id="users-table">
+              <thead>
+                <tr>
+                  <th>
+                    <input type="checkbox" id="select-all-users">
+                  </th>
+                  <th>User ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Joined Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <%for(let i=0;i<data.length;i++){%>
+             <tr>
+              <td><%=(currentPage-1)*limit+i+1 %></td>
+              <td><%=data[i]._id.toString().slice(7,16)%></td>
+              <td><%=data[i].firstName+' '+data[i].lastName%></td>
+              <td><%=data[i].email%></td>
+              <td><%=data[i].createdOn.toString().slice(4,15)%></td>
+              <td class="user-actions-cell">
+                <%if(data[i].isBlocked===false){%>
+                  <button class="my-btn" onclick="blockCustomer('<%=data[i]._id%>')"> <i class="fas fa-ban"></i> Block </button>                   
+               <% }else{%>
+                <button class="my-btn success" onclick="unblockCustomer('<%=data[i]._id%>')"><i class="fas fa-lock"></i> Unblock </button>
+               <%}%>
+             </td>
+          
+             </tr>
+                <%}%>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <!-- Previous Button -->
+            <a href="?page=<%= currentPage - 1 %>" class="pagination-btn"
+              <% if (currentPage === 1) { %> style="pointer-events:none;opacity:0.5"<% } %>>
+             <i class="fas fa-chevron-left"></i>
+           </a>
+            
+            <!-- <button id="prev-page" disabled><i class="fas fa-chevron-left"></i></button> -->
+            <div id="page-numbers">
+              <%for(i=1;i<=totalPages;i++){%>
+              <button class="page-item <%=(i===currentPage) ? 'active' : ''%>"><a class="page-link" href="?page=<%= i %>"><%= i %></a></button>
+              <%}%> 
+            </div>
+           <a href="?page=<%= currentPage + 1 %>" class="pagination-btn"
+   <% if (currentPage >= totalPages) { %> style="pointer-events:none;opacity:0.5"<% } %>>
+  <i class="fas fa-chevron-right"></i>
+</a>
+
+          </div>
+        </div>
+        
+        <!-- User Details Modal -->
+        <div id="user-modal" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2>User Details</h2>
+              <button class="close-modal">&times;</button>
+            </div>
+            
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/assets/js/admin/customers.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  
+</body>
+</html>

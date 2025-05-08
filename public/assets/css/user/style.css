@@ -33,14 +33,15 @@ img {
 
 /* Header Styles */
 .site-header {
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    width: calc(100% - 10px); /* Decrease header width by 10px */
-    margin: 0 auto;
-  }
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: fixed; /* Keeps the header in place */
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%; /* Fix width issue */
+  margin: 0;
+}
 
 .header-top {
   display: flex;
@@ -138,6 +139,7 @@ img {
 /* Hero Banner */
 .hero-banner {
   margin-bottom: 30px;
+  margin-top: 168px;
 }
 
 .banner-image {
@@ -354,4 +356,7 @@ img {
     width: 100%;
   }
 }
+
+
+
 

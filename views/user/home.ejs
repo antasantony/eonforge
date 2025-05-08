@@ -1,164 +1,499 @@
-<%-include('../../views/partials/user/header')%>
-  
-  
-  <div class="hero-banner">
-    <div class="container">
-      <img src="https://www.shutterstock.com/image-photo/wrist-watch-water-drops-reflection-260nw-302011454.jpg" alt="Luxury Watch" class="banner-image">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eon Forge - Luxury Watches</title>
+    <link rel="stylesheet" href="/assets/css/user/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Banner -->
+    <div class="top-banner">
+        <p>BEST PRICE <span>Guaranteed on all Products</span></p>
     </div>
-  </div>
-  <main class="site-main">
-    <div class="container">
 
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="/">
+                        <h1>EON FORGE</h1>
+                    </a>
+                </div>
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search analog slim" class="search-input">
+                        <button class="search-clear-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="account-wrapper">
+                      <% if (isLoggedIn || user) { %>
+                        <div class="icon-btn account-toggle" title="Account">
+                          <i class="fas fa-user"></i>
+                          <span class="icon-text">Account</span>
+                        </div>
+                        <div class="account-dropdown">
+                          <a href="/profile"><i class="fas fa-user"></i><%= user.firstName%>'s Profile</a>
+                          <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                      <% } else { %>
+                        <a href="/login" class="icon-btn" title="Login">
+                          <i class="fas fa-user"></i>
+                          <span class="icon-text">Account</span>
+                        </a>
+                      <% } %>
+                    </div>
+                    
+                    <a href="/wishlist" class="icon-btn" title="Wishlist">
+                        <i class="fas fa-heart"></i>
+                        <span class="icon-text">Wishlist</span>
+                    </a>
+                    <a href="/cart" class="icon-btn" title="Cart">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="icon-text">Cart</span>
+                    </a>
+                </div>
+                <div class="mobile-menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </header>
 
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="/sale">SALE</a></li>
+                <li class="dropdown">
+                    <a href="/brands">Brands <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-content">
+                        <div class="dropdown-grid">
+                            <% const brands = ["RADO", "LONGINES", "TISSOT", "MONTBLANC", "MOVADO", "VERSACE", "ROAMER", "BALMAIN", "VICTORINOX", "CALVIN KLEIN", "ALBA", "ARMANI EXCHANGE", "CASIO", "CERRUTI", "CITIZEN", "COACH"]; %>
+                            <% brands.forEach(brand => { %>
+                                <a href="/brands/<%= brand.toLowerCase() %>"><%= brand %></a>
+                            <% }); %>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="/exclusive">Exclusive Collection</a></li>
+                <li class="dropdown">
+                    <a href="/watch-finder">Watch Finder <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-content">
+                        <div class="dropdown-grid">
+                            <a href="/watches/men">Men's Watches</a>
+                            <a href="/watches/women">Women's Watches</a>
+                            <a href="/watches/couples">Couple Watches</a>
+                            <a href="/watches/smart">Smart Watches</a>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="/repair-service">Repair & Service</a></li>
+                <li><a href="/stores">Stores</a></li>
+            </ul>
+        </div>
+    </nav>
 
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Carousel -->
+        <section class="hero-carousel">
+            <div class="carousel-container">
+                <div class="carousel-track">
+                    <div class="carousel-slide active">
+                        <div class="slide-content" style="background-color: #8b0000;">
+                            <div class="slide-text">
+                                <h2>EON FORGE SMART</h2>
+                                <div class="offer-text">
+                                    <h3>Upto</h3>
+                                    <h1>60%</h1>
+                                    <h3>Off</h3>
+                                </div>
+                                <p>on smartwatches</p>
+                                <a href="/smartwatches" class="btn-shop-now">SHOP NOW</a>
+                            </div>
+                            <div class="slide-image">
+                                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28193%29-lWrg5sX358sXtzfDvj2ANqJMcCbywM.png" alt="Smart Watches" class="hero-img">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="slide-content" style="background-color: #0a2240;">
+                            <div class="slide-text">
+                                <h2>LUXURY COLLECTION</h2>
+                                <div class="offer-text">
+                                    <h3>New</h3>
+                                    <h1>2023</h1>
+                                    <h3>Arrivals</h3>
+                                </div>
+                                <p>exclusive timepieces</p>
+                                <a href="/luxury" class="btn-shop-now">DISCOVER</a>
+                            </div>
+                            <div class="slide-image">
+                                <img src="/images/luxury-watch.jpg" alt="Luxury Watches" class="hero-img">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="slide-content" style="background-color: #2c3e36;">
+                            <div class="slide-text">
+                                <h2>CLASSIC ELEGANCE</h2>
+                                <div class="offer-text">
+                                    <h3>Limited</h3>
+                                    <h1>Edition</h1>
+                                    <h3>Pieces</h3>
+                                </div>
+                                <p>timeless craftsmanship</p>
+                                <a href="/classic" class="btn-shop-now">EXPLORE</a>
+                            </div>
+                            <div class="slide-image">
+                                <img src="/images/classic-watch.jpg" alt="Classic Watches" class="hero-img">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+                <div class="carousel-dots">
+                    <span class="dot active" data-index="0"></span>
+                    <span class="dot" data-index="1"></span>
+                    <span class="dot" data-index="2"></span>
+                </div>
+            </div>
+        </section>
 
+        <!-- Brands Section -->
+        <section class="brands-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>CHOOSE FROM LARGE COLLECTION OF RECOGNIZED BRANDS</h2>
+                    <p>A SINGLE, RELIABLE DESTINATION FOR YOUR PREFERRED WATCH</p>
+                </div>
+                
+                <div class="brands-category">
+                    <div class="category-header">
+                        <h3>SWISS MADE</h3>
+                        <a href="/swiss-watches" class="view-all">View all swiss watches <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="brands-grid">
+                        <a href="/brands/rado" class="brand-card">
+                            <img src="/images/brands/rado.png" alt="RADO" class="brand-logo">
+                        </a>
+                        <a href="/brands/longines" class="brand-card">
+                            <img src="/images/brands/longines.png" alt="LONGINES" class="brand-logo">
+                        </a>
+                        <a href="/brands/tissot" class="brand-card">
+                            <img src="/images/brands/tissot.png" alt="TISSOT" class="brand-logo">
+                        </a>
+                        <a href="/brands/montblanc" class="brand-card">
+                            <img src="/images/brands/montblanc.png" alt="MONTBLANC" class="brand-logo">
+                        </a>
+                        <a href="/brands/movado" class="brand-card">
+                            <img src="/images/brands/movado.png" alt="MOVADO" class="brand-logo">
+                        </a>
+                        <a href="/brands/versace" class="brand-card">
+                            <img src="/images/brands/versace.png" alt="VERSACE" class="brand-logo">
+                        </a>
+                        <a href="/brands/roamer" class="brand-card">
+                            <img src="/images/brands/roamer.png" alt="ROAMER" class="brand-logo">
+                        </a>
+                        <a href="/brands/balmain" class="brand-card">
+                            <img src="/images/brands/balmain.png" alt="BALMAIN" class="brand-logo">
+                        </a>
+                        <a href="/brands/victorinox" class="brand-card">
+                            <img src="/images/brands/victorinox.png" alt="VICTORINOX" class="brand-logo">
+                        </a>
+                        <a href="/brands/calvinklein" class="brand-card">
+                            <img src="/images/brands/calvinklein.png" alt="CALVIN KLEIN" class="brand-logo">
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="brands-category">
+                    <div class="category-header">
+                        <h3>POPULAR BRANDS</h3>
+                        <a href="/popular-brands" class="view-all">View all brand watches <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="brands-grid">
+                        <a href="/brands/alba" class="brand-card">
+                            <img src="/images/brands/alba.png" alt="ALBA" class="brand-logo">
+                        </a>
+                        <a href="/brands/armaniexchange" class="brand-card">
+                            <img src="/images/brands/armaniexchange.png" alt="ARMANI EXCHANGE" class="brand-logo">
+                        </a>
+                        <a href="/brands/casio" class="brand-card">
+                            <img src="/images/brands/casio.png" alt="CASIO" class="brand-logo">
+                        </a>
+                        <a href="/brands/cerruti" class="brand-card">
+                            <img src="/images/brands/cerruti.png" alt="CERRUTI" class="brand-logo">
+                        </a>
+                        <a href="/brands/citizen" class="brand-card">
+                            <img src="/images/brands/citizen.png" alt="CITIZEN" class="brand-logo">
+                        </a>
+                        <a href="/brands/coach" class="brand-card">
+                            <img src="/images/brands/coach.png" alt="COACH" class="brand-logo">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- TISSOT Section -->
-<section class="brand-section">
-  <div class="brand-title">
-    <img src="/images/brands/tissot-logo.png" alt="TISSOT" class="brand-logo">
-  </div>
-  <div class="product-grid">
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/tissot-1.jpg" alt="TISSOT Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">TISSOT GENTLEMAN POWERMATIC 80</h3>
-        <p class="product-price">₹58,000</p>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/tissot-2.jpg" alt="TISSOT Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">TISSOT PRX POWERMATIC 80</h3>
-        <p class="product-price">₹62,500</p>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/tissot-3.jpg" alt="TISSOT Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">TISSOT SEASTAR 1000</h3>
-        <p class="product-price">₹45,000</p>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/tissot-4.jpg" alt="TISSOT Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">TISSOT T-TOUCH CONNECT SOLAR</h3>
-        <p class="product-price">₹89,000</p>
-      </div>
-    </div>
-  </div>
-  <div class="shop-now-container">
-    <a href="/brand/tissot" class="shop-now-btn">SHOP NOW</a>
-  </div>
-</section>
+        <!-- Gender Shop Section -->
+        <section class="gender-shop-section">
+            <div class="container">
+                <h2 class="section-title">MADE FOR GETTING WRAPPED UP IN THE MOMENT</h2>
+                <div class="gender-shop-grid">
+                    <div class="gender-card">
+                        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28185%29-G5lon2UsRxdygQl7ptR9yZlBPrmvnA.png" alt="Shop for Her" class="gender-img">
+                        <a href="/watches/women" class="gender-btn">SHOP FOR HER</a>
+                    </div>
+                    <div class="gender-card">
+                        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28185%29-G5lon2UsRxdygQl7ptR9yZlBPrmvnA.png" alt="Shop for Him" class="gender-img">
+                        <a href="/watches/men" class="gender-btn">SHOP FOR HIM</a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<!-- RADO Section -->
-<section class="brand-section">
-  <div class="brand-title">
-    <img src="/images/brands/rado-logo.png" alt="RADO" class="brand-logo">
-  </div>
-  <div class="product-grid">
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/rado-1.jpg" alt="RADO Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">RADO CAPTAIN COOK</h3>
-        <p class="product-price">₹1,85,000</p>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/rado-2.jpg" alt="RADO Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">RADO TRUE SQUARE</h3>
-        <p class="product-price">₹1,65,000</p>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/rado-3.jpg" alt="RADO Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">RADO CENTRIX</h3>
-        <p class="product-price">₹1,25,000</p>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/rado-4.jpg" alt="RADO Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">RADO DIAMASTER</h3>
-        <p class="product-price">₹1,95,000</p>
-      </div>
-    </div>
-  </div>
-  <div class="shop-now-container">
-    <a href="/brand/rado" class="shop-now-btn">SHOP NOW</a>
-  </div>
-</section>
+        <!-- Featured Products Section -->
+        <section class="featured-products-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>FEATURED COLLECTIONS</h2>
+                    <p>Discover our most popular timepieces</p>
+                </div>
+                
+                <div class="product-grid">
+                    <% const featuredWatches = [
+                        { 
+                            id: 1,
+                            brand: "LONGINES", 
+                            name: "LONGINES L5.258.4.71.0 DOLCEVITA ANALOG WATCH FOR WOMEN", 
+                            price: "139,000.00",
+                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
+                        },
+                        { 
+                            id: 2,
+                            brand: "LONGINES", 
+                            name: "LONGINES EVIDENZA L2.142.4.60.6 AUTOMATIC ANALOG WATCH FOR WOMEN", 
+                            price: "212,000.00",
+                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
+                        },
+                        { 
+                            id: 3,
+                            brand: "LONGINES", 
+                            name: "LONGINES L3.320.4.07.6 CONQUEST AUTOMATIC WATCH FOR WOMEN", 
+                            price: "249,000.00",
+                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
+                        },
+                        { 
+                            id: 4,
+                            brand: "LONGINES", 
+                            name: "LONGINES L4.918.4.94.6 LA GRANDE CLASSIQUE AUTOMATIC ANALOG WATCH FOR MEN", 
+                            price: "178,000.00",
+                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
+                        }
+                    ]; %>
+                    
+                    <% featuredWatches.forEach(watch => { %>
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="<%= watch.image %>" alt="<%= watch.name %>">
+                                <div class="product-actions">
+                                    <button class="btn-wishlist" data-product-id="<%= watch.id %>">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                    <button class="btn-add-to-cart" data-product-id="<%= watch.id %>">
+                                        <i class="fas fa-shopping-bag"></i>
+                                        <span>Add to Cart</span>
+                                    </button>
+                                    <button class="btn-quick-view" data-product-id="<%= watch.id %>">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h4 class="product-brand"><%= watch.brand %></h4>
+                                <h3 class="product-name"><%= watch.name %></h3>
+                                <p class="product-price">₹ <%= watch.price %></p>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+                
+                <div class="discover-btn-container">
+                    <a href="/brands/longines" class="discover-btn">Discover Longines</a>
+                </div>
+            </div>
+        </section>
 
-<!-- SEIKO Section -->
-<section class="brand-section">
-  <div class="brand-title">
-    <img src="/images/brands/seiko-logo.png" alt="SEIKO" class="brand-logo">
-  </div>
-  <div class="product-grid">
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/seiko-1.jpg" alt="SEIKO Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">SEIKO PROSPEX</h3>
-        <p class="product-price">₹42,000</p>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/seiko-2.jpg" alt="SEIKO Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">SEIKO PRESAGE</h3>
-        <p class="product-price">₹38,500</p>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/seiko-3.jpg" alt="SEIKO Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">SEIKO 5 SPORTS</h3>
-        <p class="product-price">₹29,000</p>
-      </div>
-    </div>
-    <div class="product-card">
-      <div class="product-image">
-        <img src="/images/products/seiko-4.jpg" alt="SEIKO Watch">
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">SEIKO ASTRON</h3>
-        <p class="product-price">₹1,25,000</p>
-      </div>
-    </div>
-  </div>
-  <div class="shop-now-container">
-    <a href="/brand/seiko" class="shop-now-btn">SHOP NOW</a>
-  </div>
-</section>
+        <!-- New Arrivals Section -->
+        <section class="new-arrivals-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>NEW ARRIVALS</h2>
+                    <p>The latest additions to our collection</p>
+                </div>
+                
+                <div class="product-grid">
+                    <% const newArrivals = [
+                        { 
+                            id: 5,
+                            brand: "TISSOT", 
+                            name: "TISSOT T137.410.11.051.00 T-CLASSIC PRX BLACK DIAL MEN'S WATCH", 
+                            price: "37,000.00",
+                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
+                        },
+                        { 
+                            id: 6,
+                            brand: "TISSOT", 
+                            name: "TISSOT PRX AUTOMATIC CHRONOGRAPH T137.427.11.091.00", 
+                            price: "183,500.00",
+                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
+                        },
+                        { 
+                            id: 7,
+                            brand: "RADO", 
+                            name: "RADO CENTRIX AUTOMATIC OPEN HEART R30178152", 
+                            price: "156,000.00",
+                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
+                        },
+                        { 
+                            id: 8,
+                            brand: "MONTBLANC", 
+                            name: "MONTBLANC HERITAGE CHRONOMÉTRIE ULTRA SLIM", 
+                            price: "325,000.00",
+                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
+                        }
+                    ]; %>
+                    
+                    <% newArrivals.forEach(watch => { %>
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="<%= watch.image %>" alt="<%= watch.name %>">
+                                <div class="product-actions">
+                                    <button class="btn-wishlist" data-product-id="<%= watch.id %>">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                    <button class="btn-add-to-cart" data-product-id="<%= watch.id %>">
+                                        <i class="fas fa-shopping-bag"></i>
+                                        <span>Add to Cart</span>
+                                    </button>
+                                    <button class="btn-quick-view" data-product-id="<%= watch.id %>">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <h4 class="product-brand"><%= watch.brand %></h4>
+                                <h3 class="product-name"><%= watch.name %></h3>
+                                <p class="product-price">₹ <%= watch.price %></p>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shop By Budget Section -->
+        <section class="shop-by-budget">
+            <div class="container">
+                <h2 class="section-title">SHOP BY BUDGET</h2>
+                <div class="budget-options">
+                    <a href="/price/upto-20000" class="budget-btn">UPTO ₹20,000</a>
+                    <a href="/price/upto-40000" class="budget-btn">UPTO ₹40,000</a>
+                    <a href="/price/upto-60000" class="budget-btn">UPTO ₹60,000</a>
+                    <a href="/price/above-60000" class="budget-btn">ABOVE ₹60,000</a>
+                </div>
+                <div class="discover-all-container">
+                    <a href="/offers" class="discover-all-btn">DISCOVER ALL OFFERS</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="container">
+                <ul class="pagination">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>SUPPORT</h3>
+                    <ul class="footer-links">
+                        <li><a href="/about-us">About us</a></li>
+                        <li><a href="/faqs">FAQs</a></li>
+                        <li><a href="/privacy-policy">Privacy Policy</a></li>
+                        <li><a href="/shipping-policy">Shipping Policy</a></li>
+                        <li><a href="/terms-of-service">Terms of Service</a></li>
+                        <li><a href="/cancellation-refunds">Cancellation & Refunds</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>COMPANY</h3>
+                    <ul class="footer-links">
+                        <li><a href="/todays-deals">Today's Deals</a></li>
+                        <li><a href="/repair-service">Repair & Service</a></li>
+                        <li><a href="/our-stores">Our Stores</a></li>
+                        <li><a href="/ask-to-experts">Ask to Experts</a></li>
+                        <li><a href="/affiliate">Affiliate</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column newsletter">
+                    <h3>SUBSCRIBE NEWSLETTERS</h3>
+                    <p>Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Enter your email" required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-pinterest-p"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <%= new Date().getFullYear() %> Eon Forge. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/assets/js/user/home.js"></script>
 </body>
+</html>
 
-</div>
-</main>
-<%-include('../../views/partials/user/footer')%>
-  
+
+
+ <link rel="stylesheet" href="/assets/css/admin/dashboard.css">
+ <script src="/assets/dashboard.js"></script>

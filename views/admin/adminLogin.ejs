@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eon Forge Admin | Login</title>
+    <link rel="stylesheet" href="/assets/css/admin/adminLogin.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="logo">
+                    <img src="/assets/others/watch_logo.png" alt="Eon Forge Logo">
+                </div>
+                <h1>Eon Forge</h1>
+                <p>Admin Dashboard</p>
+            </div>
+            
+            <div class="login-form">
+                <% if (locals.error) { %>
+                    <div class="error-message">
+                        <%= error %>
+                    </div>
+                <% } %>
+                
+                <form action="/admin/login" method="post">
+                    <div class="form-group">
+                        <label for="username">Email</label>
+                        <input type="text" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="form-options">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember" name="remember">
+                            <label for="remember">Remember me</label>
+                        </div>
+                        <a href="/admin/forgot-password" class="forgot-password">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="login-btn">Login</button>
+                </form>
+            </div>
+            
+            <div class="login-footer">
+                <p>&copy; <%= new Date().getFullYear() %> Eon Forge. All rights reserved.</p>
+            </div>
+        </div>
+        
+        <div class="background-image">
+            <div class="overlay"></div>
+        </div>
+    </div>
+
+    <script src="/assets/js/admin/adminLogin.js"></script>
+</body>
+</html>

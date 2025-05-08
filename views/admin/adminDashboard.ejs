@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eon Forge - Admin Dashboard</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+  <link rel="stylesheet" href="/assets/css/admin/adminDashboard.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <%-include("../../views/partials/admin/sidebar")%>
+    
+    <div class="main-content">
+      <header class="header">
+        <div class="account-wrapper">
+          <button class="icon-btn" title="Account">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="account-dropdown">
+            <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+            <a href="/admin/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+        
+      </header>
+      
+      <main class="content">
+        <div class="page-header">
+          <h1>Dashboard Overview</h1>
+          <div class="date-picker">
+            <input type="date" id="dashboard-date" value="<%= new Date().toISOString().split('T')[0] %>">
+          </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon bg-blue">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+              <h3>Total Sales</h3>
+              <p>$<span id="total-sales">24,560</span></p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon bg-green">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+              <h3>New Users</h3>
+              <p><span id="new-users">142</span></p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon bg-orange">
+              <i class="fas fa-box-open"></i>
+            </div>
+            <div class="stat-info">
+              <h3>Products</h3>
+              <p><span id="total-products">1,248</span></p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon bg-purple">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-info">
+              <h3>Conversion</h3>
+              <p><span id="conversion-rate">3.2</span>%</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Sales Graph -->
+        <div class="chart-container large-chart">
+          <div class="chart-header">
+            <h2>Sales Analytics</h2>
+            <div class="chart-options">
+              <select id="chart-period">
+                <option value="7">Last 7 Days</option>
+                <option value="30" selected>Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+              </select>
+            </div>
+          </div>
+          <canvas id="salesChart"></canvas>
+        </div>
+        
+        <!-- Recent Orders -->
+        <div class="recent-orders">
+          <div class="orders-header">
+            <h2>Recent Orders</h2>
+          </div>
+          <div class="orders-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+               
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+<script src="/assets/js/admin/adminDashboard.js"></script>
+</body>
+</html>
