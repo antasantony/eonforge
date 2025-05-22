@@ -58,7 +58,7 @@ const loadDashboard= async (req,res)=>{
             console.log("loading dashborad",req.session.admin)
             res.render('adminDashboard')
         }else{
-            res.redirect('/admin/adminLogin')
+            res.redirect('/admin/login')
            
         }
     } catch (error) {

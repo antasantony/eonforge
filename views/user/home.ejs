@@ -74,29 +74,29 @@
     <nav class="main-nav">
         <div class="container">
             <ul class="nav-list">
-                <li><a href="/sale">SALE</a></li>
+                <li><a href="/sale">HOME</a></li>
                 <li class="dropdown">
-                    <a href="/brands">Brands <i class="fas fa-chevron-down"></i></a>
-                    <div class="dropdown-content">
+                    <a href="/brands">SHOP</a>
+                    <!-- <div class="dropdown-content">
                         <div class="dropdown-grid">
                             <% const brands = ["RADO", "LONGINES", "TISSOT", "MONTBLANC", "MOVADO", "VERSACE", "ROAMER", "BALMAIN", "VICTORINOX", "CALVIN KLEIN", "ALBA", "ARMANI EXCHANGE", "CASIO", "CERRUTI", "CITIZEN", "COACH"]; %>
                             <% brands.forEach(brand => { %>
                                 <a href="/brands/<%= brand.toLowerCase() %>"><%= brand %></a>
                             <% }); %>
                         </div>
-                    </div>
+                    </div> -->
                 </li>
-                <li><a href="/exclusive">Exclusive Collection</a></li>
+                <li><a href="/exclusive">ABOUT</a></li>
                 <li class="dropdown">
-                    <a href="/watch-finder">Watch Finder <i class="fas fa-chevron-down"></i></a>
-                    <div class="dropdown-content">
+                    <a href="/watch-finder">CONTACT</a>
+                    <!-- <div class="dropdown-content">
                         <div class="dropdown-grid">
                             <a href="/watches/men">Men's Watches</a>
                             <a href="/watches/women">Women's Watches</a>
                             <a href="/watches/couples">Couple Watches</a>
                             <a href="/watches/smart">Smart Watches</a>
                         </div>
-                    </div>
+                    </div> -->
                 </li>
                 <li><a href="/repair-service">Repair & Service</a></li>
                 <li><a href="/stores">Stores</a></li>
@@ -111,7 +111,7 @@
             <div class="carousel-container">
                 <div class="carousel-track">
                     <div class="carousel-slide active">
-                        <div class="slide-content" style="background-color: #8b0000;">
+                        <div class="slide-content" style="background-color: #787c6e;">
                             <div class="slide-text">
                                 <h2>EON FORGE SMART</h2>
                                 <div class="offer-text">
@@ -123,7 +123,7 @@
                                 <a href="/smartwatches" class="btn-shop-now">SHOP NOW</a>
                             </div>
                             <div class="slide-image">
-                                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28193%29-lWrg5sX358sXtzfDvj2ANqJMcCbywM.png" alt="Smart Watches" class="hero-img">
+                                <img src="//watchfactory.in/cdn/shop/files/gempages_457431224189715652-38099a64-53ad-4851-9228-6a4f97af81dd.png?v=14947828402043053938" alt="Smart Watches" class="hero-img">
                             </div>
                         </div>
                     </div>
@@ -133,14 +133,14 @@
                                 <h2>LUXURY COLLECTION</h2>
                                 <div class="offer-text">
                                     <h3>New</h3>
-                                    <h1>2023</h1>
+                                    <h1>2025</h1>
                                     <h3>Arrivals</h3>
                                 </div>
                                 <p>exclusive timepieces</p>
                                 <a href="/luxury" class="btn-shop-now">DISCOVER</a>
                             </div>
                             <div class="slide-image">
-                                <img src="/images/luxury-watch.jpg" alt="Luxury Watches" class="hero-img">
+                                <img src="//watchfactory.in/cdn/shop/files/gempages_457431224189715652-eae7b89d-7a33-4243-8ff0-9777f4e4fb9d.png?v=17046506277600371054" alt="Luxury Watches" class="hero-img">
                             </div>
                         </div>
                     </div>
@@ -157,7 +157,7 @@
                                 <a href="/classic" class="btn-shop-now">EXPLORE</a>
                             </div>
                             <div class="slide-image">
-                                <img src="/images/classic-watch.jpg" alt="Classic Watches" class="hero-img">
+                                <img src="//watchfactory.in/cdn/shop/files/gempages_457431224189715652-e1676075-74fc-421b-ba9d-af8b58d491c0.png?v=16099333816327626148" alt="Classic Watches" class="hero-img">
                             </div>
                         </div>
                     </div>
@@ -274,7 +274,7 @@
                 </div>
                 
                 <div class="product-grid">
-                    <% const featuredWatches = [
+                    <!-- <% const featuredWatches = [
                         { 
                             id: 1,
                             brand: "LONGINES", 
@@ -303,21 +303,21 @@
                             price: "178,000.00",
                             image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
                         }
-                    ]; %>
+                    ]; %> -->
                     
-                    <% featuredWatches.forEach(watch => { %>
+                    <% products.forEach(watch => { %>
                         <div class="product-card">
                             <div class="product-image">
-                                <img src="<%= watch.image %>" alt="<%= watch.name %>">
+                                <img src="<%= watch.colorVariants[0].productImage[0] %>" alt="<%= watch.productName %>">
                                 <div class="product-actions">
-                                    <button class="btn-wishlist" data-product-id="<%= watch.id %>">
+                                    <button class="btn-wishlist" data-product-id="<%= watch._id %>">
                                         <i class="far fa-heart"></i>
                                     </button>
-                                    <button class="btn-add-to-cart" data-product-id="<%= watch.id %>">
+                                    <button class="btn-add-to-cart" data-product-id="<%= watch._id %>">
                                         <i class="fas fa-shopping-bag"></i>
                                         <span>Add to Cart</span>
                                     </button>
-                                    <button class="btn-quick-view" data-product-id="<%= watch.id %>">
+                                    <button class="btn-quick-view" data-product-id="<%= watch._id %>">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -345,58 +345,29 @@
                     <p>The latest additions to our collection</p>
                 </div>
                 
-                <div class="product-grid">
-                    <% const newArrivals = [
-                        { 
-                            id: 5,
-                            brand: "TISSOT", 
-                            name: "TISSOT T137.410.11.051.00 T-CLASSIC PRX BLACK DIAL MEN'S WATCH", 
-                            price: "37,000.00",
-                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
-                        },
-                        { 
-                            id: 6,
-                            brand: "TISSOT", 
-                            name: "TISSOT PRX AUTOMATIC CHRONOGRAPH T137.427.11.091.00", 
-                            price: "183,500.00",
-                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
-                        },
-                        { 
-                            id: 7,
-                            brand: "RADO", 
-                            name: "RADO CENTRIX AUTOMATIC OPEN HEART R30178152", 
-                            price: "156,000.00",
-                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
-                        },
-                        { 
-                            id: 8,
-                            brand: "MONTBLANC", 
-                            name: "MONTBLANC HERITAGE CHRONOMÉTRIE ULTRA SLIM", 
-                            price: "325,000.00",
-                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
-                        }
-                    ]; %>
+                <div class="product-grid">                  
                     
-                    <% newArrivals.forEach(watch => { %>
+                    <% products.forEach(watch => { %>
                         <div class="product-card">
-                            <div class="product-image">
-                                <img src="<%= watch.image %>" alt="<%= watch.name %>">
+                            <div class="product-image ">
+                                <img src="<%= watch.colorVariants[0].productImage[0] %>" alt="<%= watch.productName %>">
+                           
                                 <div class="product-actions">
-                                    <button class="btn-wishlist" data-product-id="<%= watch.id %>">
+                                    <button class="btn-wishlist" data-product-id="<%= watch._id %>.png">
                                         <i class="far fa-heart"></i>
                                     </button>
-                                    <button class="btn-add-to-cart" data-product-id="<%= watch.id %>">
+                                    <button class="btn-add-to-cart" data-product-id="<%= watch._id %>">
                                         <i class="fas fa-shopping-bag"></i>
                                         <span>Add to Cart</span>
                                     </button>
-                                    <button class="btn-quick-view" data-product-id="<%= watch.id %>">
+                                    <button class="btn-quick-view" data-product-id="<%= watch._id %>">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
                             </div>
                             <div class="product-info">
                                 <h4 class="product-brand"><%= watch.brand %></h4>
-                                <h3 class="product-name"><%= watch.name %></h3>
+                                <h3 class="product-name"><%= watch.productName %></h3>
                                 <p class="product-price">₹ <%= watch.price %></p>
                             </div>
                         </div>

@@ -1025,7 +1025,10 @@ img {
   .account-wrapper:hover .account-dropdown {
     display: block;
   }
+  .hidden {
+    display: none;
+  }
+  
   
   /*
   
-

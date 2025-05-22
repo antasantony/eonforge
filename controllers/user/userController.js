@@ -1,4 +1,6 @@
 const User = require("../../models/userSchema");
+const Product=require('../../models/productSchema')
+const Category =require('../../models/categorySchema')
 const env = require("dotenv").config();
 const nodemailer=require("nodemailer")
 const bcrypt = require("bcrypt")
@@ -17,22 +19,59 @@ const pageNotFound= async (req,res)=>{
 
 const loadHomePage = async (req,res)=>{
   try{
-    console.log("Google login session saved:", req.session.userId);
+    // console.log("Google login session saved:", req.session.userId);
 
     const userId = req.session.userId;
+ const categories = await Category.find({isListed:true});
+ console.log('categories is here:',categories)
+ let productData = await Product.find({
+  isBlocked: false,
+  category: { $in: categories.map(c => c._id) },
+  colorVariants: { $elemMatch: { stock: { $gt: 0 } } }
+})
+.sort({ createdAt: -1 })
+.limit(4)
+.lean();
+console.log('count of product',await Product.countDocuments({isBlocked:false})); 
+   console.log('product data is here:',productData)
+    console.log('Session userId:', userId);
+    
+
+const p = await Product.findOne();
+console.log(JSON.stringify({
+  _id: p._id,
+  isBlocked: p.isBlocked,
+  category: p.category,                
+  firstVariant: p.colorVariants[0]
+}, null, 2));
+
+console.log('is it',typeof p.category, p.category);
+
+
+
+
+
+
+
+
+
+
     const isLoggedIn = !!userId;
     let user = null;
 
+
     if (isLoggedIn) {
       user = await User.findById(userId);
+     
     }
 
     console.log('Is Logged In:', isLoggedIn);
-    console.log('Session userId:', userId);
+  
     console.log('User:', user);
 
-    return res.render('home', { isLoggedIn, user });
+    return res.render('home', { isLoggedIn,user,products:productData});
   }catch (error){
+    console.log(error)
     console.log('Home page not found')
     res.status(500).send('Server error')
   }
@@ -122,7 +161,7 @@ const signup = async (req,res)=>{
       }
       
     }
-
+   
     const otp=generateOtp()
     const emailSent = await sendVerificationEmail(email,otp)
     if(!emailSent){
@@ -162,7 +201,7 @@ const signup = async (req,res)=>{
   const verifyOtp=async (req,res)=>{
     try {
       const {otp} = req.body
-      console.log(req.body)
+      // console.log(req.body)
       if(otp==req.session.userOtp){
         const user= req.session.userData
         const passwordHash = await securePassword(user.password);
@@ -254,18 +293,19 @@ const signup = async (req,res)=>{
     try {
        
       const{email,password,googleId} = req.body;
-      console.log(googleId)
+      console.log("google id is this:",googleId)
 
       let findUser;
       if(googleId){
         findUser= await User.findOne({email})
         if(!findUser){
           findUser = new User({email:email,googleId:googleId})
+          console.log(findUser.googleId)
           await findUser.save();
         }else if(!findUser.googleId){
           return res.json({success:false,message:'This email is registered using password. Please use normal login.'})
         }
-        console.log(findUser)
+       
         req.session.userId = findUser._id;
         return res.json({ success: true, redirectUrl: '/' });
       }else{
@@ -295,6 +335,16 @@ const signup = async (req,res)=>{
       res.json({success:false,message:'signin failed. Please try again later '})
     }
   }
+
+//==========  FORGOT PASSWORD  ==========//
+
+
+ 
+
+
+
+
+
   const logout = async (req,res)=>{
     try {
       req.session.destroy((err)=>{

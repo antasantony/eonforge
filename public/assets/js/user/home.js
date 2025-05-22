@@ -1,4 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
+// Account Dropdown (close only when clicking outside)
+const accountToggle = document.querySelector(".account-toggle")
+const accountDropdown = document.querySelector(".account-dropdown")
+
+if (accountToggle && accountDropdown) {
+  accountToggle.addEventListener("click", () => {
+    // Show dropdown (do not toggle on/off)
+    accountDropdown.classList.remove("hidden")
+  })
+
+  document.addEventListener("click", (event) => {
+    const isClickInside = accountToggle.contains(event.target) || accountDropdown.contains(event.target)
+    if (!isClickInside) {
+      accountDropdown.classList.add("hidden")
+    }
+  })
+}
+
+
+
+
     // Search Clear Button
     const searchInput = document.querySelector(".search-input")
     const searchClearBtn = document.querySelector(".search-clear-btn")

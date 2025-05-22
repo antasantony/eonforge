@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eon Forge - Category Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4361ee',
+            'primary-dark': '#3a56d4',
+            secondary: '#3f37c9',
+            success: '#4cc9f0',
+            danger: '#f72585',
+            warning: '#f8961e',
+            info: '#4895ef',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    .account-dropdown {
+      display: none;
+    }
+    .account-wrapper:hover .account-dropdown {
+      display: block;
+    }
+    .sidebar-menu a.active {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900 overflow-x-hidden">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+     <%-include("../../views/partials/admin/sidebar")%>
+    
+    <!-- Main Content -->
+    <div class="flex-1 ml-64 min-h-screen">
+      <header class="bg-white py-4 px-6 flex items-center shadow sticky top-0 z-40">
+        <button class="menu-toggle mr-4 text-xl md:hidden">
+          <i class="fas fa-bars"></i>
+        </button>
+        
+        <form action="/admin/category" method="get" class="search-container flex items-center bg-gray-50 rounded-full px-4 py-2 w-full max-w-md ml-4">
+          <input 
+            type="text" 
+            name="search" 
+            placeholder="Search categories..." 
+            class="search-input bg-transparent border-none w-full focus:outline-none" 
+            value="<%= typeof search !== 'undefined' ? search : '' %>"
+          >
+          <button type="submit" class="search-btn text-gray-500 hover:text-primary">
+            <i class="fas fa-search"></i>
+          </button>
+          <% if(search){ %>
+            <a href="/admin/category" class="search-clear-btn text-gray-500 hover:text-primary ml-2">
+              <i class="fas fa-times"></i>
+            </a>
+          <% } %>
+        </form>
+        
+        <div class="account-wrapper relative ml-auto">
+          <button class="icon-btn text-xl text-gray-700" title="Account">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="account-dropdown absolute right-0 top-full bg-white min-w-40 shadow-lg rounded-md overflow-hidden">
+            <a href="/profile" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
+              <i class="fas fa-user mr-2"></i> Profile
+            </a>
+            <a href="/admin/logout" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
+              <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </a>
+          </div>
+        </div>
+      </header>
+      
+      <main class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-semibold text-gray-800">Category Management</h1>
+          <button id="add-category-btn" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded flex items-center">
+            <i class="fas fa-plus mr-2"></i> Add Category
+          </button>
+        </div>
+        
+        <!-- Category Management Table -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr class="sticky top-0 bg-white shadow-sm">
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">No.</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Name</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Description</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Offer Price</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Offer</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Status</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% cat.forEach((category,index) => { %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-3"><%=(currentPage-1)*limit+index+1 %></td>
+                  <td class="px-4 py-3 font-medium"><%= category.name %></td>
+                  <td class="px-4 py-3"><%= category.description || 'N/A' %></td>
+                  <td class="px-4 py-3">
+                    <%= category.offerPrice > 0 ? category.offerPrice + '%' : '0%' %>
+                   </td>
+
+                  <td class="px-4 py-3">
+                    <% if(category.hasOffer) { %>
+                      <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Active
+                      </span>
+                    <% } else { %>
+                      <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        Inactive
+                      </span>
+                    <% } %>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class="px-2 py-1 rounded-full text-xs font-medium <%= category.isListed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                      <%= category.isListed ? 'Listed' : 'Unlisted' %>
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 flex space-x-2">
+                    <button onclick="openEditModal('<%= category._id %>','<%= category.name %>','<%= category.description %>','<%= category.isListed %>','<%= category.offerPrice || 0 %>', '<%= category.hasOffer %>')" 
+                            class="text-blue-600 hover:text-blue-800">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <% if(category.isListed) { %>
+                      <button onclick="toggleCategoryStatus('<%= category._id %>', false)" 
+                              class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-eye-slash"></i> Unlist
+                      </button>
+                    <% } else { %>
+                      <button onclick="toggleCategoryStatus('<%= category._id %>', true)" 
+                              class="text-green-600 hover:text-green-800">
+                        <i class="fas fa-eye"></i> List
+                      </button>
+                    <% } %>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination flex justify-center items-center p-4 gap-2">
+            <!-- Previous Button -->
+            <a href="?page=<%= currentPage - 1 %>" class="pagination-btn p-2 rounded"
+              <% if (currentPage === 1) { %> style="pointer-events:none;opacity:0.5"<% } %>>
+              <i class="fas fa-chevron-left"></i>
+            </a>
+            
+            <div id="page-numbers" class="flex gap-1">
+              <%for(i=1;i<=totalPages;i++){%>
+              <a href="?page=<%= i %>" class="page-link px-3 py-1 rounded <%= (i===currentPage) ? 'bg-primary text-white' : 'hover:bg-gray-100' %>">
+                <%= i %>
+              </a>
+              <%}%> 
+            </div>
+            
+            <a href="?page=<%= currentPage + 1 %>" class="pagination-btn p-2 rounded"
+              <% if (currentPage >= totalPages) { %> style="pointer-events:none;opacity:0.5"<% } %>>
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </div>
+
+
+        </div>
+        
+        
+
+        <!-- Add/Edit Category Modal -->
+        <div id="category-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+          <div class="bg-white rounded-xl shadow-lg w-full max-w-md animate-fadeIn">
+            <div class="flex justify-between items-center p-4 border-b">
+              <h2 id="modal-title" class="text-xl font-semibold">Add New Category</h2>
+              <button id="close-modal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+             <p id="modalMessage" class="text-center text-sm  mt-4 text-red-500"></p>
+            <form id="category-form" class="p-4">
+              <input type="hidden" id="category-id">
+                
+
+              <div class="mb-4">
+                <label for="category-name" class="block text-gray-700 mb-2">Category Name *</label>
+                <input type="text" id="category-name" 
+                       class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary">
+              </div>
+             
+             
+              <div class="mb-4">
+                <label for="category-desc" class="block text-gray-700 mb-2">Description</label>
+                <textarea id="category-desc" rows="3"
+                          class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
+              </div>
+              <div class="mb-4">
+                <label for="offer-price" class="block text-gray-700 mb-2">Offer Price</label>
+                <input type="number" id="offer-price" step="0.01" min="0"
+                       class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary">
+              </div>
+             <div class="mb-4 flex items-center">
+                <div class="mb-4 flex items-center">
+                <input type="checkbox" id="has-offer" class="mr-2">
+                <label for="has-offer" class="text-gray-700">Has Offer</label>
+              </div>
+              <div class="mb-4 flex items-center">
+                <input type="checkbox" id="category-status" class="mr-2">
+                <label for="category-status" class="text-gray-700">List this category</label>
+              </div>
+              <div class="flex justify-end space-x-3">
+                <button type="button" id="cancel-btn" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                  Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded">
+                  Save Category
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    const categoryModal = document.getElementById('category-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const categoryForm = document.getElementById('category-form');
+    const modalTitle = document.getElementById('modal-title');
+    const categoryIdInput = document.getElementById('category-id');
+    const categoryNameInput = document.getElementById('category-name');
+    const categoryDescInput = document.getElementById('category-desc');
+    const offerPriceInput = document.getElementById('offer-price');
+    const hasOfferInput = document.getElementById('has-offer');
+    const categoryStatusInput = document.getElementById('category-status');
+
+     const messageElement = document.getElementById('modalMessage');
+
+
+    // Open modal for adding new category
+    addCategoryBtn.addEventListener('click', () => {
+      modalTitle.textContent = 'Add New Category';
+      categoryForm.reset();
+      categoryIdInput.value = '';
+      categoryModal.classList.remove('hidden');
+    });
+
+    // Close modal
+    function closeModal() {
+      categoryModal.classList.add('hidden');
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    // Open modal for editing category
+    function openEditModal(id, name, description, isListed, offerPrice, hasOffer) {
+      modalTitle.textContent = 'Edit Category';
+      categoryIdInput.value = id;
+      categoryNameInput.value = name;
+      categoryDescInput.value = description || '';
+      offerPriceInput.value = offerPrice || '';
+      hasOfferInput.checked = hasOffer;
+      categoryStatusInput.checked = isListed;
+      categoryModal.classList.remove('hidden');
+    }
+
+    // Form submission
+    categoryForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+        const name = categoryNameInput.value.trim();
+        const description = categoryDescInput.value.trim();
+
+      if (name === '' || description === '') {
+         messageElement.textContent = 'Category name and description are required.';
+       
+          return
+        }
+      const categoryData = {
+        name,
+        description,
+        offerPrice: parseFloat(offerPriceInput.value) || 0,
+        hasOffer: hasOfferInput.checked,
+        isListed: categoryStatusInput.checked
+      };
+      console.log("Sending category data:", categoryData);
+
+        
+      const categoryId = categoryIdInput.value;
+      const url = categoryId ? `/admin/addCategory/${categoryId}` : '/admin/addCategory';
+      const method = categoryId ? 'PUT' : 'POST';
+
+      try {
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(categoryData)
+        });
+           const result = await response.json();
+
+          
+        if (response.ok) {
+          messageElement.textContent = result.message; 
+          messageElement.style.color = 'green';
+          setTimeout(() => {
+             window.location.reload();
+          },1000);
+         
+        } else {
+          messageElement.textContent = result.error || 'Something went wrong';
+           messageElement.style.color = 'red';
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Failed to save category');
+      }
+    });
+
+    // Toggle category status (list/unlist)
+   async function toggleCategoryStatus(id, newStatus) {
+  try {
+    const response = await fetch(`/admin/category/${id}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ isListed: newStatus }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert(result.error || 'Failed to update status');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Something went wrong');
+  }
+}
+  </script>
+</body>
+</html>

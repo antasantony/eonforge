@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch OTP Verification</title>
+    <link rel="stylesheet" href="/assets/css/user/verify-otp.css">
+</head>
+<body>
+    <div class="background">
+        <div class="container">
+            <div class="card">
+                <div class="logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="watch-icon">
+                        <circle cx="12" cy="12" r="7"></circle>
+                        <polyline points="12 9 12 12 13.5 13.5"></polyline>
+                        <path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"></path>
+                    </svg>
+                </div>
+                <h1>Verify Your Account</h1>
+                <p>Please enter the 6-digit code sent to your device</p>
+                
+                <form id="otpForm" >
+                    <div class="otp-container">
+                      <input type="text" class="otp-input" maxlength="1" autofocus>
+                      <input type="text" class="otp-input" maxlength="1">
+                      <input type="text" class="otp-input" maxlength="1">
+                      <input type="text" class="otp-input" maxlength="1">
+                      <input type="text" class="otp-input" maxlength="1">
+                      <input type="text" class="otp-input" maxlength="1">
+                    </div>
+                    <button type="submit" class="verify-btn">Verify</button>
+                  </form>
+                  
+
+
+                <p id="timer" style="color: white; margin-bottom: 15px;">OTP expires in: <span id="countdown">1:00</span></p>
+
+                
+                <div class="footer">
+                  <a href="#" class="resend-btn" onclick="resendOTP(event)">Resend</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/assets/js/user/forgotPass-otp.js"></script>
+</body>
+</html>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- <script src="main.js"></script> -->
+    
+    

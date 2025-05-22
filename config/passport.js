@@ -35,6 +35,7 @@ async(accessToken,refreshToken,profile,done)=>{
                 googleId:profile.id
                 
             });
+            const googeId=user.googleId
             await user.save();
             return done(null,user)
         }

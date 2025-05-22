@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 msgElem.style.color = "green";
                 msgElem.textContent = data.message;
                 form.reset();
-                window.location.href = "/verify-otp"; // optional
+                window.location.href = "/verify-otp"; 
             } else {
                 msgElem.style.color = "red";
                 msgElem.textContent = data.message;
@@ -394,12 +394,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    //              eye setting    //
+    //========== eye setting  =============  //
     const toggleButtons = document.querySelectorAll(".toggle-password");
 
   toggleButtons.forEach((button) => {
     button.addEventListener("click", function () {
-      const input = this.previousElementSibling; // Get the input before the button
+      const input = this.previousElementSibling;
       const icon = this.querySelector("i");
 
       if (input.type === "password") {
