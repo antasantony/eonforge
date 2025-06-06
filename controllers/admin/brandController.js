@@ -39,7 +39,7 @@ const addBrand = async (req,res) => {
     try {
         const brandName = req.body.name
       
-        const findBrand=await Brand.findOne({brandName})
+        const findBrand=await Brand.findOne({brandName:{$regex:`^${brandName}$`,$options:'i'}})
         if(findBrand){
             return res.json({success:false,message:'Brand already exists'}) 
         }

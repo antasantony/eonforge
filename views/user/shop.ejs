@@ -1,0 +1,472 @@
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#333333',
+          secondary: '#666666',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  /* Custom styles for dual range slider */
+  .range-slider {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #e5e7eb;
+    outline: none;
+  }
+
+  .range-slider input[type="range"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  .range-slider input[type="range"]::-webkit-slider-thumb {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #333333;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    pointer-events: all;
+    -webkit-appearance: none;
+  }
+
+  .range-slider input[type="range"]::-moz-range-thumb {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #333333;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    pointer-events: all;
+    -moz-appearance: none;
+  }
+
+  /* .range-slider .slider-track {
+    position: absolute;
+    top: 0;
+    height: 6px;
+    background: #333333;
+    border-radius: 3px;
+  } */
+
+  .price-input-group {
+    position: relative;
+  }
+
+  .price-input-group .currency-symbol {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .price-input-group input {
+    padding-left: 24px;
+  }
+
+  /* .active {
+    background-color: #374151 !important;
+    color: white !important;
+  } */
+  
+</style>
+</head>
+
+<body class="bg-gray-50">
+  <%- include("../../views/partials/user/header") %>
+    <div class="container mx-auto px-4 py-8">
+      <header class="mb-8">
+        <h1 class="text-3xl font-bold text-center mb-4">Luxury Watch Collection</h1>
+        <!-- Search Bar -->
+        <div class="relative max-w-xl mx-auto mb-6">
+          <form action="/filter" method="get" class="relative w-full" id="searchForm">
+            <input type="hidden" name="page" value="<%= currentPage || 1 %>">
+            <% if (selectedBrands && selectedBrands.length> 0) { %>
+              <% selectedBrands.forEach(brand=> { %>
+                <input type="hidden" name="brand" value="<%= brand %>">
+                <% }) %>
+                  <% } %>
+                    <% if (selectedCategories && selectedCategories.length> 0) { %>
+                      <% selectedCategories.forEach(category=> { %>
+                        <input type="hidden" name="category" value="<%= category %>">
+                        <% }) %>
+                          <% } %>
+                            <input type="hidden" name="minPrice" value="<%= minPrice || '' %>">
+                            <input type="hidden" name="maxPrice" value="<%= maxPrice || '' %>">
+                            <input name="search" type="text" id="searchInput"
+                              placeholder="Search for products in this collection"
+                              class="w-full pr-20 pl-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
+                              value="<%= search || '' %>">
+                            <button id="searchButton" type="submit"
+                              class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                              <i class="fas fa-search"></i>
+                            </button>
+                            <% if (search) { %>
+                              <a href="/filter?page=<%= currentPage || 1 %>&<% if (selectedBrands && selectedBrands.length > 0) { %>brand=<%= selectedBrands.join('&brand=') %>&<% } %><% if (selectedCategories && selectedCategories.length > 0) { %>category=<%= selectedCategories.join('&category=') %>&<% }%><% if (minPrice&&minPrice>0) { %> minPrice=<%= minPrice %>&<% } %><%if(maxPrice&&maxPrice>0){%>maxPrice=<%= maxPrice%>&<%}%>"
+                                class="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-primary">
+                                <i class="fas fa-times"></i>
+                              </a>
+                              <% } %>
+          </form>
+        </div>
+      </header>
+
+      <div class="flex flex-col md:flex-row gap-6">
+        <!-- Filter Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+          <form action="/filter" method="get" class="bg-white p-4 rounded-lg shadow-sm mb-4" id="filterForm">
+            <!-- Preserve search and page -->
+            <input type="hidden" name="search" value="<%= search || '' %>">
+            <input type="hidden" name="page" value="<%= currentPage || 1 %>">
+
+            <!-- Brand Filter -->
+            <div class="mb-6">
+              <div class="flex items-center justify-between cursor-pointer" onclick="toggleFilter('brandFilter')">
+                <h3 class="font-semibold text-lg">Brand</h3>
+                <i class="fas fa-chevron-down" id="brandFilterIcon"></i>
+              </div>
+              <div id="brandFilter" class="mt-2 max-h-60 overflow-y-auto">
+                <% if (brand && brand.length> 0) { %>
+                  <% brand.forEach(brand=> { %>
+                    <div class="flex items-center mb-2">
+                      <input type="checkbox" name="brand" value="<%= brand.brandName %>"
+                        class="brand-checkbox w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded"
+                        <%=selectedBrands && selectedBrands.includes(brand.brandName) ? 'checked' : '' %>
+                      >
+                      <label class="ml-2 text-sm text-gray-700">
+                        <%= brand.brandName %>
+                      </label>
+                    </div>
+                    <% }) %>
+                      <% } else { %>
+                        <p class="text-sm text-gray-500">No brands available.</p>
+                        <% } %>
+              </div>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="mb-6">
+              <div class="flex items-center justify-between cursor-pointer" onclick="toggleFilter('categoryFilter')">
+                <h3 class="font-semibold text-lg">Category</h3>
+                <i class="fas fa-chevron-down" id="categoryFilterIcon"></i>
+              </div>
+              <div id="categoryFilter" class="mt-2">
+                <% if (category && category.length> 0) { %>
+                  <% category.forEach(category=> { %>
+                    <div class="flex items-center mb-2">
+                      <input type="checkbox" name="category" value="<%= category._id %>"
+                        class="category-checkbox w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded"
+                        <%=selectedCategories && selectedCategories.includes(category._id.toString()) ? 'checked' : ''
+                        %>
+                      >
+                      <label class="ml-2 text-sm text-gray-700">
+                        <%= category.name %>
+                      </label>
+                    </div>
+                    <% }) %>
+                      <% } else { %>
+                        <p class="text-sm text-gray-500">No categories available.</p>
+                        <% } %>
+              </div>
+            </div>
+
+            <!-- Price Filter -->
+            <div class="mb-6">
+              <div class="flex items-center justify-between cursor-pointer" onclick="toggleFilter('priceFilter')">
+                <h3 class="font-semibold text-lg">Price</h3>
+                <i class="fas fa-chevron-down" id="priceFilterIcon"></i>
+              </div>
+              <div id="priceFilter" class="mt-4">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="price-input-group w-[45%]">
+                    <span class="currency-symbol">₹</span>
+                    <input type="number" id="minPrice" name="minPrice" value="<%= minPrice || 1705 %>" min="0"
+                      class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                  </div>
+                  <span class="text-gray-400 mx-2">-</span>
+                  <div class="price-input-group w-[45%]">
+                    <span class="currency-symbol">₹</span>
+                    <input type="number" id="maxPrice" name="maxPrice" value="<%= maxPrice || 680000 %>" min="0"
+                      class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                  </div>
+                </div>
+                <div class="range-slider mb-3">
+                  <div class="slider-track" id="sliderTrack"></div>
+                  <input type="range" id="priceRangeMin" min="1705" max="680000" value="<%= minPrice || 1705 %>"
+                    step="100">
+                  <input type="range" id="priceRangeMax" min="1705" max="680000" value="<%= maxPrice || 680000 %>"
+                    step="100">
+                </div>
+                <div class="flex justify-between text-xs text-gray-500">
+                  <span>₹1,705</span>
+                  <span>₹6,80,000</span>
+                </div>
+                <button type="button" id="clearPriceFilter"
+                  class="w-full mt-3 text-sm text-gray-600 hover:text-primary transition-colors duration-200 py-1 border border-gray-300 rounded hover:border-primary">
+                  <i class="fas fa-times mr-1"></i>
+                  Clear Price Filter
+                </button>
+              </div>
+            </div>
+
+            <!-- Form Buttons -->
+            <!-- <button type="submit" id="applyFilters"
+              class="w-full bg-primary text-black py-2 px-4 rounded hover:bg-opacity-90 transition">
+              Apply Filters
+            </button> -->
+            <a href="/filter?page=<%= currentPage || 1 %>&search=<%= encodeURIComponent(search || '') %>"
+              id="clearFilters"
+              class="block w-full mt-2 border border-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-50 transition text-center">
+              Clear All Filters
+            </a>
+
+        </aside>
+
+        <!-- Product Listing -->
+        <div class="flex-1">
+          <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+              <div class="flex items-center mb-2 sm:mb-0">
+                <span class="mr-2">View As</span>
+                <button id="gridView" class="p-2 bg-gray-100 rounded-l-md active">
+                  <i class="fas fa-th"></i>
+                </button>
+                <button id="listView" class="p-2 bg-gray-100 rounded-r-md">
+                  <i class="fas fa-list"></i>
+                </button>
+              </div>
+              <div class="flex items-center">
+                <span class="mr-2">Sort by:</span>
+                <select id="sortSelect" name="sort"
+                  class="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                  <option value="featured">Featured</option>
+                  <option value="price-low-high">Price: Low to High</option>
+                  <option value="price-high-low">Price: High to Low</option>
+                  <option value="name-a-z">Name: A to Z</option>
+                  <option value="name-z-a">Name: Z to A</option>
+                </select>
+              </div>
+              </form>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="productsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <% if (products && products.length> 0) { %>
+                <% products.forEach(product=> { %>
+                  <div
+                    class="bg-white rounded-lg overflow-hidden border border-gray-200 transition-transform hover:shadow-lg hover:-translate-y-1">
+                    <a href="/product-detail/<%=product._id%>">
+                      <div class="relative">
+                        <img src="<%= product.colorVariants[0].productImage[0] %>" alt="<%= product.productName %>"
+                          class="w-full h-48 object-contain p-4">
+
+                        <span
+                          class="absolute top-2 left-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded">Sale</span>
+                      </div>
+                    </a>
+                    <div class="p-4">
+                      <h3 class="font-semibold text-sm mb-1">
+                        <%= product.productName %>
+                      </h3>
+                      <p class="text-xs text-gray-500 mb-1">
+                        <%= product.brand.brandName %>
+                      </p>
+                      <p class="text-xs text-gray-400 mb-2">
+                        <%= product.colorVariants[0].colorName %>
+                      </p>
+                      <div class="flex items-center">
+                        <!-- <% const regular=product.colorVariants[0].regularPrice; const
+                          offer=product.colorVariants[0].offerPrice; const discount=Math.round(((regular - offer) /
+                          regular) * 100); %> -->
+                          <span class="font-bold">₹<%= product.colorVariants[0].offerPrice %></span>
+                          <span class="text-gray-500 line-through text-sm ml-2">₹<%=
+                              product.colorVariants[0].regularPrice %></span>
+                          <span class="text-green-600 text-sm ml-2"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <% }) %>
+                    <% } else { %>
+                      <div id="emptyState" class="py-12 text-center">
+                        <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">No products match your search criteria.</p>
+                        <a href="/filter?page=<%= currentPage || 1 %>&search=<%= encodeURIComponent(search || '') %>"
+                          class="mt-4 text-primary hover:underline">Reset all filters</a>
+                      </div>
+                      <% } %>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination flex justify-center items-center p-4 gap-2 bg-gray-50 border-t border-gray-200">
+              <a href="/filter?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search || '') %>&<% if (selectedBrands && selectedBrands.length > 0) { %>brand=<%= selectedBrands.join('&brand=') %>&<% } %><% if (selectedCategories && selectedCategories.length > 0) { %>category=<%= selectedCategories.join('&category=') %>&<% } %>minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
+                class="pagination-btn rounded-lg flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 <%= currentPage === 1 ? 'pointer-events-none opacity-50' : '' %>">
+                <i class="fas fa-chevron-left text-sm"></i>
+              </a>
+              <div id="page-numbers" class="flex gap-1">
+                <% const maxPagesToShow=5; const startPage=Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+                  const endPage=Math.min(totalPages, startPage + maxPagesToShow - 1); for (let i=startPage; i <=endPage;
+                  i++) { %>
+                  <a href="/filter?page=<%= i %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
+                    class="page-link rounded-lg font-medium px-3 py-2 border border-gray-300 <%= i === currentPage ? 'bg-primary text-black shadow-lg' : 'bg-white text-gray-500 hover:bg-gray-100' %>">
+
+                    <%= i %>
+                  </a>
+                  <% } %>
+                    <% if (endPage < totalPages) { %>
+                      <span class="px-3 py-2 text-gray-500">...</span>
+                      <a href="/filter?page=<%= totalPages %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
+                        class="page-link rounded-lg font-medium px-3 py-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
+
+                        <%= totalPages %>
+                      </a>
+                      <% } %>
+              </div>
+              <a href="/filter?page=<%= currentPage + 1 %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
+                class="pagination-btn rounded-lg flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 <%= currentPage >= totalPages ? 'pointer-events-none opacity-50' : '' %>">
+
+                <i class="fas fa-chevron-right text-sm"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+
+        window.addEventListener('DOMContentLoaded', () => {
+          // Toggle filter sections
+          function toggleFilter(filterId) {
+            const filter = document.getElementById(filterId);
+            const icon = document.getElementById(`${filterId}Icon`);
+            filter.classList.toggle('hidden');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+          }
+
+  const minPriceInput = document.getElementById('minPrice');
+  const maxPriceInput = document.getElementById('maxPrice');
+  const priceRangeMin = document.getElementById('priceRangeMin');
+  const priceRangeMax = document.getElementById('priceRangeMax');
+  const sliderTrack = document.getElementById('sliderTrack');
+  const minValue = parseInt(priceRangeMin.min);
+  const maxValue = parseInt(priceRangeMin.max);
+
+  function updateSliderTrack() {
+    const min = parseInt(priceRangeMin.value);
+    const max = parseInt(priceRangeMax.value);
+    const minPercent = ((min - minValue) / (maxValue - minValue)) * 100;
+    const maxPercent = ((max - minValue) / (maxValue - minValue)) * 100;
+    sliderTrack.style.left = `${minPercent}%`;
+    sliderTrack.style.width = `${maxPercent - minPercent}%`;
+  }
+
+  function updateAndReload(min, max) {
+    const url = new URL(window.location);
+    url.searchParams.set('minPrice', min);
+    url.searchParams.set('maxPrice', max);
+    window.location.href = url.toString(); // reloads page with updated filters
+  }
+
+  // Sync inputs when typing
+  minPriceInput.addEventListener('input', () => {
+    let value = parseInt(minPriceInput.value) || minValue;
+    if (value < minValue) value = minValue;
+    if (value > parseInt(maxPriceInput.value)) value = parseInt(maxPriceInput.value);
+    priceRangeMin.value = value;
+    updateSliderTrack();
+  });
+
+  maxPriceInput.addEventListener('input', () => {
+    let value = parseInt(maxPriceInput.value) || maxValue;
+    if (value > maxValue) value = maxValue;
+    if (value < parseInt(minPriceInput.value)) value = parseInt(minPriceInput.value);
+    priceRangeMax.value = value;
+    updateSliderTrack();
+  });
+
+  // Apply filters automatically when slider is released
+  priceRangeMin.addEventListener('change', () => {
+    const min = parseInt(priceRangeMin.value);
+    const max = parseInt(priceRangeMax.value);
+    updateSliderTrack();
+    updateAndReload(min, max);
+  });
+
+  priceRangeMax.addEventListener('change', () => {
+    const min = parseInt(priceRangeMin.value);
+    const max = parseInt(priceRangeMax.value);
+    updateSliderTrack();
+    updateAndReload(min, max);
+  });
+
+  // Initialize
+  updateSliderTrack();
+
+  // Clear button
+  document.getElementById('clearPriceFilter')?.addEventListener('click', () => {
+    updateAndReload(minValue, maxValue);
+  });
+
+          // Submit form on checkbox change
+          document.querySelectorAll('.brand-checkbox, .category-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+              document.getElementById('filterForm').submit();
+            });
+          });
+          //sort by
+          const sortFilter = document.getElementById('sortSelect');
+          sortFilter.addEventListener('change', () => {
+            document.getElementById('filterForm').submit();
+          });
+          // View toggle (grid/list)
+          const gridViewBtn = document.getElementById('gridView');
+          const listViewBtn = document.getElementById('listView');
+          const productsContainer = document.getElementById('productsContainer');
+
+          gridViewBtn.addEventListener('click', () => {
+            productsContainer.classList.remove('grid-cols-1');
+            productsContainer.classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+          });
+
+          listViewBtn.addEventListener('click', () => {
+            productsContainer.classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+            productsContainer.classList.add('grid-cols-1');
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+          });
+
+        });
+
+
+
+
+
+
+
+
+
+      </script>
+</body>
+
+</html>

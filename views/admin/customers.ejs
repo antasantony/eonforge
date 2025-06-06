@@ -107,7 +107,7 @@
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">
                     <input type="checkbox" id="select-all-users">
                   </th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">User ID</th>
+                  <!-- <th class="px-4 py-3 text-left font-semibold text-gray-500">User ID</th> -->
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">Name</th>
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">Email</th>
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">Joined Date</th>
@@ -118,7 +118,7 @@
                 <%for(let i=0;i<data.length;i++){%>
                 <tr class="hover:bg-gray-50">
                   <td class="px-4 py-3"><%=(currentPage-1)*limit+i+1 %></td>
-                  <td class="px-4 py-3"><%=data[i]._id.toString().slice(7,16)%></td>
+                  <!-- <td class="px-4 py-3"></td> -->
                   <td class="px-4 py-3"><%=data[i].firstName+' '+data[i].lastName%></td>
                   <td class="px-4 py-3"><%=data[i].email%></td>
                   <td class="px-4 py-3"><%=data[i].createdOn.toString().slice(4,15)%></td>

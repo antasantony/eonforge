@@ -1,120 +1,54 @@
-<footer class="site-footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-column">
-          <h3>ABOUT</h3>
-          <ul>
-            <li><a href="/about">About Us</a></li>
-            <li><a href="/contact">Contact Us</a></li>
-            <li><a href="/careers">Careers</a></li>
-            <li><a href="/stores">Stores</a></li>
-          </ul>
+<footer class="bg-gray-200 pt-20 pb-5">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 mb-10">
+                <div>
+                    <h3 class="text-sm font-semibold mb-5 text-black">SUPPORT</h3>
+                    <ul class="space-y-2.5">
+                        <li><a href="/about-us" class="text-sm text-dark-gray transition-colors hover:text-accent">About us</a></li>
+                        <li><a href="/faqs" class="text-sm text-dark-gray transition-colors hover:text-accent">FAQs</a></li>
+                        <li><a href="/privacy-policy" class="text-sm text-dark-gray transition-colors hover:text-accent">Privacy Policy</a></li>
+                        <li><a href="/shipping-policy" class="text-sm text-dark-gray transition-colors hover:text-accent">Shipping Policy</a></li>
+                        <li><a href="/terms-of-service" class="text-sm text-dark-gray transition-colors hover:text-accent">Terms of Service</a></li>
+                        <li><a href="/cancellation-refunds" class="text-sm text-dark-gray transition-colors hover:text-accent">Cancellation & Refunds</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold mb-5 text-black">COMPANY</h3>
+                    <ul class="space-y-2.5">
+                        <li><a href="/todays-deals" class="text-sm text-dark-gray transition-colors hover:text-accent">Today's Deals</a></li>
+                        <li><a href="/repair-service" class="text-sm text-dark-gray transition-colors hover:text-accent">Repair & Service</a></li>
+                        <li><a href="/our-stores" class="text-sm text-dark-gray transition-colors hover:text-accent">Our Stores</a></li>
+                        <li><a href="/ask-to-experts" class="text-sm text-dark-gray transition-colors hover:text-accent">Ask to Experts</a></li>
+                        <li><a href="/affiliate" class="text-sm text-dark-gray transition-colors hover:text-accent">Affiliate</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold mb-5 text-black">SUBSCRIBE NEWSLETTERS</h3>
+                    <p class="text-sm text-dark-gray mb-4">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
+                    <form class="flex mb-5">
+                        <input type="email" placeholder="Enter your email" required class="flex-1 px-4 py-2.5 border border-medium-gray border-r-0 font-montserrat text-sm">
+                        <button type="submit" class="bg-black text-white border-none px-4 cursor-pointer transition-colors hover:bg-accent">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-9 h-9 bg-black text-white rounded-full flex items-center justify-center transition-colors hover:bg-accent">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 bg-black text-white rounded-full flex items-center justify-center transition-colors hover:bg-accent">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 bg-black text-white rounded-full flex items-center justify-center transition-colors hover:bg-accent">
+                            <i class="fab fa-pinterest-p"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 bg-black text-white rounded-full flex items-center justify-center transition-colors hover:bg-accent">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center pt-5 border-t border-medium-gray">
+                <p class="text-xs text-dark-gray">&copy; <%= new Date().getFullYear() %> Eon Forge. All Rights Reserved.</p>
+            </div>
         </div>
-        <div class="footer-column">
-          <h3>HELP</h3>
-          <ul>
-            <li><a href="/payments">Payments</a></li>
-            <li><a href="/shipping">Shipping</a></li>
-            <li><a href="/returns">Returns</a></li>
-            <li><a href="/faq">FAQ</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h3>POLICY</h3>
-          <ul>
-            <li><a href="/terms">Terms of Use</a></li>
-            <li><a href="/privacy">Privacy Policy</a></li>
-            <li><a href="/warranty">Warranty Policy</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h3>SUBSCRIBE TO OUR NEWSLETTER</h3>
-          <div class="newsletter-form">
-            <input type="email" placeholder="Your email address">
-            <button type="submit">Subscribe</button>
-          </div>
-          <div class="social-links">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-twitter"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; <%= new Date().getFullYear() %> FOR THRILL. All Rights Reserved.</p>
-      </div>
-    </div>
-  </footer>
-  <script src="/js/main.js"></script>
-  </body>
-  </html>
-
-  <aside class="sidebar">
-  <div class="sidebar-header">
-    <i class="fas fa-clock" style="font-size: 2rem;"></i>
-    <h2>Eon Forge</h2>
-  </div>
-  <ul class="sidebar-menu">
-    <li>
-      <a href="adminDashboard" class="active">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-        <i class="fas fa-shopping-cart"></i>
-        <span>Orders</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-        <i class="fas fa-box-open"></i>
-        <span>Products</span>
-      </a>
-    </li>
-    <li>
-      <a href="users">
-        <i class="fas fa-users"></i>
-        <span>Users Management</span>
-      </a>
-    </li>
-    <li>
-      <a href="category">
-        <i class="fas fa-tags"></i>
-        <span>Categories</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-        <i class="fas fa-copyright"></i>
-        <span>Brands</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-        <i class="fas fa-ticket-alt"></i>
-        <span>Coupons</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-        <i class="fas fa-image"></i>
-        <span>Banners</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-        <i class="fas fa-credit-card"></i>
-        <span>Payments</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-        <i class="fas fa-percentage"></i>
-        <span>Offers</span>
-      </a>
-    </li>
-  </ul>
-</aside>
+    </footer>

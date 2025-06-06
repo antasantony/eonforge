@@ -1,0 +1,287 @@
+
+    <style>
+        .zoom-container {
+            position: relative;
+            overflow: hidden;
+            cursor: zoom-in;
+        }
+
+        .zoom-image {
+            transition: transform 0.3s ease;
+        }
+
+        .zoom-container:hover .zoom-image {
+            transform: scale(2);
+        }
+
+        .thumbnail-active {
+            border: 2px solid #3b82f6;
+        }
+    </style>
+
+ 
+
+<body class="bg-gray-50">
+      <%- include("../../views/partials/user/header") %>
+    <!-- Breadcrumb -->
+    <nav class="bg-white px-4 py-3 border-b">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center space-x-2 text-sm text-gray-600">
+                <a href="/" class="hover:text-blue-600">Home</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <a href="/shop" class="hover:text-blue-600">Shop</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <a href="/product-detail" class="text-gray-800">
+                    <%=product.productName%>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Product Images -->
+            <div class="flex flex-col lg:flex-row gap-4">
+                <!-- Thumbnails -->
+
+                <div class="flex lg:flex-col gap-2 order-2 lg:order-1">
+                    <% selectedVariant.productImage.forEach((image, index)=> { %>
+                        <div class="w-16 h-16 lg:w-20 lg:h-20 border-2 border-blue-500 rounded-lg overflow-hidden cursor-pointer thumbnail-active <%= index === 0 ? 'active' : '' %>"
+                            data-index="<%= index %>">
+                            <img src="<%=image%>" alt="Product view <%= index + 1 %>"
+                                class="w-full h-full object-cover">
+                        </div>
+                        <%})%>
+                </div>
+
+                <!-- Main Image with Zoom -->
+                <div class="flex-1 order-1 lg:order-2">
+                    <div class="zoom-container bg-white rounded-lg border aspect-square">
+                        <img src="<%=selectedVariant.productImage[0]%>" alt="<%=product.productName%>"
+                            class="zoom-image w-full h-full object-cover rounded-lg">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="space-y-6">
+                <!-- Product Title and Rating -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">New Arrival</span>
+                        <span class="text-gray-600">|</span>
+                        <span class="text-gray-800 font-medium">
+                            <%=product.brand.brandName%>
+                        </span>
+                    </div>
+                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                        <%=product.productName%>
+                    </h1>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star text-sm"></i>
+                                <i class="fas fa-star text-sm"></i>
+                                <i class="fas fa-star text-sm"></i>
+                                <i class="fas fa-star text-sm"></i>
+                                <i class="far fa-star text-sm"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">0 Reviews</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-2">
+                        <%=product.category.name%>'s Watch
+                    </p>
+                </div>
+
+                <!-- Pricing -->
+                <div class="space-y-2">
+                    <div class="flex items-center gap-4">
+                        <span class="text-gray-500 line-through text-lg">₹<%=selectedVariant.regularPrice%>
+                                </span>
+                        <span class="text-3xl font-bold text-gray-900">₹<%=selectedVariant.offerPrice%></span>
+                        <span class="text-green-600 font-medium">Save
+                            ₹<%=product.colorVariants[0].regularPrice-=selectedVariant.offerPrice%></span>
+                    </div>
+                    <p class="text-sm text-gray-600">Inclusive of all taxes*</p>
+                    <p class="text-sm text-gray-600">
+                        <span class="underline">Shipping</span> calculated at checkout.
+                    </p>
+                    <div class="flex items-center gap-2 text-sm">
+                        <div class="w-2 h-2 bg-orange-400 rounded-full"></div>
+                        <span class="text-orange-600 font-medium">Low stock - 1 item left</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <!-- <span>Login/Signup to use</span> -->
+                        <span class="text-purple-600 font-bold">⚡ NeuCoins</span>
+                        <span>on this purchase</span>
+                    </div>
+                </div>
+
+                <!-- Color Selection -->
+                <div>
+                    <h3 class="text-lg font-medium mb-3">Dial Color: <span class="font-normal">
+                            <%=selectedVariant.colorName%>
+                        </span></h3>
+                    <div class="flex gap-3">
+                        <% product.colorVariants.forEach((variant)=> { %>
+                           <a href="/product-detail/<%= product._id %>?variant=<%= variant._id %>">
+
+                                <div
+                                    class="w-12 h-12 rounded-full border-2 border-gray-300 cursor-pointer overflow-hidden">
+                                    <img src="<%=variant.productImage[0]%>" alt="<%=variant.colorName%>"
+                                        class="w-full h-full object-cover">
+                                </div>
+                            </a>
+                            <% }) %>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                    <button
+                        class="flex-1 bg-white border-2 border-gray-900 text-gray-900 py-3 px-6 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                        ADD TO CART
+                    </button>
+                    <button
+                        class="flex-1 bg-orange-400 text-white py-3 px-6 rounded-lg font-medium hover:bg-orange-500 transition-colors">
+                        BUY NOW
+                    </button>
+                </div>
+
+                <!-- 3D Try On -->
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-red-500 rounded flex items-center justify-center">
+                        <i class="fas fa-cube text-white text-xs"></i>
+                    </div>
+                    <span class="text-red-600 font-medium underline cursor-pointer">3D Try On</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="mt-16">
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28216%29-CzzNjd9MIHCYWQCXYKLZJMcLIXzXqj.png"
+                alt="Features" class="w-full max-w-4xl mx-auto">
+        </div>
+
+        <!-- Product Description and Specifications -->
+        <div class="mt-16">
+            <div class="border-b border-gray-200">
+                <nav class="flex space-x-8">
+                    <button class="py-4 px-1 border-b-2 border-black font-medium text-gray-900">
+                        DESCRIPTION
+                    </button>
+                    <button
+                        class="py-4 px-1 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700">
+                        SPECIFICATION
+                    </button>
+                </nav>
+            </div>
+            <div class="py-8">
+               
+             <p class="text-gray-700 leading-relaxed">
+                   <%=product.description%>
+                </p>
+                 
+            </div>
+        </div>
+              
+               
+
+        <!-- You May Also Like Section -->
+<div class="mt-16">
+    <h2 class="text-2xl font-bold text-center mb-8">YOU MAY ALSO LIKE</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <% sameBrandProducts.forEach(product => { %>
+            <div class="bg-white rounded-lg border overflow-hidden hover:shadow-lg transition-shadow">
+                <a href="/product-detail/<%= product._id %>">
+                    <div class="relative">
+                        <img src="<%= product.colorVariants[0].productImage[0] %>" alt="<%= product.productName %>"
+                            class="w-full h-48 object-cover">
+                        <% if(product.hasOffer) { %>
+                            <span class="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">Sale</span>
+                        <% } %>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium text-sm mb-1"><%= product.productName %></h3>
+                        <p class="text-xs text-gray-500 mb-2"><%= product.brand.brandName %></p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-500 line-through text-sm">₹<%= product.colorVariants[0].regularPrice %></span>
+                            <span class="font-bold text-lg">₹<%= product.colorVariants[0].offerPrice %></span>
+                        </div>
+                        <p class="text-xs text-green-600">
+                            Save ₹<%= product.colorVariants[0].regularPrice - product.colorVariants[0].offerPrice %>
+                        </p>
+                    </div>
+                </a>
+            </div>
+        <% }) %>
+    </div>
+
+</div>
+    
+    </div>
+ <%- include("../../views/partials/user/footer")%>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const zoomContainer = document.querySelector('.zoom-container');
+            const zoomImage = document.querySelector('.zoom-image');
+
+            // Zoom effect
+            zoomContainer.addEventListener('mousemove', function (e) {
+                const rect = zoomContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const xPercent = (x / rect.width) * 100;
+                const yPercent = (y / rect.height) * 100;
+
+                zoomImage.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+            });
+
+            zoomContainer.addEventListener('mouseleave', function () {
+                zoomImage.style.transformOrigin = 'center center';
+            });
+
+            // Thumbnail switching without fade
+            function initializeThumbnails() {
+                const thumbnails = document.querySelectorAll(".thumbnail-active");
+                const mainImage = document.querySelector(".zoom-image");
+
+                thumbnails.forEach((thumbnail) => {
+                    thumbnail.addEventListener("click", function () {
+                        // Remove active class from all thumbnails
+                        thumbnails.forEach((t) => t.classList.remove("active", "border-blue-500"));
+                        thumbnails.forEach((t) => t.classList.add("border-gray-200"));
+
+                        // Add active class to clicked thumbnail
+                        this.classList.add("active", "border-blue-500");
+                        this.classList.remove("border-gray-200");
+
+                        // Update main image immediately
+                        const img = this.querySelector("img");
+                        if (img && mainImage) {
+                            mainImage.src = img.src;
+                        }
+                    });
+                });
+            }
+
+            initializeThumbnails();
+
+            // Tab switching
+            const tabButtons = document.querySelectorAll('nav button');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('border-black', 'text-gray-900');
+                        btn.classList.add('border-transparent', 'text-gray-500');
+                    });
+
+                    this.classList.add('border-black', 'text-gray-900');
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                });
+            });
+        });
+    </script>

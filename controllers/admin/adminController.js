@@ -36,19 +36,20 @@ const login = async (req,res)=>{
             console.log('afterpost',admin.email)
         const passwordMatch = await bcrypt.compare(password,admin.password)
         if(passwordMatch){
+            req.session.admin=admin._id
             req.session.admin = true;
     console.log('passwordmatch',admin.email)
-           return res.redirect('/admin/adminDashboard')
+           return res.json({success:true,redirectUrl:'/admin/adminDashboard'})
         }else{
-            return res.redirect('/admin/login')
+            return res.json({message:"invalid password"})
         }
         }else{
-            return res.redirect('/admin/login')
+            return res.json({message:"Please enter  Email and Password "})
         }
 
     } catch (error) {
         console.log("login error",error);
-        return res.redirect("/admin/pageError")
+        res.json({redirectUrl:'/admin/pageError'})
     }
 }
 

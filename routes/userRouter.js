@@ -2,15 +2,16 @@ const express=require('express');
 const router = express.Router();
 const userController = require('../controllers/user/userController');
 const profileController =require('../controllers/user/profileController')
+const productController=require('../controllers/user/productController')
 const passport = require('passport');
-const { userAuth } = require('../middlewares/auth');
+const { userAuth,isLogin } = require('../middlewares/auth');
+
 
 router.get('/pageNotFound',userController.pageNotFound);
-router.get('/',userController.loadHomePage);
-router.get('/signup',userController.loadSignup);
+router.get('/signup',isLogin,userController.loadSignup);
 router.post('/signup',userController.signup);
 router.post('/verify-otp',userController.verifyOtp)
-router.get('/login',userController.loadLogin)
+router.get('/login', isLogin, userController.loadLogin);
 router.post('/login',userController.login)
 router.get('/verify-otp',userController.loadVerifyotp)
 router.post('/resend-otp',userController.resendOtp)
@@ -22,18 +23,27 @@ router.get('/auth/google/callback',passport.authenticate('google',{failureRedire
 
     res.redirect('/')
 });
-router.get('/logout',userController.logout)
+router.get('/logout',userAuth,userController.logout)
 
+
+//======== load home page/shop page =============//
+
+  router.get('/',userController.loadHomePage);
+  router.get('/shop',userController.loadShopPage);
+  router.get('/filter',userController.filterProducts);
 //====== profile Managenent  ========//
 
-router.get('/forgot-password',profileController.loadForgotPassword)
-router.post('/forgot-password',profileController.forgotPassword)
-router.post('/forgotPassword-otp',profileController.forgotPasswordOtp)
-router.get('/reset-password',profileController.resetPassword)
-router.patch('/reset-password',profileController.updatePassword)
-router.post('/forgotResend-otp',profileController.forgotResendOtp)
+router.get('/forgot-password', profileController.loadForgotPassword);
+router.post('/forgot-password', profileController.forgotPassword);
+router.get('/forgotPassword-otp', profileController.loadForgotPasswordOtp)
+router.post('/forgotPassword-otp', profileController.forgotPasswordOtp);
+router.post('/forgotResend-otp', profileController.forgotResendOtp);
+router.get('/reset-password', profileController.resetPassword);
+router.patch('/reset-password', profileController.updatePassword);
 
+//=========== product detail page ============//
 
+router.get('/product-detail/:id',productController.loadProductDetail)
 
 
 

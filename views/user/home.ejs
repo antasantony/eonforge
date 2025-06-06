@@ -1,470 +1,216 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eon Forge - Luxury Watches</title>
-    <link rel="stylesheet" href="/assets/css/user/home.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <!-- Top Banner -->
-    <div class="top-banner">
-        <p>BEST PRICE <span>Guaranteed on all Products</span></p>
+
+<body class="font-montserrat text-black leading-relaxed">
+   
+    <!-- Header -->
+    <%- include("../../views/partials/user/header") %>
+
+        <style>
+        /* Hide all slides by default */
+        .carousel-slide {
+            display: none;
+        }
+        /* Show the active slide */
+        .carousel-slide.active {
+            display: block;
+        }
+        /* Ensure images fill the container completely */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 610px; /* Adjust as needed */
+            overflow: hidden;
+        }
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+        
+
+        <!-- Main Content -->
+        <main>
+           <!-- Carousel Section -->
+    <div class="carousel-container  ">
+        <!-- Carousel Slides -->
+        <div class="carousel-slide active flex items-center justify-between h-96 md:h-[600px] px-22">
+            <img src="https://watchfactory.in/cdn/shop/files/gempages_457431224189715652-5352407d-10b5-4d9b-a422-c603207b8198.jpg?v=15513708604711106711"
+                 alt="Smart Watches">
+        </div>
+        <!-- <div class="flex items-center justify-between h-96 md:h-[600px] px-22 "
+                               >
+                               <img src="https://watchfactory.in/cdn/shop/files/gempages_457431224189715652-11d685c2-6dd0-469c-9821-83456c0be04d.jpg?v=10020359278653204813" alt="">
+                            </div> -->
+        <div class="carousel-slide flex items-center justify-between h-96 md:h-[600px] px-22">
+            <img src="https://watchfactory.in/cdn/shop/files/gempages_457431224189715652-11650894-6841-4f87-a6cd-ef709734eb2a.jpg?v=11569031931647128715"
+                 alt="Smart Watches">
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button id="prevBtn" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 focus:outline-none">
+            ❮
+        </button>
+        <button id="nextBtn" class="absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 focus:outline-none">
+            ❯
+        </button>
+
+        <!-- Indicators -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <span class="indicator w-3 h-3 bg-gray-400 rounded-full cursor-pointer active:bg-white"></span>
+            <span class="indicator w-3 h-3 bg-gray-400 rounded-full cursor-pointer"></span>
+        </div>
     </div>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <a href="/">
-                        <h1>EON FORGE</h1>
-                    </a>
-                </div>
-                <div class="search-container">
-                    <div class="search-box">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" placeholder="Search analog slim" class="search-input">
-                        <button class="search-clear-btn">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="header-actions">
-                    <div class="account-wrapper">
-                      <% if (isLoggedIn || user) { %>
-                        <div class="icon-btn account-toggle" title="Account">
-                          <i class="fas fa-user"></i>
-                          <span class="icon-text">Account</span>
-                        </div>
-                        <div class="account-dropdown">
-                          <a href="/profile"><i class="fas fa-user"></i><%= user.firstName%>'s Profile</a>
-                          <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                        </div>
-                      <% } else { %>
-                        <a href="/login" class="icon-btn" title="Login">
-                          <i class="fas fa-user"></i>
-                          <span class="icon-text">Account</span>
-                        </a>
-                      <% } %>
-                    </div>
-                    
-                    <a href="/wishlist" class="icon-btn" title="Wishlist">
-                        <i class="fas fa-heart"></i>
-                        <span class="icon-text">Wishlist</span>
-                    </a>
-                    <a href="/cart" class="icon-btn" title="Cart">
-                        <i class="fas fa-shopping-bag"></i>
-                        <span class="icon-text">Cart</span>
-                    </a>
-                </div>
-                <div class="mobile-menu-btn">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </div>
-    </header>
+    
 
-    <!-- Navigation -->
-    <nav class="main-nav">
-        <div class="container">
-            <ul class="nav-list">
-                <li><a href="/sale">HOME</a></li>
-                <li class="dropdown">
-                    <a href="/brands">SHOP</a>
-                    <!-- <div class="dropdown-content">
-                        <div class="dropdown-grid">
-                            <% const brands = ["RADO", "LONGINES", "TISSOT", "MONTBLANC", "MOVADO", "VERSACE", "ROAMER", "BALMAIN", "VICTORINOX", "CALVIN KLEIN", "ALBA", "ARMANI EXCHANGE", "CASIO", "CERRUTI", "CITIZEN", "COACH"]; %>
-                            <% brands.forEach(brand => { %>
-                                <a href="/brands/<%= brand.toLowerCase() %>"><%= brand %></a>
+            <!-- Brands Section -->
+            <section class="py-15">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="text-center mb-10">
+                        <h2 class="text-2xl md:text-3xl pt-20 font-semibold mb-2.5">CHOOSE FROM LARGE COLLECTION OF RECOGNIZED
+                            BRANDS</h2>
+                        <p class="text-base text-dark-gray">A SINGLE, RELIABLE DESTINATION FOR YOUR PREFERRED WATCH</p>
+                    </div>
+
+                    <div class="mb-12">
+                        <div class="flex justify-between items-center mb-5 border-b border-medium-gray pb-2.5">
+                            <h3 class="text-lg font-semibold">POPULAR BRANDS</h3>
+                            <a href="/shop"
+                                class="text-sm text-dark-gray transition-colors hover:text-accent">View all
+                                watches <i class="fas fa-arrow-right ml-1"></i></a>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                            <%brands.forEach(brand=>{%>
+                                
+                               
+                                <a href="/filter?brand=<%= brand.brandName %>"
+                                    class="bg-white border border-medium-gray rounded p-5 flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-lg">
+                                    <img src="uploads/re-image/<%=brand.brandImage[0]%>" alt="<%=brand.brandName%>"
+                                        class="max-w-full max-h-15">
+                                </a>
+                                 <%})%>
+                               
+                        </div>
+                    </div>
+            </section>
+            <!-- Gender Shop Section -->
+            <!-- <section class="py-15 bg-cream">
+                <div class="max-w-7xl mx-auto px-4">
+                    <h2 class="text-center text-2xl md:text-3xl font-semibold mb-10 pt-5">MADE FOR GETTING WRAPPED UP IN THE
+                        MOMENT</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="relative rounded-lg overflow-hidden group">
+                            <img src="https://img.freepik.com/free-photo/woman-showing-her-nail-art-fingernails-with-watch_23-2149820446.jpg?ga=GA1.1.1111604262.1743334425&semt=ais_hybrid&w=740"
+                                alt="Shop for Her"
+                                class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                            <a href="/filter?categories[0]=_id"
+                                class="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-8 py-3 text-sm font-semibold transition-colors hover:bg-accent">SHOP
+                                FOR HER</a>
+                        </div>
+                        <div class="relative rounded-lg overflow-hidden group">
+                            <img src="https://img.freepik.com/free-photo/close-up-clock-with-time-change_23-2149241146.jpg?ga=GA1.1.1111604262.1743334425&semt=ais_hybrid&w=740"
+                                alt="Shop for Him"
+                                class="w-full h-auto transition-transform duration-500 group-hover:scale-105">
+                            <a href="/filter?categories[1]=_id"
+                                class="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-8 py-3 text-sm font-semibold transition-colors hover:bg-accent">SHOP
+                                FOR HIM</a>
+                        </div>
+                    </div>
+                </div>
+            </section> -->
+
+            <!-- New Arrivals Section -->
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="text-center mb-10">
+                        <h2 class="text-2xl md:text-3xl font-semibold mb-2.5">NEW ARRIVALS</h2>
+                        <p class="text-base text-dark-gray">The latest additions to our collection</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        <% products.forEach(watch=> { %>
+                            <a href="/product-detail/<%= watch._id %>">
+                            <div
+                                class="bg-white rounded-lg overflow-hidden shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg group">
+                                <div class="relative overflow-hidden pt-[100%]">
+                                    <img src="<%= watch.colorVariants[0].productImage[0] %>"
+                                        alt="<%= watch.productName %>"
+                                        class="absolute top-0 left-0 w-full h-full object-contain transition-transform duration-500">
+                                    <div
+                                        class="absolute -bottom-15 left-0 w-full flex justify-center gap-2.5 px-4 py-4 bg-white/90 transition-all duration-300 group-hover:bottom-0">
+                                        <button
+                                            class="bg-white border border-medium-gray rounded-full w-10 h-10 flex items-center justify-center cursor-pointer transition-colors hover:bg-black hover:text-white"
+                                            data-product-id="<%= watch._id %>">
+                                            <i class="far fa-heart"></i>
+                                        </button>
+                                        <button
+                                            class="flex-1 flex items-center justify-center gap-2.5 bg-black text-white border-none rounded px-4 h-10 text-sm font-medium cursor-pointer transition-colors hover:bg-accent"
+                                            data-product-id="<%= watch._id %>">
+                                            <i class="fas fa-shopping-bag"></i>
+                                            <span>Add to Cart</span>
+                                        </button>
+                                        <button
+                                            class="bg-white border border-medium-gray rounded-full w-10 h-10 flex items-center justify-center cursor-pointer transition-colors hover:bg-black hover:text-white"
+                                            data-product-id="<%= watch._id %>">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-5">
+                                    <h4 class="text-sm font-semibold mb-1">
+                                        <%= watch.productName %>
+                                    </h4>
+                                    <h1
+                                        class="text-xs font-normal mb-2.5 text-dark-gray h-10 overflow-hidden line-clamp-2">
+                                        <%= watch.brand.brandName %>
+                                    </h1>
+                                    <p class="text-base font-semibold text-accent">₹<%=watch.colorVariants[0].offerPrice%>
+                                    </p>
+                                </div>
+                            </div>
+                            </a>
                             <% }); %>
-                        </div>
-                    </div> -->
-                </li>
-                <li><a href="/exclusive">ABOUT</a></li>
-                <li class="dropdown">
-                    <a href="/watch-finder">CONTACT</a>
-                    <!-- <div class="dropdown-content">
-                        <div class="dropdown-grid">
-                            <a href="/watches/men">Men's Watches</a>
-                            <a href="/watches/women">Women's Watches</a>
-                            <a href="/watches/couples">Couple Watches</a>
-                            <a href="/watches/smart">Smart Watches</a>
-                        </div>
-                    </div> -->
-                </li>
-                <li><a href="/repair-service">Repair & Service</a></li>
-                <li><a href="/stores">Stores</a></li>
-            </ul>
-        </div>
-    </nav>
+                    </div>
+                </div>
+            </section>
 
-    <!-- Main Content -->
-    <main>
-        <!-- Hero Carousel -->
-        <section class="hero-carousel">
-            <div class="carousel-container">
-                <div class="carousel-track">
-                    <div class="carousel-slide active">
-                        <div class="slide-content" style="background-color: #787c6e;">
-                            <div class="slide-text">
-                                <h2>EON FORGE SMART</h2>
-                                <div class="offer-text">
-                                    <h3>Upto</h3>
-                                    <h1>60%</h1>
-                                    <h3>Off</h3>
-                                </div>
-                                <p>on smartwatches</p>
-                                <a href="/smartwatches" class="btn-shop-now">SHOP NOW</a>
-                            </div>
-                            <div class="slide-image">
-                                <img src="//watchfactory.in/cdn/shop/files/gempages_457431224189715652-38099a64-53ad-4851-9228-6a4f97af81dd.png?v=14947828402043053938" alt="Smart Watches" class="hero-img">
-                            </div>
-                        </div>
+            <!-- Shop By Budget Section -->
+            <section class="py-15 bg-cream">
+                <div class="max-w-7xl mx-auto px-4">
+                    <h2 class="text-center text-2xl md:text-3xl font-semibold mb-10">SHOP BY BUDGET</h2>
+                    <div class="flex justify-center gap-5 flex-wrap mb-10">
+                        <a href="/shop?maxPrice=20000"
+                            class="inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">UPTO
+                            ₹20,000</a>
+                        <a href="/shop?maxPrice=40000"
+                            class="inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">UPTO
+                            ₹40,000</a>
+                        <a href="/shop?maxPrice=60000"
+                            class="inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">UPTO
+                            ₹60,000</a>
+                        <a href="/shop?minPrice=60000"
+                            class="inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">ABOVE
+                            ₹60,000</a>
                     </div>
-                    <div class="carousel-slide">
-                        <div class="slide-content" style="background-color: #0a2240;">
-                            <div class="slide-text">
-                                <h2>LUXURY COLLECTION</h2>
-                                <div class="offer-text">
-                                    <h3>New</h3>
-                                    <h1>2025</h1>
-                                    <h3>Arrivals</h3>
-                                </div>
-                                <p>exclusive timepieces</p>
-                                <a href="/luxury" class="btn-shop-now">DISCOVER</a>
-                            </div>
-                            <div class="slide-image">
-                                <img src="//watchfactory.in/cdn/shop/files/gempages_457431224189715652-eae7b89d-7a33-4243-8ff0-9777f4e4fb9d.png?v=17046506277600371054" alt="Luxury Watches" class="hero-img">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-slide">
-                        <div class="slide-content" style="background-color: #2c3e36;">
-                            <div class="slide-text">
-                                <h2>CLASSIC ELEGANCE</h2>
-                                <div class="offer-text">
-                                    <h3>Limited</h3>
-                                    <h1>Edition</h1>
-                                    <h3>Pieces</h3>
-                                </div>
-                                <p>timeless craftsmanship</p>
-                                <a href="/classic" class="btn-shop-now">EXPLORE</a>
-                            </div>
-                            <div class="slide-image">
-                                <img src="//watchfactory.in/cdn/shop/files/gempages_457431224189715652-e1676075-74fc-421b-ba9d-af8b58d491c0.png?v=16099333816327626148" alt="Classic Watches" class="hero-img">
-                            </div>
-                        </div>
+                    <div class="text-center">
+                        <a href="/offers"
+                            class="inline-block px-8 py-3 bg-black text-white text-sm font-medium transition-colors hover:bg-accent">DISCOVER
+                            ALL OFFERS</a>
                     </div>
                 </div>
-                <button class="carousel-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
-                <button class="carousel-btn next-btn"><i class="fas fa-chevron-right"></i></button>
-                <div class="carousel-dots">
-                    <span class="dot active" data-index="0"></span>
-                    <span class="dot" data-index="1"></span>
-                    <span class="dot" data-index="2"></span>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Brands Section -->
-        <section class="brands-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>CHOOSE FROM LARGE COLLECTION OF RECOGNIZED BRANDS</h2>
-                    <p>A SINGLE, RELIABLE DESTINATION FOR YOUR PREFERRED WATCH</p>
-                </div>
-                
-                <div class="brands-category">
-                    <div class="category-header">
-                        <h3>SWISS MADE</h3>
-                        <a href="/swiss-watches" class="view-all">View all swiss watches <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="brands-grid">
-                        <a href="/brands/rado" class="brand-card">
-                            <img src="/images/brands/rado.png" alt="RADO" class="brand-logo">
-                        </a>
-                        <a href="/brands/longines" class="brand-card">
-                            <img src="/images/brands/longines.png" alt="LONGINES" class="brand-logo">
-                        </a>
-                        <a href="/brands/tissot" class="brand-card">
-                            <img src="/images/brands/tissot.png" alt="TISSOT" class="brand-logo">
-                        </a>
-                        <a href="/brands/montblanc" class="brand-card">
-                            <img src="/images/brands/montblanc.png" alt="MONTBLANC" class="brand-logo">
-                        </a>
-                        <a href="/brands/movado" class="brand-card">
-                            <img src="/images/brands/movado.png" alt="MOVADO" class="brand-logo">
-                        </a>
-                        <a href="/brands/versace" class="brand-card">
-                            <img src="/images/brands/versace.png" alt="VERSACE" class="brand-logo">
-                        </a>
-                        <a href="/brands/roamer" class="brand-card">
-                            <img src="/images/brands/roamer.png" alt="ROAMER" class="brand-logo">
-                        </a>
-                        <a href="/brands/balmain" class="brand-card">
-                            <img src="/images/brands/balmain.png" alt="BALMAIN" class="brand-logo">
-                        </a>
-                        <a href="/brands/victorinox" class="brand-card">
-                            <img src="/images/brands/victorinox.png" alt="VICTORINOX" class="brand-logo">
-                        </a>
-                        <a href="/brands/calvinklein" class="brand-card">
-                            <img src="/images/brands/calvinklein.png" alt="CALVIN KLEIN" class="brand-logo">
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="brands-category">
-                    <div class="category-header">
-                        <h3>POPULAR BRANDS</h3>
-                        <a href="/popular-brands" class="view-all">View all brand watches <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="brands-grid">
-                        <a href="/brands/alba" class="brand-card">
-                            <img src="/images/brands/alba.png" alt="ALBA" class="brand-logo">
-                        </a>
-                        <a href="/brands/armaniexchange" class="brand-card">
-                            <img src="/images/brands/armaniexchange.png" alt="ARMANI EXCHANGE" class="brand-logo">
-                        </a>
-                        <a href="/brands/casio" class="brand-card">
-                            <img src="/images/brands/casio.png" alt="CASIO" class="brand-logo">
-                        </a>
-                        <a href="/brands/cerruti" class="brand-card">
-                            <img src="/images/brands/cerruti.png" alt="CERRUTI" class="brand-logo">
-                        </a>
-                        <a href="/brands/citizen" class="brand-card">
-                            <img src="/images/brands/citizen.png" alt="CITIZEN" class="brand-logo">
-                        </a>
-                        <a href="/brands/coach" class="brand-card">
-                            <img src="/images/brands/coach.png" alt="COACH" class="brand-logo">
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
+           
+        </main>
 
-        <!-- Gender Shop Section -->
-        <section class="gender-shop-section">
-            <div class="container">
-                <h2 class="section-title">MADE FOR GETTING WRAPPED UP IN THE MOMENT</h2>
-                <div class="gender-shop-grid">
-                    <div class="gender-card">
-                        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28185%29-G5lon2UsRxdygQl7ptR9yZlBPrmvnA.png" alt="Shop for Her" class="gender-img">
-                        <a href="/watches/women" class="gender-btn">SHOP FOR HER</a>
-                    </div>
-                    <div class="gender-card">
-                        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28185%29-G5lon2UsRxdygQl7ptR9yZlBPrmvnA.png" alt="Shop for Him" class="gender-img">
-                        <a href="/watches/men" class="gender-btn">SHOP FOR HIM</a>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- Footer -->
+        <%- include("../../views/partials/user/footer") %>
 
-        <!-- Featured Products Section -->
-        <section class="featured-products-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>FEATURED COLLECTIONS</h2>
-                    <p>Discover our most popular timepieces</p>
-                </div>
-                
-                <div class="product-grid">
-                    <!-- <% const featuredWatches = [
-                        { 
-                            id: 1,
-                            brand: "LONGINES", 
-                            name: "LONGINES L5.258.4.71.0 DOLCEVITA ANALOG WATCH FOR WOMEN", 
-                            price: "139,000.00",
-                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
-                        },
-                        { 
-                            id: 2,
-                            brand: "LONGINES", 
-                            name: "LONGINES EVIDENZA L2.142.4.60.6 AUTOMATIC ANALOG WATCH FOR WOMEN", 
-                            price: "212,000.00",
-                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
-                        },
-                        { 
-                            id: 3,
-                            brand: "LONGINES", 
-                            name: "LONGINES L3.320.4.07.6 CONQUEST AUTOMATIC WATCH FOR WOMEN", 
-                            price: "249,000.00",
-                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
-                        },
-                        { 
-                            id: 4,
-                            brand: "LONGINES", 
-                            name: "LONGINES L4.918.4.94.6 LA GRANDE CLASSIQUE AUTOMATIC ANALOG WATCH FOR MEN", 
-                            price: "178,000.00",
-                            image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20%28186%29-zt5FhBMydOHNzfGuFyGnxb3OiG1BGL.png"
-                        }
-                    ]; %> -->
-                    
-                    <% products.forEach(watch => { %>
-                        <div class="product-card">
-                            <div class="product-image">
-                                <img src="<%= watch.colorVariants[0].productImage[0] %>" alt="<%= watch.productName %>">
-                                <div class="product-actions">
-                                    <button class="btn-wishlist" data-product-id="<%= watch._id %>">
-                                        <i class="far fa-heart"></i>
-                                    </button>
-                                    <button class="btn-add-to-cart" data-product-id="<%= watch._id %>">
-                                        <i class="fas fa-shopping-bag"></i>
-                                        <span>Add to Cart</span>
-                                    </button>
-                                    <button class="btn-quick-view" data-product-id="<%= watch._id %>">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="product-info">
-                                <h4 class="product-brand"><%= watch.brand %></h4>
-                                <h3 class="product-name"><%= watch.name %></h3>
-                                <p class="product-price">₹ <%= watch.price %></p>
-                            </div>
-                        </div>
-                    <% }); %>
-                </div>
-                
-                <div class="discover-btn-container">
-                    <a href="/brands/longines" class="discover-btn">Discover Longines</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- New Arrivals Section -->
-        <section class="new-arrivals-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>NEW ARRIVALS</h2>
-                    <p>The latest additions to our collection</p>
-                </div>
-                
-                <div class="product-grid">                  
-                    
-                    <% products.forEach(watch => { %>
-                        <div class="product-card">
-                            <div class="product-image ">
-                                <img src="<%= watch.colorVariants[0].productImage[0] %>" alt="<%= watch.productName %>">
-                           
-                                <div class="product-actions">
-                                    <button class="btn-wishlist" data-product-id="<%= watch._id %>.png">
-                                        <i class="far fa-heart"></i>
-                                    </button>
-                                    <button class="btn-add-to-cart" data-product-id="<%= watch._id %>">
-                                        <i class="fas fa-shopping-bag"></i>
-                                        <span>Add to Cart</span>
-                                    </button>
-                                    <button class="btn-quick-view" data-product-id="<%= watch._id %>">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="product-info">
-                                <h4 class="product-brand"><%= watch.brand %></h4>
-                                <h3 class="product-name"><%= watch.productName %></h3>
-                                <p class="product-price">₹ <%= watch.price %></p>
-                            </div>
-                        </div>
-                    <% }); %>
-                </div>
-            </div>
-        </section>
-
-        <!-- Shop By Budget Section -->
-        <section class="shop-by-budget">
-            <div class="container">
-                <h2 class="section-title">SHOP BY BUDGET</h2>
-                <div class="budget-options">
-                    <a href="/price/upto-20000" class="budget-btn">UPTO ₹20,000</a>
-                    <a href="/price/upto-40000" class="budget-btn">UPTO ₹40,000</a>
-                    <a href="/price/upto-60000" class="budget-btn">UPTO ₹60,000</a>
-                    <a href="/price/above-60000" class="budget-btn">ABOVE ₹60,000</a>
-                </div>
-                <div class="discover-all-container">
-                    <a href="/offers" class="discover-all-btn">DISCOVER ALL OFFERS</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Pagination -->
-        <div class="pagination-container">
-            <div class="container">
-                <ul class="pagination">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>SUPPORT</h3>
-                    <ul class="footer-links">
-                        <li><a href="/about-us">About us</a></li>
-                        <li><a href="/faqs">FAQs</a></li>
-                        <li><a href="/privacy-policy">Privacy Policy</a></li>
-                        <li><a href="/shipping-policy">Shipping Policy</a></li>
-                        <li><a href="/terms-of-service">Terms of Service</a></li>
-                        <li><a href="/cancellation-refunds">Cancellation & Refunds</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>COMPANY</h3>
-                    <ul class="footer-links">
-                        <li><a href="/todays-deals">Today's Deals</a></li>
-                        <li><a href="/repair-service">Repair & Service</a></li>
-                        <li><a href="/our-stores">Our Stores</a></li>
-                        <li><a href="/ask-to-experts">Ask to Experts</a></li>
-                        <li><a href="/affiliate">Affiliate</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column newsletter">
-                    <h3>SUBSCRIBE NEWSLETTERS</h3>
-                    <p>Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
-                    <form class="newsletter-form">
-                        <input type="email" placeholder="Enter your email" required>
-                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
-                    </form>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-pinterest-p"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; <%= new Date().getFullYear() %> Eon Forge. All Rights Reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="/assets/js/user/home.js"></script>
+            <script src="/assets/js/user/home.js"></script>
 </body>
+
 </html>
-
-
-
- <link rel="stylesheet" href="/assets/css/admin/dashboard.css">
- <script src="/assets/dashboard.js"></script>

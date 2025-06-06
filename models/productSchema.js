@@ -30,6 +30,10 @@ const productSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  isBlocked:{
+        type:Boolean,
+        default:false
+    },
   colorVariants: [
     {
       colorName: {
@@ -71,12 +75,13 @@ const productSchema = new Schema({
         type: Schema.Types.ObjectId,
         auto: true,
       },
-    },
-  ],
-  isBlocked:{
+      isBlocked:{
         type:Boolean,
         default:false
     },
+    },
+  ],
+  
 }, { timestamps: true });
 
 

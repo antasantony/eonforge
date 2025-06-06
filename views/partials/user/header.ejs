@@ -1,39 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <title>Eon Forge - Luxury Watches</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <title>EON FORGE - Luxury Watches</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'montserrat': ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        'accent': '#c8a97e',
+                        'cream': '#f8f5eb',
+                        'dark-gray': '#666',
+                        'medium-gray': '#ddd',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-  <header class="site-header">
-    <div class="container">
-      <div class="header-top">
-        <div class="logo">
-          <a href="#"><img src="/assets/imgs/theme/watch_logo.png" alt=""></a>
+<header class="bg-white shadow-sm py-4">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between flex-wrap">
+            <!-- Logo -->
+            <div class="flex-shrink-0 mr-5">
+                <a href="/">
+                    <h1 class="text-2xl font-bold tracking-widest text-black">EON FORGE</h1>
+                </a>
+            </div>
+
+            <!-- Navigation Links (Home, Shop, About, Contact) -->
+            <nav class="flex-1 flex justify-center gap-8">
+                <a href="/" class="text-sm font-medium uppercase transition-colors hover:text-accent">HOME</a>
+                <a href="/shop" class="text-sm font-medium uppercase transition-colors hover:text-accent">SHOP</a>
+                <a href="/exclusive" class="text-sm font-medium uppercase transition-colors hover:text-accent">ABOUT</a>
+                <a href="/watch-finder"
+                    class="text-sm font-medium uppercase transition-colors hover:text-accent">CONTACT</a>
+            </nav>
+
+            <!-- Right Section (Search, Account, Wishlist, Cart) -->
+            <div class="flex gap-5 items-center">
+                <!-- Search Icon and Hidden Search Bar -->
+                <div class="relative">
+                    <div class="flex flex-col items-center text-black transition-colors hover:text-accent cursor-pointer"
+                        id="search-toggle">
+                        <i class="fas fa-search text-lg mb-1"></i>
+                        <span class="text-xs">Search</span>
+                    </div>
+                    <div id="search-bar"
+                        class="absolute right-0 top-full bg-white border border-medium-gray rounded shadow-lg opacity-0 invisible transition-all duration-300 z-50 min-w-[300px]">
+                        <div class="flex items-center">
+                            <i class="fas fa-search text-dark-gray px-4"></i>
+                            <input type="text" value='' placeholder="Search analog slim"
+                                class="flex-1 py-2.5 pr-0 border-none outline-none font-montserrat text-sm">
+                            <button class="text-dark-gray px-4 opacity-70 hover:opacity-100 transition-opacity"
+                                id="search-close">
+                                <i class="fas fa-times text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account -->
+                <div class="relative group">
+                    <% if (isLoggedIn || user) { %>
+                        <div
+                            class="flex flex-col items-center text-black transition-colors hover:text-accent cursor-pointer">
+                            <i class="fas fa-user text-lg mb-1"></i>
+                            <span class="text-xs">Account</span>
+                        </div>
+                        <div
+                            class="absolute right-0 top-full bg-white border border-gray-200 min-w-40 z-50 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                            <a href="/profile" class="block px-4 py-2.5 text-gray-700 hover:bg-gray-100"><i
+                                    class="fas fa-user mr-2"></i>
+                                <%= user.firstName %>'s Profile
+                            </a>
+                            <a href="/logout" class="block px-4 py-2.5 text-gray-700 hover:bg-gray-100"><i
+                                    class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+                        </div>
+                        <% } else { %>
+                            <a href="/login"
+                                class="flex flex-col items-center text-black transition-colors hover:text-accent">
+                                <i class="fas fa-user text-lg mb-1"></i>
+                                <span class="text-xs">Account</span>
+                            </a>
+                            <% } %>
+                </div>
+
+                <!-- Wishlist -->
+                <a href="/wishlist" class="flex flex-col items-center text-black transition-colors hover:text-accent">
+                    <i class="fas fa-heart text-lg mb-1"></i>
+                    <span class="text-xs">Wishlist</span>
+                </a>
+
+                <!-- Cart -->
+                <a href="/cart" class="flex flex-col items-center text-black transition-colors hover:text-accent">
+                    <i class="fas fa-shopping-bag text-lg mb-1"></i>
+                    <span class="text-xs">Cart</span>
+                </a>
+            </div>
         </div>
-        <div class="header-actions">
-          <div class="search-box">
-            <input type="text" placeholder="Search...">
-            <button><i class="fas fa-search"></i></button>
-          </div>
-          <div class="user-actions">
-            <a href="/signup" class="account-link"><i class="fas fa-user"></i></a>
-            <a href="/signup" class="wishlist-link"><i class="fas fa-heart"></i></a>
-            <a href="/signup" class="cart-link"><i class="fas fa-shopping-cart"></i></a>
-          </div>
-        </div>
-      </div>
-      <nav class="main-nav">
-        <ul>
-          <li><a href="/brands">BRANDS</a></li>
-          <li><a href="/offer">OFFER</a></li>
-          <li><a href="/store">STORE</a></li>
-          <li><a href="/repair-service">REPAIR AND SERVICE</a></li>
-          
-        </ul>
-      </nav>
     </div>
-  </header>
+    
+</header>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+  const searchToggle = document.getElementById('search-toggle');
+  const searchBar = document.getElementById('search-bar');
+  const searchClose = document.getElementById('search-close');
+  const searchInput = document.getElementById('search-input');
+
+  // Toggle search bar visibility
+  searchToggle.addEventListener('click', () => {
+    const isVisible = !searchBar.classList.contains('invisible');
+    if (isVisible) {
+      searchBar.classList.add('opacity-0', 'invisible');
+    } else {
+      searchBar.classList.remove('opacity-0', 'invisible');
+      searchInput.focus(); // Focus input when opening
+    }
+  });
+
+  // Close search bar when close button is clicked
+  searchClose.addEventListener('click', () => {
+    searchBar.classList.add('opacity-0', 'invisible');
+    searchInput.value = ''; // Clear input on close
+  });
+
+  // Optional: Close search bar when clicking outside
+  document.addEventListener('click', (event) => {
+    if (!searchBar.contains(event.target) && !searchToggle.contains(event.target)) {
+      searchBar.classList.add('opacity-0', 'invisible');
+      searchInput.value = ''; // Clear input
+    }
+  });
+
+  // Optional: Handle Enter key for search
+  searchInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter' && searchInput.value.trim()) {
+      console.log('Search query:', searchInput.value); // Replace with actual search logic
+      // Example: window.location.href = `/search?q=${encodeURIComponent(searchInput.value)}`;
+      searchBar.classList.add('opacity-0', 'invisible');
+      searchInput.value = ''; // Clear input after search
+    }
+  });
+});
+</script>

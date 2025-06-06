@@ -64,75 +64,78 @@ if (accountToggle && accountDropdown) {
       })
     })
   
-    // Hero Carousel
-    const slides = document.querySelectorAll(".carousel-slide")
-    const dots = document.querySelectorAll(".dot")
-    const prevBtn = document.querySelector(".prev-btn")
-    const nextBtn = document.querySelector(".next-btn")
-    let currentSlide = 0
-    let slideInterval
-  
-    function showSlide(index) {
-      slides.forEach((slide) => slide.classList.remove("active"))
-      dots.forEach((dot) => dot.classList.remove("active"))
-  
-      slides[index].classList.add("active")
-      dots[index].classList.add("active")
-      currentSlide = index
-    }
-  
-    function nextSlide() {
-      currentSlide = (currentSlide + 1) % slides.length
-      showSlide(currentSlide)
-    }
-  
-    function prevSlide() {
-      currentSlide = (currentSlide - 1 + slides.length) % slides.length
-      showSlide(currentSlide)
-    }
-  
-    function startSlideshow() {
-      slideInterval = setInterval(nextSlide, 5000)
-    }
-  
-    function stopSlideshow() {
-      clearInterval(slideInterval)
-    }
-  
-    if (slides.length > 0) {
-      // Set up event listeners for carousel controls
-      if (prevBtn && nextBtn) {
-        prevBtn.addEventListener("click", () => {
-          prevSlide()
-          stopSlideshow()
-          startSlideshow()
-        })
-  
-        nextBtn.addEventListener("click", () => {
-          nextSlide()
-          stopSlideshow()
-          startSlideshow()
-        })
-      }
-  
-      dots.forEach((dot, index) => {
-        dot.addEventListener("click", () => {
-          showSlide(index)
-          stopSlideshow()
-          startSlideshow()
-        })
-      })
-  
-      // Start the slideshow
-      startSlideshow()
-  
-      // Pause slideshow on hover
-      const carouselContainer = document.querySelector(".carousel-container")
-      if (carouselContainer) {
-        carouselContainer.addEventListener("mouseenter", stopSlideshow)
-        carouselContainer.addEventListener("mouseleave", startSlideshow)
-      }
-    }
+
+        // Carousel JavaScript
+      
+        // Carousel JavaScript
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.indicator');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentIndex = 0;
+        const slideInterval = 5000;
+
+        function showSlide(index) {
+            if (index >= slides.length) index = 0;
+            if (index < 0) index = slides.length - 1;
+
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('bg-white', i === index);
+                indicator.classList.toggle('bg-gray-400', i !== index);
+            });
+
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            showSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentIndex - 1);
+        }
+
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        indicators.forEach((indicator, i) => {
+            indicator.addEventListener('click', () => showSlide(i));
+        });
+
+        let autoSlide = setInterval(nextSlide, slideInterval);
+
+        const carousel = document.querySelector('.carousel-container');
+        carousel.addEventListener('mouseenter', () => clearInterval(autoSlide));
+        carousel.addEventListener('mouseleave', () => {
+            autoSlide = setInterval(nextSlide, slideInterval);
+        });
+
+        showSlide(currentIndex);
+
+     
+       
+ 
+
+        // Search Bar Toggle
+        const searchToggle = document.getElementById('search-toggle');
+        const searchBar = document.getElementById('search-bar');
+        const searchClose = document.getElementById('search-close');
+
+        searchToggle.addEventListener('click', () => {
+            searchBar.classList.toggle('opacity-0');
+            searchBar.classList.toggle('invisible');
+        });
+
+        searchClose.addEventListener('click', () => {
+            searchBar.classList.add('opacity-0');
+            searchBar.classList.add('invisible');
+        });
+
+
   
     // Wishlist Button Toggle
     const wishlistButtons = document.querySelectorAll(".btn-wishlist")

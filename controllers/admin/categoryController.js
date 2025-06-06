@@ -1,4 +1,5 @@
-const Category = require('../../models/categorySchema')
+const Category = require('../../models/categorySchema');
+const { exists } = require('../../models/userSchema');
 
 
 const categoryInfo = async (req,res) => {
@@ -39,11 +40,11 @@ const categoryInfo = async (req,res) => {
   
 
 const addOrUpdateCategory=async (req,res) => {
-        const{name, description, offerPrice, isListed} = req.body 
+        let {name, description, offerPrice, isListed} = req.body 
        const hasOffer = !!req.body.hasOffer;
-
+     
         const categoryId=req.params.id; 
-        
+        console.log(name)
         if (!name || !description){
     return res.status(400).json({error: "Name and Description are required" });
   }
@@ -60,9 +61,9 @@ const addOrUpdateCategory=async (req,res) => {
       }, { new: true });
 
       return res.status(200).json({ message:"Category updated successfully", category: updated });
-    } else {
+    } else {                                                 
       // Add new
-      const existing =await Category.findOne({name});
+      const existing =await Category.findOne({name:{$regex:`^${name}$`,$options:'i'}});
       if (existing) {
         return res.status(400).json({error:"Category with this name already exists" });
       }
