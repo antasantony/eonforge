@@ -43,8 +43,9 @@ router.put('/product/:id', uploads.any(), productController.updateProduct);
 router.get('/products/:id', productController.getProductJson);
 router.get('/products/:productId/variants/:variantId', productController.getVariantJson);
 router.patch('/products/:id/status', productController.toggleProductStatus);
-router.patch('/products/:productId/variants/block/:variantId', productController.blockVariant);
-router.patch('/products/:productId/variants/unblock/:variantId', productController.unblockVariant);
+router.patch('/products/:productId/variants/:variantId/status', productController.toggleVariantStatus);
+
+
 router.put('/products/:productId/variants/:variantId', uploads.any(), productController.updateVariant);
 
 

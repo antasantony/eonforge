@@ -38,7 +38,7 @@
         </svg>
       </div>
       <h1 class="text-4xl font-bold text-center text-white mb-3">Eon forge</h1>
-      <p class="text-xl text-white/80 text-center mb-10">Reset your watch account password</p>
+      <p class="text-xl text-white/80 text-center mb-10">Change your watch account Email</p>
 
       <!-- Messages -->
     
@@ -74,16 +74,88 @@
 
       <!-- Back to Login -->
       <div class="mt-10 text-center">
-        <a href="/login" class="text-white/80 hover:text-white text-lg font-medium inline-flex items-center transition-colors">
+        <a href="/editProfile" class="text-white/80 hover:text-white text-lg font-medium inline-flex items-center transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Back to Eon forge Login
+          Back to Eon forge Profile
         </a>
       </div>
     </div>
   </div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('forgotForm');
+    const messageEl = document.getElementById('messageElement');
+    const emailInput = document.getElementById('email');
 
-  <script src="/assets/js/user/forgot-password.js"></script>
+    form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = emailInput.value.trim();
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+
+    if (!email) {
+        messageEl.classList.remove('text-green-500');
+        messageEl.classList.add('text-red-500');
+        messageEl.textContent = 'Email is required.';
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        messageEl.classList.remove('text-green-500');
+        messageEl.classList.add('text-red-500');
+        messageEl.textContent = 'Please enter a valid email address.';
+        return;
+    }
+
+    // Show loading state
+    submitButton.textContent = "Processing...";
+    submitButton.disabled = true;
+    submitButton.classList.add("opacity-70", "cursor-not-allowed");
+
+    try {
+        const response = await fetch('/change-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        const result = await response.json();
+
+        messageEl.classList.remove('text-green-500', 'text-red-500');
+        messageEl.classList.add(result.success ? 'text-green-500' : 'text-red-500');
+        messageEl.textContent = result.message;
+
+        if (result.success) {
+            setTimeout(() => {
+                window.location.href = result.redirectUrl || '/change-email-otp';
+            }, 1000);
+        } else {
+            // Restore button if not redirecting
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+            submitButton.classList.remove("opacity-70", "cursor-not-allowed");
+        }
+    } catch (error) {
+        console.error('Network error:', error);
+        messageEl.classList.remove('text-green-500');
+        messageEl.classList.add('text-red-500');
+        messageEl.textContent = 'Network error. Please try again.';
+
+        // Restore button
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+        submitButton.classList.remove("opacity-70", "cursor-not-allowed");
+    }
+});
+
+});
+</script>
+  
 </body>
 </html>

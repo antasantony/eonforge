@@ -35,7 +35,8 @@ async(accessToken,refreshToken,profile,done)=>{
                 googleId:profile.id
                 
             });
-            const googeId=user.googleId
+            const googleId=user.googleId
+            console.log('googleId from passport',googleId)
             await user.save();
             return done(null,user)
         }

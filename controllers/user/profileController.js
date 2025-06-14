@@ -1,227 +1,6 @@
-// const User = require("../../models/userSchema")
-// const nodemailer = require('nodemailer')
-// const bcrypt = require("bcrypt")
-// const session = require('express-session')
-// const env = require('dotenv').config()
-
-
-
-
-
-// const loadForgotPassword = async (req, res) => {
-
-//   try {
-
-//     res.render('forgot-password')
-
-//   } catch (error) {
-//     return res.redirect('/pageNotFound')
-
-//   }
-
-// }
-
-// function generateOtp() {
-//   const digits = '1234567890';
-//   let otp = '';
-//   for (let i = 0; i < 6; i++) {
-
-//     otp += digits[Math.floor(Math.random() * 10)]
-//   }
-//   return otp
-
-// }
-
-// async function sendVerificationEmail(email, otp) {
-//   try {
-//     const transporter = nodemailer.createTransport({
-//       service: 'gmail',
-//       port: 587,
-//       secure: false,
-//       requireTLS: true,
-//       auth: {
-//         user: process.env.NODEMAILER_EMAIL,
-//         pass: process.env.NODEMAILER_PASSWORD
-//       }
-//     })
-//     const info = await transporter.sendMail({
-//       from: process.env.NODEMAILER_EMAIL,
-//       to: email,
-//       subject: 'your otp forn password reset',
-//       text: `Your OTP is ${otp}`,
-//       html: `<p>your OTP is:<strong> ${otp}</strong></p>`,
-//     })
-//     //  console.log('Mail info:',info)
-//     return info.accepted.length > 0
-
-//   } catch (error) {
-//     console.error('error sending email', error)
-//     return false
-//   }
-// }
-
-
-// const forgotPassword = async (req, res) => {
-//   try {
-//     const { email } = req.body;
-
-//     const findUser = await User.findOne({ email: email })
-
-//     if (findUser) {
-//       let otp = generateOtp();
-//       const emailSent = await sendVerificationEmail(email, otp)
-
-//       console.log('hello i am here', email)
-//       if (emailSent) {
-//         req.session.email = email;
-//         req.session.otpExpiresAt = Date.now() + 60 * 1000;
-//         req.session.otp = otp;
-
-//         // res.redirect('forgotPass-otp')
-
-
-//         console.log('OTP :', otp)
-
-//       } else {
-
-//         res.json({ success: false, message: 'Failed to send OTP. Please try again' });
-//       }
-//     } else {
-//     
-//     }
-
-//   } catch (error) {
-//     console.log(error)
-//     res.redirect('/pageNotFound')
-//   }
-// }
-
-// const loadForgotPasswordOtp=async (req,res) => {
-//   try {
-//       res.render('forgotPass-otp')
-//   } catch (error) {
-//     console.log(error)
-//   }
-
-// }
-
-
-
-// const forgotPasswordOtp = async (req, res) => {
-//   try {
-
-//     const { otp } = req.body
-//     console.log('hello typed otp', otp)
-//     if (otp == req.session.otp) {
-//       return res.json({ success: true, redirectUrl: '/reset-password' })
-//     } else {
-//       return res.json({ success: false, message: 'Incorrect OTP. Please try again.' });
-//     }
-
-//   } catch (error) {
-//     console.log(error);
-//     res.redirect('/pageNotFound')
-//     res.status(500).json({ success: false, message: "an occuerd. Please try again" })
-//   }
-
-// }
-
-// const forgotResendOtp = async (req, res) => {
-//   try {
-
-//     const email = req.session.email
-//     console.log('hello i am here resend otp', req.session.email)
-//     const otpExpiresAt = req.session.otpExpiresAt;
-//     if (!email) {
-//       return res.status(400).json({ success: false, message: 'Email not found in session' })
-//     }
-
-//     if (otpExpiresAt && Date.now() < otpExpiresAt) {
-//       const secondsLeft = Math.ceil((otpExpiresAt - Date.now()) / 1000);
-//       return res.status(429).json({
-//         success: false,
-//         message: `Please wait ${secondsLeft}s before resending OTP`
-//       });
-//     }
-
-
-
-
-//     // const email = req.session.email
-//     // console.log('resend otp mail:',email)
-
-
-//     const otp = generateOtp();
-//     req.session.otp = otp;
-
-//     const emailSent = await sendVerificationEmail(email, otp);
-//     if (emailSent) {
-//       console.log('Resend OTP :', otp);
-//       res.status(200).json({ success: true, message: 'OTP Resend Succeccfully' })
-
-//     } else {
-//       res.status(500).json({ success: false, message: 'Failed to resend OTP. Please try again' })
-//     }
-//   } catch (error) {
-//     console.error('Error resending OTP', error);
-//     res.status(500).json({ success: false, message: 'Internal Server Error . Please try again' })
-
-//   }
-// }
-
-// const resetPassword = async (req, res) => {
-//   try {
-//     if (req.session.email) {
-//       return res.render('reset-password')
-//     } else {
-//       res.redirect('/forgot-password')
-//     }
-
-//   } catch (error) {
-//     console.log(error)
-//     res.redirect('/pageNotFound')
-//   }
-// };
-
-
-// const updatePassword = async (req, res) => {
-//   try {
-//     const { newPassword } = req.body;
-//     const email = req.session.email;
-
-//     console.log('Received body:', req.body);
-//     console.log('Received email in session:', req.session.email);
-
-//     if (!email) {
-//       return res.status(400).json({ success: false, message: 'Session expired. Please try again.' });
-//     }
-//     const hashedPassword = await bcrypt.hash(newPassword, 10);
-//     await User.updateOne({ email }, { $set: { password: hashedPassword } });
-
-//     req.session.email = null;
-//     req.session.otp = null;
-
-
-//     return res.json({ success: true, message: 'Password updated successfully. Please login again.' });
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ success: false, message: 'Something went wrong' });
-//   }
-// };
-
-
-// module.exports = {
-//   loadForgotPassword,
-//   forgotPassword,
-//   loadForgotPasswordOtp,
-//   forgotPasswordOtp,
-//   resetPassword,
-//   forgotResendOtp,
-//   updatePassword
-
-// }
-
 const User = require("../../models/userSchema");
+const Address = require("../../models/addressSchema")
+
 const nodemailer = require('nodemailer');
 const bcrypt = require("bcrypt");
 const session = require('express-session');
@@ -337,37 +116,37 @@ const forgotPasswordOtp = async (req, res) => {
 };
 
 const forgotResendOtp = async (req, res) => {
-    try {
-        const email = req.session.email;
-        if (!email) {
-            return res.status(400).json({ success: false, message: 'Session expired. Please start over.' });
-        }
-
-        const resendOtpAllowedAt =req.session.resendOtpAllowedAt;
-        if (resendOtpAllowedAt && Date.now() < resendOtpAllowedAt) {
-          console.log('otpexp',otpExpiresAt)
-            const secondsLeft = Math.ceil((resendOtpAllowedAtt - Date.now()) / 1000);
-            return res.status(429).json({
-                success: false,
-                message: `Please wait ${secondsLeft} seconds before requesting a new OTP.`
-            });
-        }
-
-        const otp = generateOtp();
-        const emailSent = await sendVerificationEmail(email, otp);
-
-        if (emailSent) {
-            req.session.otp = otp;
-            req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // Set to 5 minutes
-            console.log('Resend OTP:', otp);
-            return res.status(200).json({ success: true, message: 'OTP resent successfully.' });
-        } else {
-            return res.status(500).json({ success: false, message: 'Failed to resend OTP. Please try again.' });
-        }
-    } catch (error) {
-        console.error('Error resending OTP:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred. Please try again.' });
+  try {
+    const email = req.session.email;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Session expired. Please start over.' });
     }
+
+    const resendOtpAllowedAt = req.session.resendOtpAllowedAt;
+    if (resendOtpAllowedAt && Date.now() < resendOtpAllowedAt) {
+      console.log('otpexp', otpExpiresAt)
+      const secondsLeft = Math.ceil((resendOtpAllowedAtt - Date.now()) / 1000);
+      return res.status(429).json({
+        success: false,
+        message: `Please wait ${secondsLeft} seconds before requesting a new OTP.`
+      });
+    }
+
+    const otp = generateOtp();
+    const emailSent = await sendVerificationEmail(email, otp);
+
+    if (emailSent) {
+      req.session.otp = otp;
+      req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // Set to 5 minutes
+      console.log('Resend OTP:', otp);
+      return res.status(200).json({ success: true, message: 'OTP resent successfully.' });
+    } else {
+      return res.status(500).json({ success: false, message: 'Failed to resend OTP. Please try again.' });
+    }
+  } catch (error) {
+    console.error('Error resending OTP:', error);
+    return res.status(500).json({ success: false, message: 'An error occurred. Please try again.' });
+  }
 };
 
 const resetPassword = async (req, res) => {
@@ -410,6 +189,452 @@ const updatePassword = async (req, res) => {
   }
 };
 
+const userProfile = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const isLoggedIn = !!userId;
+    let user = null;
+    if (isLoggedIn) user = await User.findById(userId).lean();
+    const addressData = await Address.findOne({userId}).lean()
+    console.log('address data from ',addressData)
+    
+    res.render('profile', {
+      user,
+      isLoggedIn,
+      userAddress: addressData
+    })
+  } catch (error) {
+    console.log(error)
+    res.redirect('/pageNotFound')
+  }
+
+}
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// Load Edit Profile Page
+const loadEditProfile = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.redirect('/login');
+    }
+
+    const user = await User.findById(userId).lean();
+    if (!user) {
+      return res.redirect('/login');
+    }
+    res.render('editProfile', {
+      user,
+      isLoggedIn: true,
+    });
+  } catch (error) {
+    console.error('Error loading edit profile:', error);
+    res.redirect('/pageNotFound');
+  }
+};
+
+// Edit Profile
+const editProfile = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Please log in to update your profile.' });
+    }
+
+    // console.log('Request Body:', req.body);
+    // console.log('Uploaded File:', req.file);
+
+    const { firstName, lastName, email, phone, dob, bio } = req.body;
+
+    // Build update object
+    const editData = {
+      firstName: firstName?.trim() || '',
+      lastName: lastName?.trim() || '',
+      email: email?.trim() || '',
+    };
+
+    // Handle optional fields
+    editData.phone = phone?.trim() || null;
+    editData.bio = bio?.trim() || '';
+    if (dob?.trim()) {
+      const parsedDob = new Date(dob);
+      editData.dob = isNaN(parsedDob) ? null : parsedDob;
+    } else {
+      editData.dob = null;
+    }
+
+    // Handle profile image
+    if (req.file) {
+      editData.profileImage = req.file.filename;;
+    }
+
+
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: editData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      console.log('User not found');
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    console.log('Updated User:', updatedUser);
+
+    // Send email notification if email changed
+    if (email?.trim() && email !== updatedUser.email) {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Profile Email Updated',
+        text: `Your profile email has been updated to ${email}. If you did not make this change, please contact support.`,
+      };
+      await transporter.sendMail(mailOptions);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully.',
+      redirect: '/profile?updated=' + Date.now(),
+    });
+  } catch (error) {
+    console.error('Update Error:', error);
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0];
+      return res.status(400).json({
+        success: false,
+        message: `${field.charAt(0).toUpperCase() + field.slice(1)} already in use.`,
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while updating the profile.',
+    });
+  }
+};
+
+const changeEmail = async (req, res) => {
+  try {
+    res.render('changeEmail')
+  } catch (error) {
+    console.error('Error loading enter email:', error);
+    res.redirect('/pageNotFound');
+  }
+
+}
+
+const changeEmailvalid = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+
+      const otp = generateOtp();
+      const emailSent = await sendVerificationEmail(email, otp);
+      if (emailSent) {
+        req.session.otp = otp;
+        console.log('OTP', otp);
+        req.session.userData = req.body;
+        req.session.email = email;
+
+        req.session.otpExpiresAt = Date.now() + 60 * 1000;
+        return res.json({ success: true, redirectUrl: '/change-email-otp' });
+
+      } else {
+        return res.json({ success: false, message: 'Failed to send OTP. Please try again.' });
+      }
+    } else {
+      return res.json({ success: false, message: 'User with this email does not exist.' });
+    }
+  } catch (error) {
+    console.error('Error in change Email:', error);
+    return res.redirect('/pageNotFound');
+  }
+}
+
+const loadChangeEmailOtp = async (req, res) => {
+  try {
+    res.render('change-email-otp')
+  } catch (error) {
+    console.error('Error in change Email:', error);
+    return res.redirect('/pageNotFound');
+  }
+
+}
+const changeEmailOtp = async (req, res) => {
+  try {
+    const { otp } = req.body;
+
+    if (!req.session.otp || !req.session.otpExpiresAt) {
+      return res.json({ success: false, message: 'Session expired. Please start over.' });
+    }
+
+    if (Date.now() > req.session.otpExpiresAt) {
+      return res.json({ success: false, message: 'OTP has expired. Please request a new one.' });
+    }
+
+    if (otp === req.session.otp) {
+      return res.json({ success: true, redirectUrl: '/update-email' });
+    } else {
+      return res.json({ success: false, message: 'Incorrect OTP. Please try again.' });
+    }
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    return res.json({ success: false, message: 'An error occurred. Please try again.' });
+  }
+};
+
+const loadUpdateEmail = async (req, res) => {
+  try {
+    if (req.session.email) {
+      res.render('update-email');
+    }
+  } catch (error) {
+    console.error('email updating field error', error)
+
+  }
+
+}
+
+const updateEmail = async (req, res) => {
+  try {
+    const newEmail = req.body.email;
+
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized access. Please log in." });
+    }
+    if (!newEmail || !newEmail.trim()) {
+      return res.status(400).json({ success: false, message: "Email is required." });
+    }
+    const existingUser = await User.findOne({ email: newEmail });
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: "This email is already in use." });
+    }
+    await User.findByIdAndUpdate(userId, { email: newEmail });
+
+
+    return res.json({ success: true, redirectUrl: '/profile', message: "Email updated successfully." });
+
+  } catch (error) {
+    console.error("Error updating email:", error);
+    return res.status(500).json({ success: false, message: "Something went wrong. Please try again." });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.session.userId;
+
+    console.log('is it store in', req.body)
+
+    // Check if user is logged in
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized access." });
+    }
+
+    // Check new password match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, message: "New password and confirm password do not match." });
+    }
+
+    // Check password length
+    if (newPassword.length < 8) {
+      return res.status(400).json({ success: false, message: "Password must be at least 8 characters long." });
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    // Compare current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "Current password is incorrect." });
+    }
+
+    // Hash new password and update
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.json({ success: true, message: "Password updated successfully." });
+
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return res.status(500).json({ success: false, message: "Something went wrong. Please try again." });
+  }
+};
+
+const addAddress = async (req, res) => {
+
+  try {
+    const userId = req.session.userId;
+    const isLoggedIn = !!userId;
+    let user = null;
+    if (isLoggedIn) user = await User.findById(userId).lean();
+
+
+    const address = await Address.findOne({ userId })
+    res.render('add-address', { user, isLoggedIn, address })
+
+  } catch (error) {
+    console.log('address management error', error)
+    res.redirect('/pageNotFound')
+  }
+
+}
+
+const postAddAddress = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const { type, street, city, state, pin, country, phone, isDefault } = req.body;
+    console.log('Received form data:', req.body);
+
+    // Validate required fields
+    if (!type || !street || !city || !state || !pin || !country || !phone) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Validate address type
+    if (!['home', 'work', 'other'].includes(type)) {
+      return res.status(400).json({ message: 'Invalid address type' });
+    }
+
+    // Validate phone number (exactly 10 digits)
+    if (!/^[0-9]{10}$/.test(phone)) {
+      return res.status(400).json({ message: 'Phone number must be exactly 10 digits' });
+    }
+
+    const userAddress = await Address.findOne({ userId });
+    const newAddress = { type, street, city, state, pin, country, phone, isDefault: isDefault === 'on' };
+    console.log('New address:', newAddress);
+
+    if (userAddress) {
+      userAddress.address.push(newAddress);
+      await userAddress.save();
+    } else {
+      await Address.create({
+        userId,
+        address: [newAddress]
+      });
+    }
+
+    res.status(200).json({ message: 'Address added successfully' });
+  } catch (error) {
+    console.error('address posting error:', error);
+    res.status(500).json({ message: 'Failed to add address', error: error.message });
+  }
+};
+
+const updateAddress = async (req, res) => {
+  const userId = req.session.userId; 
+  console.log('userId is:', userId);
+
+  try {
+    const { id, editType, street, city, state, pin, country, phone, isDefault } = req.body;
+    console.log('this is req.body:', req.body);
+
+
+    if (!id || !editType) {
+      return res.status(400).json({ message: 'id and editType are required' });
+    }
+
+   
+    const user = await Address.findOne({ _id: id});
+    if (!user) {
+      console.log('User not found for id:', id, 'and userId:', userId);
+      return res.status(404).json({ message: 'User not found or unauthorized' });
+    }
+
+ 
+    const address = user.address.find(addr => addr.type === editType);
+    if (!address) {
+      console.log(`No address found with type: ${editType}`);
+      return res.status(404).json({ message: `Address with type "${editType}" not found` });
+    }
+
+    console.log('finding type address:', address);
+    console.log('address_id:', address._id.toString());
+
+    
+    const updateFields = {
+      'address.$.street': street,
+      'address.$.city': city,
+      'address.$.state': state,
+      'address.$.pin': pin,
+      'address.$.country': country,
+      'address.$.phone': phone,
+      'address.$.isDefault': isDefault,
+    };
+
+    
+    Object.keys(updateFields).forEach(key => {
+      if (updateFields[key] === undefined) {
+        delete updateFields[key];
+      }
+    });
+
+    
+    const updatedUser = await Address.findOneAndUpdate(
+      { _id: id, 'address._id': address._id },
+      { $set: updateFields },
+      { new: true } 
+    );
+
+    if (!updatedUser) {
+      console.log('Failed to update address for address_id:', address._id);
+      return res.status(500).json({ message: 'Failed to update address' });
+    }
+
+    console.log('Updated user:', updatedUser);
+    res.status(200).json({ message: 'Address updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error('Error in updateAddress:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+ const deleteAddress = async (req, res) => {
+    try {
+        const { userId ,addressId} = req.body; 
+        const sessionUserId = req.session.userId; 
+
+        console.log('hello delete reqbody', req.body); 
+  console.log('come from session',sessionUserId)
+      
+        const updatedUser = await Address.findOneAndUpdate(
+            { _id: userId },
+            { $pull: { address: { _id: addressId } } },
+            { new: true }
+        );
+    console.log('updatedelete where',updatedUser)
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User or address not found' });
+        }
+
+        res.status(200).json({ message: 'Address deleted successfully', user: updatedUser });
+    } catch (error) {
+        console.error('Error in deleteAddress:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+
 module.exports = {
   loadForgotPassword,
   forgotPassword,
@@ -417,5 +642,19 @@ module.exports = {
   forgotPasswordOtp,
   resetPassword,
   forgotResendOtp,
-  updatePassword
+  updatePassword,
+  userProfile,
+  loadEditProfile,
+  editProfile,
+  changeEmail,
+  changeEmailvalid,
+  loadChangeEmailOtp,
+  changeEmailOtp,
+  loadUpdateEmail,
+  updateEmail,
+  changePassword,
+  addAddress,
+  postAddAddress,
+  updateAddress,
+  deleteAddress
 };

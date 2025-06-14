@@ -1,0 +1,449 @@
+<%- include('../../views/partials/user/header') %>
+
+    <style>
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .form-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-upload input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .profile-image-preview {
+            transition: all 0.3s ease;
+        }
+
+        .profile-image-preview:hover {
+            transform: scale(1.05);
+        }
+    </style>
+    </head>
+
+    <body class="bg-gray-50 min-h-screen">
+        <!-- Header Section -->
+        <div class="gradient-bg py-12">
+            <div class="container mx-auto px-4">
+                <div class="text-center text-white">
+                    <h1 class="text-3xl font-bold mb-2">Edit Profile</h1>
+                    <p class="text-lg opacity-90">Update your personal information</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="container mx-auto px-4 -mt-6 pb-12">
+            <div class="max-w-2xl mx-auto">
+                <!-- Profile Form Card -->
+                <div class="bg-white rounded-2xl shadow-2xl p-8 form-shadow">
+                    <!-- Profile Image Section -->
+                    <div class="text-center mb-8">
+                        <div class="relative inline-block">
+                            <img id="profilePreview" src="/uploads/re-image/<%= user.profileImage %>"
+                                alt="Profile Image"
+                                class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg profile-image-preview mx-auto">
+                            <div class="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 shadow-lg cursor-pointer hover:bg-blue-700 transition duration-300"
+                                onclick="document.getElementById('profileImage').click()">
+                                <i class="fas fa-camera text-white text-sm"></i>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mt-2">Click the camera icon to change photo</p>
+                    </div>
+
+                    <!-- Profile Update Form -->
+                    <form id="editProfileForm" enctype="multipart/form-data" class="space-y-6">
+                        <!-- First Name Field -->
+                        <div class="space-y-2">
+                            <label for="firstName"
+                                class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">
+                                <i class="fas fa-user text-blue-600 mr-2"></i>First Name
+                            </label>
+                            <input type="text" id="firstName" name="firstName" value="<%= user.firstName || '' %>"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
+                                placeholder="Enter your first name" required>
+                        </div>
+                        <!-- Last Name Field -->
+                        <div class="space-y-2">
+                            <label for="lastName"
+                                class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">
+                                <i class="fas fa-user text-blue-600 mr-2"></i>Last Name
+                            </label>
+                            <input type="text" id="lastName" name="lastName" value="<%= user.lastName || '' %>"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
+                                placeholder="Enter your last name" required>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="space-y-2">
+                            <label class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">
+                                <i class="fas fa-envelope text-blue-600 mr-2"></i>Email Address
+                            </label>
+                            <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                                <div class="flex-1">
+                                    <input type="email" id="email" name="email" value="<%= user.email || '' %>"
+                                        class="w-full text-gray-800 font-medium p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Enter your email" required>
+                                </div>
+                                <a href="/change-email"
+                                    class="block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300 font-medium text-sm">
+                                    <i class="fas fa-envelope mr-1"></i>Change Email
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Hidden File Input -->
+                        <input type="file" id="profileImage" name="profileImage" accept="image/*" class="hidden"
+                            onchange="previewImage(this)">
+
+                        <!-- Phone Number Field -->
+                        <div class="space-y-2">
+                            <label for="phone"
+                                class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">
+                                <i class="fas fa-phone text-blue-600 mr-2"></i>Phone Number
+                            </label>
+                            <input type="tel" id="phone" name="phone" value="<%= user.phone || '' %>"
+                                pattern="[0-9]{10}"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
+                                placeholder="Enter your phone number (e.g., 1234567890)">
+                        </div>
+
+                        <!-- Date of Birth Field -->
+                        <div class="space-y-2">
+                            <label for="dob" class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">
+                                <i class="fas fa-calendar text-blue-600 mr-2"></i>Date of Birth
+                            </label>
+                            <input type="date" id="dob" name="dob"
+                                value="<%= user.dob ? new Date(user.dob).toISOString().split('T')[0] : '' %>"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus">
+                        </div>
+
+                        <!-- Bio Field -->
+                        <div class="space-y-2">
+                            <label for="bio" class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">
+                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>Bio
+                            </label>
+                            <textarea id="bio" name="bio" rows="4" maxlength="300"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus resize-none"
+                                placeholder="Tell us about yourself..."><%= user.bio || '' %></textarea>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div
+                            class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4 pt-6">
+                            <button type="button" onclick="openChangePasswordModal()"
+                                class="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-blue-700 transition duration-300 font-medium">
+                                <i class="fas fa-key mr-2"></i>Change Password
+                            </button>
+
+                            <div class="flex space-x-3 w-full sm:w-auto">
+                                <a href="/profile"
+                                    class="flex-1 sm:flex-none bg-gray-200 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-300 transition duration-300 font-medium text-center">
+                                    <i class="fas fa-times mr-2"></i>Cancel
+                                </a>
+                                <button type="submit"
+                                    class="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition duration-300 font-medium">
+                                    <i class="fas fa-save mr-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password Modal -->
+        <div id="changePasswordModal"
+            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl transform transition-all">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lock text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">Change Password</h3>
+                    <p class="text-gray-600 mt-2">Enter your current password and choose a new one</p>
+                </div>
+
+                <form id="changePasswordForm" class="space-y-6">
+                    <div class="space-y-2">
+                        <label for="currentPassword" class="block text-gray-700 font-semibold text-sm">Current
+                            Password</label>
+                        <div class="relative">
+                            <input type="password" id="currentPassword" name="currentPassword"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 pr-12"
+                                placeholder="Enter current password" required>
+                            <button type="button" onclick="togglePassword('currentPassword')"
+                                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="newPassword" class="block text-gray-700 font-semibold text-sm">New Password</label>
+                        <div class="relative">
+                            <input type="password" id="newPassword" name="newPassword"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 pr-12"
+                                placeholder="Enter new password" required>
+                            <button type="button" onclick="togglePassword('newPassword')"
+                                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            Password must be at least 8 characters long
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="confirmPassword" class="block text-gray-700 font-semibold text-sm">Confirm New
+                            Password</label>
+                        <div class="relative">
+                            <input type="password" id="confirmPassword" name="confirmPassword"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 pr-12"
+                                placeholder="Confirm new password" required>
+                            <button type="button" onclick="togglePassword('confirmPassword')"
+                                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button" onclick="closeChangePasswordModal()"
+                            class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-300 transition duration-300 font-medium">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition duration-300 font-medium">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <%- include("../../views/partials/user/footer") %>
+
+            <script>
+                function previewImage(input) {
+                    if (input.files && input.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            document.getElementById('profilePreview').src = e.target.result;
+                        };
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                function togglePassword(fieldId) {
+                    const field = document.getElementById(fieldId);
+                    const icon = field.nextElementSibling.querySelector('i');
+                    if (field.type === 'password') {
+                        field.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        field.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                }
+
+                function verifyEmail() {
+                    Swal.fire({
+                        title: 'Verify Email',
+                        text: 'A verification link will be sent to your email.',
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Send Verification Link',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#3B82F6',
+                        cancelButtonColor: '#6B7280'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Verification link sent to your email!',
+                                icon: 'success',
+                                confirmButtonColor: '#3B82F6'
+                            });
+                        }
+                    });
+                }
+
+                function openChangePasswordModal() {
+                    document.getElementById('changePasswordModal').classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeChangePasswordModal() {
+                    document.getElementById('changePasswordModal').classList.add('hidden');
+                    document.getElementById('changePasswordForm').reset();
+                    document.body.style.overflow = 'auto';
+                }
+
+                document.getElementById('changePasswordModal').addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        closeChangePasswordModal();
+                    }
+                });
+
+                document.getElementById('editProfileForm').addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const form = this;
+                    const formData = new FormData(form);
+
+                    Swal.fire({
+                        title: 'Updating Profile...',
+                        text: '',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    try {
+                        const response = await fetch('/editProfile', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: result.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#3B82F6'
+                            }).then(() => {
+                                window.location.href = result.redirect || '/profile';
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: result.message || 'Failed to update profile.',
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#EF4444'
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Form submission error:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while updating the profile.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#EF4444'
+                        });
+                    }
+                });
+
+                document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    if (newPassword !== confirmPassword) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'New password and confirmation do not match.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#EF4444'
+                        });
+                        return;
+                    }
+
+                    if (newPassword.length < 8) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Password must be at least 8 characters long.',
+                            icon: 'warning',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#FF4500'
+                        });
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Changing Password...',
+                        text: '',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    try {
+                        const response = await fetch('/change-password', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                currentPassword: document.getElementById('currentPassword').value,
+                                newPassword,
+                                confirmPassword: document.getElementById('confirmPassword').value
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Password changed successfully!',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#3B82F6'
+                            }).then(() => {
+                                closeChangePasswordModal();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: result.message || 'Failed to change password.',
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#EF4444'
+                            });
+                        };
+                    } catch (error) {
+                        console.error('Password change error:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while changing the password.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#EF4444'
+                        });
+                    }
+                });
+            </script>
+    </body>
+
+    </html>

@@ -277,24 +277,31 @@ const login = async (req, res) => {
   try {
 
     const { email, password, googleId } = req.body;
-    console.log("google id is this:", googleId)
+    console.log("google id is this:", email)
 
     let findUser;
     if (googleId) {
       findUser = await User.findOne({ email })
       if (!findUser) {
-        findUser = new User({ email: email, googleId: googleId })
-        console.log(findUser.googleId)
+        findUser = new User({ email: email, googleId: googleId,isBlocked:false })
+        console.log('googleid from login',findUser.googleId)
         await findUser.save();
-      } else if (!findUser.googleId) {
+      } 
+       if (!findUser.googleId) {
         return res.json({ success: false, message: 'This email is registered using password. Please use normal login.' })
+      }
+      if (findUser.isBlocked) {
+        return res.json({ success: false, message: 'User  is blocked by admin' })
       }
 
       req.session.userId = findUser._id;
       return res.json({ success: true, redirectUrl: '/' });
     } else {
 
-      findUser = await User.findOne({ isAdmin: 0, email: email });
+      findUser = await User.findOne({ isAdmin: 0, email: email,isBlocked:false });
+      if(!email||!password){
+        return res.json({success:false,message:'username and password are required.'})
+      }
       if (!findUser) {
         return res.json({ success: false, message: 'Invalid email address' })
       }

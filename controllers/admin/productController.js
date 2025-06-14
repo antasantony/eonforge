@@ -589,11 +589,10 @@ const toggleProductStatus = async (req, res) => {
   }
 };
 
-const blockVariant = async (req, res) => {
+const toggleVariantStatus = async (req, res) => {
   try {
     const { productId, variantId } = req.params;
-
-    // console.log('blockVariant - Product ID:', productId, 'Variant ID:', variantId);
+    const { isBlocked } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(variantId)) {
       return res.status(400).json({ success: false, message: 'Invalid product or variant ID' });
@@ -609,80 +608,30 @@ const blockVariant = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Variant not found' });
     }
 
-    // Block a variant
-    variant.isBlocked = true;
+    variant.isBlocked = isBlocked;
+
+    // Optional: Adjust status
+    variant.isActive = variant.stock > 0 && !variant.isBlocked ? 'Available' : 'Out of Stock';
+    product.status = product.isBlocked
+      ? 'Out of Stock'
+      : product.colorVariants.some(v => v.stock > 0 && v.isActive === 'Available' && !v.isBlocked)
+      ? 'Available'
+      : 'Out of Stock';
 
     await product.save();
-    console.log('Variant blocked successfully:', variantId);
-    res.json({ success: true, message: 'Variant blocked successfully', variant });
+
+    const message = isBlocked ? 'Variant blocked successfully' : 'Variant unblocked successfully';
+
+    res.json({ success: true, message, variant });
   } catch (err) {
-    console.error('Block variant error:', err, err.stack);
+    console.error('Toggle variant status error:', err);
     res.status(500).json({
       success: false,
-      message: `Failed to block variant: ${err.message}`,
-      error: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+      message: `Failed to toggle variant: ${err.message}`,
     });
   }
 };
 
-const unblockVariant = async (req, res) => {
-  try {
-    const { productId, variantId } = req.params;
-
-    // console.log('unblockVariant - Product ID:', productId, 'Variant ID:', variantId);
-
-    if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(variantId)) {
-      return res.status(400).json({ success: false, message: 'Invalid product or variant ID' });
-    }
-
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
-    }
-
-    const variant = product.colorVariants.id(variantId);
-    if (!variant) {
-      return res.status(404).json({ success: false, message: 'Variant not found' });
-    }
-
-    // Unblock a variant
-    // variant.isBlocked = false;
-    // variant.isActive = variant.stock > 0 && !variant.isBlocked ? 'Available' : 'Out of Stock';
-
-    // // Update product status: consider both product and variant isBlocked states
-    // product.status = product.isBlocked
-    //   ? 'Out of Stock' // If product is blocked, it’s unavailable
-    //   : product.colorVariants.some(v => v.stock > 0 && v.isActive === 'Available' && !v.isBlocked)
-    //   ? 'Available'
-    //   : 'Out of Stock';
-
-    await product.save();
-    console.log('Variant unblocked successfully:', variantId);
-    res.json({
-      success: true,
-      message: 'Variant unblocked successfully',
-      variant: {
-        _id: variant._id,
-        colorName: variant.colorName,
-        colorValue: variant.colorValue,
-        stock: variant.stock,
-        isActive: variant.isActive,
-        productImage: variant.productImage,
-        regularPrice: variant.regularPrice,
-        offerPrice: variant.offerPrice,
-        hasOffer: variant.hasOffer,
-        isBlocked: variant.isBlocked, // Include isBlocked in the response
-      },
-    });
-  } catch (err) {
-    console.error('Unblock variant error:', err, err.stack);
-    res.status(500).json({
-      success: false,
-      message: `Failed to unblock variant: ${err.message}`,
-      error: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-    });
-  }
-};
 
 module.exports = {
   getProductPage,
@@ -692,6 +641,6 @@ module.exports = {
   updateProduct,
   updateVariant,
   toggleProductStatus,
-  blockVariant,
-  unblockVariant,
+  toggleVariantStatus,
+ 
 };
