@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eon Forge - Order Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4361ee',
+            'primary-dark': '#1e40af',
+            secondary: '#3b82f6',
+            accent: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .stats-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stats-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .item-row:hover {
+      background: linear-gradient(to right, rgba(243, 244, 246, 0.8), rgba(249, 250, 251, 0.8));
+    }
+    .dropdown { display: none; }
+    .dropdown-container:hover .dropdown { display: block; }
+    .section-header {
+      background: linear-gradient(to right, #f8fafc, #f1f5f9);
+    }
+    .container-shadow {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900">
+  <!-- Header -->
+  <header class="bg-white shadow-md sticky top-0 z-40 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-800">Order Details</h1>
+      <div class="dropdown-container relative">
+        <button class="flex items-center gap-2 text-gray-700 hover:text-primary p-2 rounded-lg hover:bg-gray-100">
+          <i class="fas fa-user"></i>
+          <span class="text-sm font-medium">Admin</span>
+        </button>
+        <div class="dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100">
+          <a href="/profile" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            <i class="fas fa-user text-primary"></i> Profile
+          </a>
+          <a href="/admin/logout" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            <i class="fas fa-sign-out-alt text-danger"></i> Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto p-6">
+    <!-- Back Button -->
+    <div class="mb-6">
+      <a href="/admin/orders" class="inline-flex items-center text-primary hover:text-primary-dark text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary/10 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Orders
+      </a>
+    </div>
+
+    <!-- Order ID -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-semibold text-gray-800">Order ID: <%= order.orderId %></h2>
+      <p class="text-sm text-gray-600">Placed on <%= new Date(order.createdOn).toLocaleDateString() %></p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="stats-card bg-white rounded-xl p-6 container-shadow animate-slide-up">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Items</p>
+            <h3 class="text-2xl font-bold text-primary"><%= order.orderItems.length %></h3>
+          </div>
+          <div class="bg-primary/10 p-3 rounded-full">
+            <i class="fas fa-boxes text-primary text-xl"></i>
+          </div>
+        </div>
+      </div>
+      <div class="stats-card bg-white rounded-xl p-6 container-shadow animate-slide-up">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Quantity</p>
+            <h3 class="text-2xl font-bold text-warning"><%= order.orderItems.reduce((sum, item) => sum + item.stock, 0) %></h3>
+          </div>
+          <div class="bg-warning/10 p-3 rounded-full">
+            <i class="fas fa-cubes text-warning text-xl"></i>
+          </div>
+        </div>
+      </div>
+      <div class="stats-card bg-white rounded-xl p-6 container-shadow animate-slide-up">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Order Total</p>
+            <h3 class="text-2xl font-bold text-accent">₹<%= order.finalAmount.toFixed(2) %></h3>
+          </div>
+          <div class="bg-accent/10 p-3 rounded-full">
+            <i class="fas fa-indian-rupee-sign text-accent text-xl"></i>
+          </div>
+        </div>
+      </div>
+      <div class="stats-card bg-white rounded-xl p-6 container-shadow animate-slide-up">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Payment Status</p>
+            <h3 class="text-2xl font-bold <%= order.paymentMethod === 'cod' ? 'text-yellow-600' : 'text-green-600' %>">
+              <%= order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Paid' %>
+            </h3>
+          </div>
+          <div class="bg-<%= order.paymentMethod === 'cod' ? 'yellow' : 'green' %>-100 p-3 rounded-full">
+            <i class="fas fa-credit-card text-<%= order.paymentMethod === 'cod' ? 'yellow' : 'green' %>-600 text-xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Return Reason (if applicable) -->
+    <% if (order.status === 'Return Request' || order.status === 'Returned') { %>
+      <div class="bg-white rounded-xl p-6 container-shadow mb-8 animate-slide-up">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 section-header p-4 rounded-t-lg">Return Reason</h3>
+        <p class="text-sm text-gray-600"><%= order.returnReason || 'No reason provided' %></p>
+      </div>
+    <% } %>
+
+    <!-- Ordered Items -->
+    <div class="bg-white rounded-xl container-shadow overflow-hidden mb-8">
+      <h3 class="text-lg font-semibold text-gray-800 p-6 section-header">Ordered Items</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Image</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Product Name</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Color</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Quantity</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Price</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% order.orderItems.forEach(item => { %>
+              <tr class="item-row border-t border-gray-100">
+                <td class="px-6 py-4">
+                  <img src="<%= item.product?.colorVariants?.[0]?.productImage?.[0] || '/images/placeholder.jpg' %>" alt="<%= item.product?.productName || 'Product' %>" class="w-16 h-16 object-cover rounded-lg">
+                </td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                  <%= item.product?.productName || 'N/A' %>
+                  <% if (item.product?.colorVariants?.[0]?.colorName) { %>
+                    <br><span class="text-xs text-gray-500">Color: <%= item.product.colorVariants[0].colorName %></span>
+                  <% } %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-700"><%= item.product?.colorVariants?.[0]?.colorName || 'N/A' %></td>
+                <td class="px-6 py-4 text-sm text-gray-700"><%= item.stock %></td>
+                <td class="px-6 py-4 text-sm font-semibold text-gray-900">$<%= item.price.toFixed(2) %></td>
+                <td class="px-6 py-4">
+                  <% 
+                    const statusStyles = {
+                      'Pending': 'bg-yellow-100 text-yellow-800',
+                      'Processing': 'bg-blue-100 text-blue-800',
+                      'Shipped': 'bg-purple-100 text-purple-800',
+                      'Delivered': 'bg-green-100 text-green-800',
+                      'Cancelled': 'bg-red-100 text-red-800',
+                      'Return Request': 'bg-orange-100 text-orange-800',
+                      'Returned': 'bg-gray-100 text-gray-800'
+                    };
+                    const statusIcons = {
+                      'Pending': 'fa-hourglass-start',
+                      'Processing': 'fa-cog',
+                      'Shipped': 'fa-truck',
+                      'Delivered': 'fa-check-circle',
+                      'Cancelled': 'fa-times-circle',
+                      'Return Request': 'fa-undo',
+                      'Returned': 'fa-exchange-alt'
+                    };
+                  %>
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= statusStyles[order.status] %>">
+                    <i class="fas <%= statusIcons[order.status] %> mr-1"></i>
+                    <%= order.status %>
+                  </span>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Customer Details -->
+    <div class="bg-white rounded-xl p-6 container-shadow animate-slide-up">
+      <h3 class="text-lg font-semibold text-gray-800 p-4 section-header rounded-t-lg">Customer Details</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div>
+          <p class="text-sm font-medium text-gray-600">Name</p>
+          <p class="text-gray-900"><%= order.userId?.firstName || 'N/A' %> %></p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-600">Email</p>
+          <p class="text-gray-900"><%= order.userId?.email || 'N/A' %></p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-600">Phone</p>
+          <p class="text-gray-900"><%= order.address?.phone || 'N/A' %></p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-600">Shipping Address</p>
+          <p class="text-gray-900">
+            <%= order.address ? `${order.address.street}, ${order.address.city}, ${order.address.state}, ${order.address.pin}, ${order.address.country}` : 'N/A' %>
+          </p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-600">Address Type</p>
+          <p class="text-gray-900"><%= order.address?.addressType || 'N/A' %></p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-600">Payment Method</p>
+          <p class="text-gray-900"><%= order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) || 'N/A' %></p>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

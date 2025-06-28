@@ -85,19 +85,35 @@ const brandStatus = async (req, res) => {
   }
 };
 
-const deleteBrand = async (req, res) => {
+const editBrand = async (req, res) => {
   const { id } = req.params;
+  const { name } = req.body;
+  const image = req.file;
 
   try {
-    const brand = await Brand.findByIdAndDelete(id);
+    const brand = await Brand.findById(id);
     if (!brand) {
       return res.status(404).json({ success: false, message: 'Brand not found' });
     }
 
-    res.status(200).json({ success: true, message: 'Brand deleted successfully' });
+    const updateData = {};
+    if (name) {
+      updateData.brandName = name.toUpperCase();
+    }
+    if (image) {
+      updateData.brandImage = [image.filename];
+    }
+
+    const updatedBrand = await Brand.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({ success: true, message: 'Brand updated successfully' });
   } catch (error) {
-    console.error('Error deleting brand:', error);
-    res.status(500).json({ success: false, message: 'Server error while deleting brand' });
+    console.error('Error updating brand:', error);
+    res.status(500).json({ success: false, message: 'Server error while updating brand' });
   }
 };
 
@@ -105,5 +121,5 @@ module.exports = {
     getBrandPage,
     addBrand,
     brandStatus,
-    deleteBrand
+    editBrand
 }

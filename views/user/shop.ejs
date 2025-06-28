@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luxury Watch Collection</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
 <script>
   tailwind.config = {
     theme: {
@@ -57,14 +66,6 @@
     -moz-appearance: none;
   }
 
-  /* .range-slider .slider-track {
-    position: absolute;
-    top: 0;
-    height: 6px;
-    background: #333333;
-    border-radius: 3px;
-  } */
-
   .price-input-group {
     position: relative;
   }
@@ -83,11 +84,41 @@
     padding-left: 24px;
   }
 
-  /* .active {
-    background-color: #374151 !important;
-    color: white !important;
-  } */
-  
+  /* Wishlist styles */
+  .wishlist-btn {
+    transition: all 0.3s ease;
+  }
+
+  .wishlist-btn.active {
+    color: #ef4444;
+  }
+
+  .wishlist-btn:hover i {
+    color: #ef4444;
+  }
+
+  .wishlist-btn.active i {
+    color: #ef4444;
+  }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background-color: #333;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 50;
+  }
+
+  .toast.show {
+    opacity: 1;
+  }
 </style>
 </head>
 
@@ -99,7 +130,7 @@
         <!-- Search Bar -->
         <div class="relative max-w-xl mx-auto mb-6">
           <form action="/filter" method="get" class="relative w-full" id="searchForm">
-            <input type="hidden" name="page" value="<%= currentPage || 1 %>">
+            <input type="hidden" name="page" value="<%= 1 %>">
             <% if (selectedBrands && selectedBrands.length> 0) { %>
               <% selectedBrands.forEach(brand=> { %>
                 <input type="hidden" name="brand" value="<%= brand %>">
@@ -136,7 +167,7 @@
           <form action="/filter" method="get" class="bg-white p-4 rounded-lg shadow-sm mb-4" id="filterForm">
             <!-- Preserve search and page -->
             <input type="hidden" name="search" value="<%= search || '' %>">
-            <input type="hidden" name="page" value="<%= currentPage || 1 %>">
+            <input type="hidden" name="page"  value="1" %>">
 
             <!-- Brand Filter -->
             <div class="mb-6">
@@ -228,17 +259,12 @@
               </div>
             </div>
 
-            <!-- Form Buttons -->
-            <!-- <button type="submit" id="applyFilters"
-              class="w-full bg-primary text-black py-2 px-4 rounded hover:bg-opacity-90 transition">
-              Apply Filters
-            </button> -->
             <a href="/filter?page=<%= currentPage || 1 %>&search=<%= encodeURIComponent(search || '') %>"
               id="clearFilters"
               class="block w-full mt-2 border border-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-50 transition text-center">
               Clear All Filters
             </a>
-
+          </form>
         </aside>
 
         <!-- Product Listing -->
@@ -265,7 +291,6 @@
                   <option value="name-z-a">Name: Z to A</option>
                 </select>
               </div>
-              </form>
             </div>
 
             <!-- Products Grid -->
@@ -274,15 +299,17 @@
                 <% products.forEach(product=> { %>
                   <div
                     class="bg-white rounded-lg overflow-hidden border border-gray-200 transition-transform hover:shadow-lg hover:-translate-y-1">
-                    <a href="/product-detail/<%=product._id%>">
-                      <div class="relative">
+                    <div class="relative">
+                      <a href="/product-detail/<%=product._id%>">
                         <img src="<%= product.colorVariants[0].productImage[0] %>" alt="<%= product.productName %>"
                           class="w-full h-48 object-contain p-4">
-
-                        <span
-                          class="absolute top-2 left-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded">Sale</span>
-                      </div>
-                    </a>
+                      </a>
+                      <span class="absolute top-2 left-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded">Sale</span>
+                      <button class="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 wishlist-btn" 
+                              data-product-id="<%= product._id %>">
+                        <i class="far fa-heart text-gray-600"></i>
+                      </button>
+                    </div>
                     <div class="p-4">
                       <h3 class="font-semibold text-sm mb-1">
                         <%= product.productName %>
@@ -294,13 +321,8 @@
                         <%= product.colorVariants[0].colorName %>
                       </p>
                       <div class="flex items-center">
-                        <!-- <% const regular=product.colorVariants[0].regularPrice; const
-                          offer=product.colorVariants[0].offerPrice; const discount=Math.round(((regular - offer) /
-                          regular) * 100); %> -->
-                          <span class="font-bold">₹<%= product.colorVariants[0].offerPrice %></span>
-                          <span class="text-gray-500 line-through text-sm ml-2">₹<%=
-                              product.colorVariants[0].regularPrice %></span>
-                          <span class="text-green-600 text-sm ml-2"></span>
+                        <span class="font-bold">₹<%= product.colorVariants[0].offerPrice %></span>
+                        <span class="text-gray-500 line-through text-sm ml-2">₹<%= product.colorVariants[0].regularPrice %></span>
                       </div>
                     </div>
                   </div>
@@ -327,7 +349,6 @@
                   i++) { %>
                   <a href="/filter?page=<%= i %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
                     class="page-link rounded-lg font-medium px-3 py-2 border border-gray-300 <%= i === currentPage ? 'bg-primary text-black shadow-lg' : 'bg-white text-gray-500 hover:bg-gray-100' %>">
-
                     <%= i %>
                   </a>
                   <% } %>
@@ -335,14 +356,12 @@
                       <span class="px-3 py-2 text-gray-500">...</span>
                       <a href="/filter?page=<%= totalPages %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
                         class="page-link rounded-lg font-medium px-3 py-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
-
                         <%= totalPages %>
                       </a>
                       <% } %>
               </div>
               <a href="/filter?page=<%= currentPage + 1 %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
                 class="pagination-btn rounded-lg flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 <%= currentPage >= totalPages ? 'pointer-events-none opacity-50' : '' %>">
-
                 <i class="fas fa-chevron-right text-sm"></i>
               </a>
             </div>
@@ -351,122 +370,204 @@
       </div>
 
       <script>
+        // Toggle filter sections
+        function toggleFilter(filterId) {
+          const filter = document.getElementById(filterId);
+          const icon = document.getElementById(`${filterId}Icon`);
+          filter.classList.toggle('hidden');
+          icon.classList.toggle('fa-chevron-down');
+          icon.classList.toggle('fa-chevron-up');
+        }
 
-        window.addEventListener('DOMContentLoaded', () => {
-          // Toggle filter sections
-          function toggleFilter(filterId) {
-            const filter = document.getElementById(filterId);
-            const icon = document.getElementById(`${filterId}Icon`);
-            filter.classList.toggle('hidden');
-            icon.classList.toggle('fa-chevron-down');
-            icon.classList.toggle('fa-chevron-up');
-          }
+        // Price range slider functionality
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const priceRangeMin = document.getElementById('priceRangeMin');
+        const priceRangeMax = document.getElementById('priceRangeMax');
+        const sliderTrack = document.getElementById('sliderTrack');
+        const minValue = parseInt(priceRangeMin.min);
+        const maxValue = parseInt(priceRangeMin.max);
 
-  const minPriceInput = document.getElementById('minPrice');
-  const maxPriceInput = document.getElementById('maxPrice');
-  const priceRangeMin = document.getElementById('priceRangeMin');
-  const priceRangeMax = document.getElementById('priceRangeMax');
-  const sliderTrack = document.getElementById('sliderTrack');
-  const minValue = parseInt(priceRangeMin.min);
-  const maxValue = parseInt(priceRangeMin.max);
+        function updateSliderTrack() {
+          const min = parseInt(priceRangeMin.value);
+          const max = parseInt(priceRangeMax.value);
+          const minPercent = ((min - minValue) / (maxValue - minValue)) * 100;
+          const maxPercent = ((max - minValue) / (maxValue - minValue)) * 100;
+          sliderTrack.style.left = `${minPercent}%`;
+          sliderTrack.style.width = `${maxPercent - minPercent}%`;
+        }
 
-  function updateSliderTrack() {
-    const min = parseInt(priceRangeMin.value);
-    const max = parseInt(priceRangeMax.value);
-    const minPercent = ((min - minValue) / (maxValue - minValue)) * 100;
-    const maxPercent = ((max - minValue) / (maxValue - minValue)) * 100;
-    sliderTrack.style.left = `${minPercent}%`;
-    sliderTrack.style.width = `${maxPercent - minPercent}%`;
-  }
+        function updateAndReload(min, max) {
+          const url = new URL(window.location);
+          url.searchParams.set('minPrice', min);
+          url.searchParams.set('maxPrice', max);
+          window.location.href = url.toString();
+        }
 
-  function updateAndReload(min, max) {
-    const url = new URL(window.location);
-    url.searchParams.set('minPrice', min);
-    url.searchParams.set('maxPrice', max);
-    window.location.href = url.toString(); // reloads page with updated filters
-  }
-
-  // Sync inputs when typing
-  minPriceInput.addEventListener('input', () => {
-    let value = parseInt(minPriceInput.value) || minValue;
-    if (value < minValue) value = minValue;
-    if (value > parseInt(maxPriceInput.value)) value = parseInt(maxPriceInput.value);
-    priceRangeMin.value = value;
-    updateSliderTrack();
-  });
-
-  maxPriceInput.addEventListener('input', () => {
-    let value = parseInt(maxPriceInput.value) || maxValue;
-    if (value > maxValue) value = maxValue;
-    if (value < parseInt(minPriceInput.value)) value = parseInt(minPriceInput.value);
-    priceRangeMax.value = value;
-    updateSliderTrack();
-  });
-
-  // Apply filters automatically when slider is released
-  priceRangeMin.addEventListener('change', () => {
-    const min = parseInt(priceRangeMin.value);
-    const max = parseInt(priceRangeMax.value);
-    updateSliderTrack();
-    updateAndReload(min, max);
-  });
-
-  priceRangeMax.addEventListener('change', () => {
-    const min = parseInt(priceRangeMin.value);
-    const max = parseInt(priceRangeMax.value);
-    updateSliderTrack();
-    updateAndReload(min, max);
-  });
-
-  // Initialize
-  updateSliderTrack();
-
-  // Clear button
-  document.getElementById('clearPriceFilter')?.addEventListener('click', () => {
-    updateAndReload(minValue, maxValue);
-  });
-
-          // Submit form on checkbox change
-          document.querySelectorAll('.brand-checkbox, .category-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-              document.getElementById('filterForm').submit();
-            });
-          });
-          //sort by
-          const sortFilter = document.getElementById('sortSelect');
-          sortFilter.addEventListener('change', () => {
-            document.getElementById('filterForm').submit();
-          });
-          // View toggle (grid/list)
-          const gridViewBtn = document.getElementById('gridView');
-          const listViewBtn = document.getElementById('listView');
-          const productsContainer = document.getElementById('productsContainer');
-
-          gridViewBtn.addEventListener('click', () => {
-            productsContainer.classList.remove('grid-cols-1');
-            productsContainer.classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
-            gridViewBtn.classList.add('active');
-            listViewBtn.classList.remove('active');
-          });
-
-          listViewBtn.addEventListener('click', () => {
-            productsContainer.classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
-            productsContainer.classList.add('grid-cols-1');
-            listViewBtn.classList.add('active');
-            gridViewBtn.classList.remove('active');
-          });
-
+        // Sync inputs when typing
+        minPriceInput.addEventListener('input', () => {
+          let value = parseInt(minPriceInput.value) || minValue;
+          if (value < minValue) value = minValue;
+          if (value > parseInt(maxPriceInput.value)) value = parseInt(maxPriceInput.value);
+          priceRangeMin.value = value;
+          updateSliderTrack();
         });
 
+        maxPriceInput.addEventListener('input', () => {
+          let value = parseInt(maxPriceInput.value) || maxValue;
+          if (value > maxValue) value = maxValue;
+          if (value < parseInt(minPriceInput.value)) value = parseInt(minPriceInput.value);
+          priceRangeMax.value = value;
+          updateSliderTrack();
+        });
 
+        // Apply filters automatically when slider is released
+        priceRangeMin.addEventListener('change', () => {
+          const min = parseInt(priceRangeMin.value);
+          const max = parseInt(priceRangeMax.value);
+          updateSliderTrack();
+          updateAndReload(min, max);
+        });
 
+        priceRangeMax.addEventListener('change', () => {
+          const min = parseInt(priceRangeMin.value);
+          const max = parseInt(priceRangeMax.value);
+          updateSliderTrack();
+          updateAndReload(min, max);
+        });
 
+        // Initialize
+        updateSliderTrack();
 
+        // Clear button
+        document.getElementById('clearPriceFilter')?.addEventListener('click', () => {
+          updateAndReload(minValue, maxValue);
+        });
 
+        // Submit form on checkbox change
+        document.querySelectorAll('.brand-checkbox, .category-checkbox').forEach(checkbox => {
+          checkbox.addEventListener('change', () => {
+            document.getElementById('filterForm').submit();
+          });
+        });
 
+        // Sort by
+        const sortFilter = document.getElementById('sortSelect');
+        sortFilter.addEventListener('change', () => {
+          document.getElementById('filterForm').submit();
+        });
 
+        // View toggle (grid/list)
+        const gridViewBtn = document.getElementById('gridView');
+        const listViewBtn = document.getElementById('listView');
+        const productsContainer = document.getElementById('productsContainer');
 
+        gridViewBtn.addEventListener('click', () => {
+          productsContainer.classList.remove('grid-cols-1');
+          productsContainer.classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+          gridViewBtn.classList.add('active');
+          listViewBtn.classList.remove('active');
+        });
+
+        listViewBtn.addEventListener('click', () => {
+          productsContainer.classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+          productsContainer.classList.add('grid-cols-1');
+          listViewBtn.classList.add('active');
+          gridViewBtn.classList.remove('active');
+        });
+
+        // Wishlist functionality
+        document.addEventListener('DOMContentLoaded', function() {
+          const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+          
+          // Function to show toast notifications
+          function showToast(message, isSuccess = true) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.backgroundColor = isSuccess ? '#333' : '#ef4444';
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            setTimeout(() => {
+              toast.classList.remove('show');
+              setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+          }
+
+          // Toggle wishlist status
+          async function toggleWishlist(productId, button) {
+            try {
+              const response = await fetch('/wishlist/toggle', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId }),
+                credentials: 'include'
+              });
+              
+              const result = await response.json();
+              
+              if (result.success) {
+                button.classList.toggle('active');
+                const icon = button.querySelector('i');
+                
+                if (button.classList.contains('active')) {
+                  icon.classList.remove('far');
+                  icon.classList.add('fas');
+                  showToast('Added to wishlist!');
+                } else {
+                  icon.classList.remove('fas');
+                  icon.classList.add('far');
+                  showToast('Removed from wishlist');
+                }
+              } else {
+                showToast(result.message || 'Error updating wishlist', false);
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              showToast('Please login to manage wishlist', false);
+            }
+          }
+
+          // Check initial wishlist status
+          async function checkInitialWishlistStatus() {
+            try {
+              const response = await fetch('/wishlist/status', {
+                credentials: 'include'
+              });
+              const result = await response.json();
+              
+              if (result.success && result.wishlistItems) {
+                wishlistButtons.forEach(button => {
+                  const productId = button.getAttribute('data-product-id');
+                  if (result.wishlistItems.includes(productId)) {
+                    button.classList.add('active');
+                    const icon = button.querySelector('i');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                  }
+                });
+              }
+            } catch (error) {
+              console.error('Error checking wishlist status:', error);
+            }
+          }
+
+          // Add event listeners to wishlist buttons
+          wishlistButtons.forEach(button => {
+            button.addEventListener('click', async function(e) {
+              e.preventDefault();
+              const productId = this.getAttribute('data-product-id');
+              await toggleWishlist(productId, this);
+            });
+          });
+
+          // Check initial wishlist status on page load
+          checkInitialWishlistStatus();
+        });
       </script>
 </body>
-
 </html>

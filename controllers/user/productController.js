@@ -2,6 +2,7 @@ const User = require('../../models/userSchema');
 const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const Brand = require('../../models/brandSchema');
+const Cart = require('../../models/cartSchema')
 
 
 const loadProductDetail = async (req, res) => {
@@ -29,16 +30,26 @@ const loadProductDetail = async (req, res) => {
       .populate('category')
       .populate('brand')
       .lean();
-    console.log('producthello', product)
 
-
-
-    let selectedVariant = product.colorVariants[0];
-
-    if (variantId) {
-      const variant = product.colorVariants.find(v => v._id.toString() === variantId);
-      if (variant) selectedVariant = variant;
-    }
+      
+      
+      let selectedVariant = product.colorVariants[0];
+      
+      if (variantId) {
+        const variant = product.colorVariants.find(v => v._id.toString() === variantId);
+        if (variant) selectedVariant = variant;
+      }
+      const cart = await Cart.findOne({ userId });
+  
+      let cartQuantity = 0;
+      if (cart) {
+  
+        const item = cart.items.find((value) => value.productId.toString() === productId &&
+          value.variantId.toString() === selectedVariant._id.toString()
+        );
+        cartQuantity = item ? item.stock : 0;
+      }
+  console.log('cart quantity in product detail',cartQuantity)
 
     const sameBrandProducts = await Product.find({
       brand: product.brand._id,
@@ -53,7 +64,8 @@ const loadProductDetail = async (req, res) => {
       categories,
       brands,
       selectedVariant,
-      sameBrandProducts
+      sameBrandProducts,
+      cartQuantity
 
     })
   } catch (error) {

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eon Forge - Order Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    
+    tailwind.config = {
+      theme: {
+        
+        extend: {
+          colors: {
+             primary: '#4361ee',
+            'primary-dark': '#3a56d4',
+            secondary: '#3b82f6',
+            accent: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+          },
+          
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .dropdown { display: none; }
+    .dropdown-container:hover .dropdown { display: block; }
+    
+    .table-row:hover { 
+      background: linear-gradient(to right, rgba(243, 244, 246, 0.8), rgba(249, 250, 251, 0.8));
+    }
+    .stats-card {
+      transition: transform 0.2s ease;
+    }
+    .stats-card:hover {
+      transform: translateY(-4px);
+    }
+    .sidebar-menu a.active {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .search-container {
+      transition: all 0.3s ease;
+    }
+    .search-container:focus-within {
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="font-sans bg-gray-100 text-gray-900">
+  <div class="flex min-h-screen">
+    <%- include("../../views/partials/admin/sidebar") %>
+
+    <div class="flex-1 ml-64">
+      <!-- Header -->
+      <header class="bg-white shadow-md sticky top-0 z-40 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <button class="md:hidden text-gray-600 hover:text-primary">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+            <form action="/admin/orders" method="get" class="search-container flex items-center bg-gray-100 rounded-full px-4 py-2">
+              <input type="text" name="search" placeholder="Search orders..." 
+                     class="bg-transparent border-none focus:outline-none text-sm w-64" 
+                     value="<%= typeof search !== 'undefined' ? search : '' %>">
+              <button type="submit" class="text-gray-500 hover:text-primary">
+                <i class="fas fa-search"></i>
+              </button>
+              <% if(search) { %>
+                <a href="/admin/orders" class="ml-2 text-gray-500 hover:text-danger">
+                  <i class="fas fa-times"></i>
+                </a>
+              <% } %>
+            </form>
+          </div>
+          <div class="dropdown-container relative">
+            <button class="flex items-center gap-2 text-gray-700 hover:text-primary p-2 rounded-lg hover:bg-gray-100">
+              <i class="fas fa-user"></i>
+              <span class="text-sm font-medium">Admin</span>
+            </button>
+            <div class="dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100">
+              <a href="/profile" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-user text-primary"></i> Profile
+              </a>
+              <a href="/admin/logout" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-sign-out-alt text-danger"></i> Logout
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="p-6">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600">Total Orders</p>
+                <h3 class="text-2xl font-bold text-primary"><%= totalOrders || 0 %></h3>
+              </div>
+              <div class="bg-primary/10 p-3 rounded-full">
+                <i class="fas fa-shopping-cart text-primary text-xl"></i>
+              </div>
+            </div>
+          </div>
+          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600">Pending Orders</p>
+                <h3 class="text-2xl font-bold text-warning"><%= pendingOrders || 0 %></h3>
+              </div>
+              <div class="bg-warning/10 p-3 rounded-full">
+                <i class="fas fa-hourglass-half text-warning text-xl"></i>
+              </div>
+            </div>
+          </div>
+          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600">Return Requests</p>
+                <h3 class="text-2xl font-bold text-danger"><%= returnRequests || 0 %></h3>
+              </div>
+              <div class="bg-danger/10 p-3 rounded-full">
+                <i class="fas fa-undo text-danger text-xl"></i>
+              </div>
+            </div>
+          </div>
+          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-600">Total Revenue</p>
+                <h3 class="text-2xl font-bold text-accent">₹<%= totalRevenue ? totalRevenue.toFixed(2) : '0.00' %></h3>
+              </div>
+              <div class="bg-accent/10 p-3 rounded-full">
+                <i class="fas fa-indian-rupee-sign text-accent text-xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters and Header -->
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">Order Management</h1>
+            <p class="text-gray-600 text-sm">Track and manage customer orders</p>
+          </div>
+          <div class="flex gap-4">
+            <select id="status-filter" name="status" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+              <option value="Return Request">Return Request</option>
+              <option value="Returned">Returned</option>
+            </select>
+            <select id="sort-order" name="sort" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+              <option value="desc">Newest First</option>
+              <option value="asc">Oldest First</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">No.</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Order ID</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Customer</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Total</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orders.forEach((order, index) => { %>
+                  <tr class="table-row border-t border-gray-100">
+                    <td class="px-6 py-4 text-sm"><%= (currentPage - 1) * limit + index + 1 %></td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#ORD-<%= order.orderId %></td>
+                    <td class="px-6 py-4">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <%= order.userId?.firstName || 'N/A' %>  %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-700">
+                      <%= new Date(order.createdOn).toLocaleDateString() %>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">₹<%= order.totalPrice.toFixed(2) %></td>
+                    <td class="px-6 py-4">
+                      <% 
+                        const statusStyles = {
+                          'Pending': 'bg-yellow-100 text-yellow-800',
+                          'Processing': 'bg-blue-100 text-blue-800',
+                          'Shipped': 'bg-purple-100 text-purple-800',
+                          'Delivered': 'bg-green-100 text-green-800',
+                          'Cancelled': 'bg-red-100 text-red-800',
+                          'Return Request': 'bg-orange-100 text-orange-800',
+                          'Returned': 'bg-gray-100 text-gray-800'
+                        };
+                        const statusIcons = {
+                          'Pending': 'fa-hourglass-start',
+                          'Processing': 'fa-cog',
+                          'Shipped': 'fa-truck',
+                          'Delivered': 'fa-check-circle',
+                          'Cancelled': 'fa-times-circle',
+                          'Return Request': 'fa-undo',
+                          'Returned': 'fa-exchange-alt'
+                        };
+                      %>
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= statusStyles[order.status] %>">
+                        <i class="fas <%= statusIcons[order.status] %> mr-1"></i>
+                        <%= order.status %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 flex items-center gap-2">
+                      <a href="/admin/orders/<%= order._id %>" 
+                         class="text-primary hover:text-primary-dark text-sm font-medium px-3 py-1 rounded-lg hover:bg-primary/10">
+                        <i class="fas fa-eye mr-1"></i>View
+                      </a>
+                      <% if (order.status !== 'Delivered' && order.status !== 'Cancelled' && order.status !== 'Returned') { %>
+                        <button onclick="openStatusModal('<%= order._id %>', '<%= order.status %>')" 
+                                class="text-accent hover:text-accent-dark text-sm font-medium px-3 py-1 rounded-lg hover:bg-accent/10">
+                          <i class="fas fa-edit mr-1"></i>Status
+                        </button>
+                      <% } %>
+                      <% if (order.status === 'Return Request') { %>
+                        <button onclick="verifyReturn('<%= order._id %>')" 
+                                class="text-warning hover:text-warning-dark text-sm font-medium px-3 py-1 rounded-lg hover:bg-warning/10">
+                          <i class="fas fa-check-double mr-1"></i>Verify
+                        </button>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <!-- Pagination -->
+          <div class="flex items-center justify-center gap-2 p-4 bg-gray-50 border-t border-gray-200">
+            <a href="?page=<%= currentPage - 1 %>&search=<%= search || '' %>&status=<%= status || '' %>&sort=<%= sort || 'desc' %>" 
+               class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage === 1 ? 'opacity-50 pointer-events-none' : '' %>">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+            <% for(let i = 1; i <= totalPages; i++) { %>
+              <a href="?page=<%= i %>&search=<%= search || '' %>&status=<%= status || '' %>&sort=<%= sort || 'desc' %>" 
+                 class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-sm <%= i === currentPage ? 'bg-primary text-white' : 'hover:bg-gray-100' %>">
+                <%= i %>
+              </a>
+            <% } %>
+            <a href="?page=<%= currentPage + 1 %>&search=<%= search || '' %>&status=<%= status || '' %>&sort=<%= sort || 'desc' %>" 
+               class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage >= totalPages ? 'opacity-50 pointer-events-none' : '' %>">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Status Modal -->
+  <div id="status-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md animate-fade-in">
+      <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-primary to-secondary text-white flex justify-between items-center">
+        <h2 class="text-lg font-semibold">Update Order Status</h2>
+        <button id="close-status-modal" class="text-white hover:text-gray-200">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="status-form" class="p-6">
+        <input type="hidden" id="order-id" name="orderId">
+        <div class="mb-4">
+          <label for="new-status" class="block text-sm font-medium text-gray-700 mb-2">New Status</label>
+          <select id="new-status" name="status" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="Pending">Pending</option>
+            <option value="Processing">Processing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-3">
+          <button type="button" id="cancel-status-btn" class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark text-sm">
+            Update
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Open Status Modal
+    function openStatusModal(orderId, currentStatus) {
+      document.getElementById('status-modal').classList.remove('hidden');
+      document.getElementById('order-id').value = orderId;
+      document.getElementById('new-status').value = currentStatus;
+    }
+
+    // Close Status Modal
+    document.getElementById('close-status-modal').addEventListener('click', () => {
+      document.getElementById('status-modal').classList.add('hidden');
+    });
+
+    document.getElementById('cancel-status-btn').addEventListener('click', () => {
+      document.getElementById('status-modal').classList.add('hidden');
+    });
+
+    // Update Status
+    document.getElementById('status-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const orderId = document.getElementById('order-id').value;
+      const newStatus = document.getElementById('new-status').value;
+
+      try {
+        const res = await fetch(`/admin/orders/${orderId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          Swal.fire('Success', 'Order status updated!', 'success').then(() => {
+            document.getElementById('status-modal').classList.add('hidden');
+            location.reload();
+          });
+        } else {
+          Swal.fire('Error', data.message || 'Failed to update status', 'error');
+        }
+      } catch (err) {
+        Swal.fire('Error', 'Failed to update status', 'error');
+      }
+    });
+
+    // Verify Return
+    function verifyReturn(orderId) {
+      Swal.fire({
+        title: 'Verify Return Request',
+        text: 'Approve or reject the return request. If approved, the order amount will be refunded.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Approve',
+        cancelButtonText: 'Reject',
+      }).then(async (result) => {
+        try {
+          const res = await fetch(`/admin/orders/${orderId}/return`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ approved: result.isConfirmed })
+          });
+          const data = await res.json();
+          if (data.success) {
+            Swal.fire('Success', result.isConfirmed ? 'Return approved and refunded!' : 'Return rejected!', 'success').then(() => location.reload());
+          } else {
+            Swal.fire('Error', data.message || 'Failed to process return', 'error');
+          }
+        } catch (err) {
+          Swal.fire('Error', 'Failed to process return', 'error');
+        }
+      });
+    }
+
+    // Filters
+    function applyFilters() {
+      const status = document.getElementById('status-filter').value;
+      const sort = document.getElementById('sort-order').value;
+      const search = document.querySelector('input[name="search"]').value;
+      window.location.href = `/admin/orders?search=${encodeURIComponent(search)}&status=${status}&sort=${sort}`;
+    }
+
+    document.getElementById('status-filter').addEventListener('change', applyFilters);
+    document.getElementById('sort-order').addEventListener('change', applyFilters);
+  </script>
+</body>
+</html>

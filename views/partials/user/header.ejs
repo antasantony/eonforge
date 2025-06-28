@@ -5,15 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eon Forge - Luxury Watches</title>
-     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+ <!-- Load jQuery first -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 
 
-      
     <script>
         tailwind.config = {
             theme: {
@@ -114,48 +120,48 @@
             </div>
         </div>
     </div>
-    
+
 </header>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-  const searchToggle = document.getElementById('search-toggle');
-  const searchBar = document.getElementById('search-bar');
-  const searchClose = document.getElementById('search-close');
-  const searchInput = document.getElementById('search-input');
+        const searchToggle = document.getElementById('search-toggle');
+        const searchBar = document.getElementById('search-bar');
+        const searchClose = document.getElementById('search-close');
+        const searchInput = document.getElementById('search-input');
 
-  // Toggle search bar visibility
-  searchToggle.addEventListener('click', () => {
-    const isVisible = !searchBar.classList.contains('invisible');
-    if (isVisible) {
-      searchBar.classList.add('opacity-0', 'invisible');
-    } else {
-      searchBar.classList.remove('opacity-0', 'invisible');
-      searchInput.focus(); // Focus input when opening
-    }
-  });
+        // Toggle search bar visibility
+        searchToggle.addEventListener('click', () => {
+            const isVisible = !searchBar.classList.contains('invisible');
+            if (isVisible) {
+                searchBar.classList.add('opacity-0', 'invisible');
+            } else {
+                searchBar.classList.remove('opacity-0', 'invisible');
+                searchInput.focus(); // Focus input when opening
+            }
+        });
 
-  // Close search bar when close button is clicked
-  searchClose.addEventListener('click', () => {
-    searchBar.classList.add('opacity-0', 'invisible');
-    searchInput.value = ''; // Clear input on close
-  });
+        // Close search bar when close button is clicked
+        searchClose.addEventListener('click', () => {
+            searchBar.classList.add('opacity-0', 'invisible');
+            searchInput.value = ''; // Clear input on close
+        });
 
-  // Optional: Close search bar when clicking outside
-  document.addEventListener('click', (event) => {
-    if (!searchBar.contains(event.target) && !searchToggle.contains(event.target)) {
-      searchBar.classList.add('opacity-0', 'invisible');
-      searchInput.value = ''; // Clear input
-    }
-  });
+        // Optional: Close search bar when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!searchBar.contains(event.target) && !searchToggle.contains(event.target)) {
+                searchBar.classList.add('opacity-0', 'invisible');
+                searchInput.value = ''; // Clear input
+            }
+        });
 
-  // Optional: Handle Enter key for search
-  searchInput.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter' && searchInput.value.trim()) {
-      console.log('Search query:', searchInput.value); // Replace with actual search logic
-      // Example: window.location.href = `/search?q=${encodeURIComponent(searchInput.value)}`;
-      searchBar.classList.add('opacity-0', 'invisible');
-      searchInput.value = ''; // Clear input after search
-    }
-  });
-});
+        // Optional: Handle Enter key for search
+        searchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' && searchInput.value.trim()) {
+                console.log('Search query:', searchInput.value); // Replace with actual search logic
+                // Example: window.location.href = `/search?q=${encodeURIComponent(searchInput.value)}`;
+                searchBar.classList.add('opacity-0', 'invisible');
+                searchInput.value = ''; // Clear input after search
+            }
+        });
+    });
 </script>

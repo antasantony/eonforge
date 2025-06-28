@@ -1,83 +1,291 @@
-<style>
-    .zoom-container {
-        position: relative;
-        overflow: hidden;
-        cursor: zoom-in;
-    }
+<!DOCTYPE html>
+<html lang="en">
 
-    .zoom-image {
-        transition: transform 0.3s ease;
-    }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= product.productName %> - Eon Forge
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    .zoom-container:hover .zoom-image {
-        transform: scale(2);
-    }
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'playfair': ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        'primary': '#1a1a1a',
+                        'accent': '#d4af37',
+                        'accent-light': '#f4e4a6',
+                        'cream': '#fefdfb',
+                        'warm-gray': '#f8f7f4',
+                        'text-primary': '#2d2d2d',
+                        'text-secondary': '#6b7280',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'bounce-subtle': 'bounceSubtle 0.6s ease-in-out',
+                        'pulse-subtle': 'pulseSubtle 2s infinite',
+                        'scale-in': 'scaleIn 0.2s ease-out',
+                    }
+                }
+            }
+        }
+    </script>
 
-    .thumbnail-active {
-        border: 2px solid #3b82f6;
-    }
-</style>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
 
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
+        @keyframes slideUp {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
 
-<body class="bg-gray-50">
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounceSubtle {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes pulseSubtle {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .zoom-container {
+            position: relative;
+            overflow: hidden;
+            cursor: zoom-in;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #fefdfb 0%, #f8f7f4 100%);
+        }
+
+        .zoom-image {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .zoom-container:hover .zoom-image {
+            transform: scale(2.2);
+        }
+
+        .thumbnail-active {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .thumbnail-active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .thumbnail-active.active {
+            border-color: #d4af37 !important;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #fefdfb 0%, #f8f7f4 100%);
+        }
+
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .premium-shadow {
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .color-variant {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .color-variant:hover {
+            transform: scale(1.1);
+        }
+
+        .color-variant.selected::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border: 2px solid #d4af37;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #d4af37, #f4e4a6);
+            border-radius: 2px;
+        }
+
+        .product-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #d4af37;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="gradient-bg font-inter">
     <%- include("../../views/partials/user/header") %>
+
         <!-- Breadcrumb -->
-        <nav class="bg-white px-4 py-3 border-b">
+        <nav class="bg-white/80 backdrop-blur-sm px-4 py-4 border-b border-gray-100 sticky top-0 z-40">
             <div class="max-w-7xl mx-auto">
-                <div class="flex items-center space-x-2 text-sm text-gray-600">
-                    <a href="/" class="hover:text-blue-600">Home</a>
-                    <i class="fas fa-chevron-right text-xs"></i>
-                    <a href="/shop" class="hover:text-blue-600">Shop</a>
-                    <i class="fas fa-chevron-right text-xs"></i>
-                    <a href="/product-detail" class="text-gray-800">
-                        <%=product.productName%>
+                <div class="flex items-center space-x-3 text-sm">
+                    <a href="/"
+                        class="text-text-secondary hover:text-accent transition-colors font-medium flex items-center space-x-1">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
                     </a>
+                    <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                    <a href="/shop" class="text-text-secondary hover:text-accent transition-colors font-medium">Shop</a>
+                    <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                    <span class="text-primary font-semibold truncate">
+                        <%= product.productName %>
+                    </span>
                 </div>
             </div>
         </nav>
 
-        <div class="max-w-7xl mx-auto px-4 py-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-12">
                 <!-- Product Images -->
-                <div class="flex flex-col lg:flex-row gap-4">
-                    <!-- Thumbnails -->
-
-                    <div class="flex lg:flex-col gap-2 order-2 lg:order-1">
-                        <% selectedVariant.productImage.forEach((image, index)=> { %>
-                            <div class="w-16 h-16 lg:w-20 lg:h-20 border-2 border-blue-500 rounded-lg overflow-hidden cursor-pointer thumbnail-active <%= index === 0 ? 'active' : '' %>"
-                                data-index="<%= index %>">
-                                <img src="<%=image%>" alt="Product view <%= index + 1 %>"
-                                    class="w-full h-full object-cover">
-                            </div>
-                            <%})%>
+                <div class="space-y-4">
+                    <!-- Main Image with Zoom -->
+                    <div class="zoom-container aspect-square premium-shadow border border-white/20">
+                        <img src="<%= selectedVariant.productImage[0] %>" alt="<%= product.productName %>"
+                            class="zoom-image w-full h-full object-cover">
                     </div>
 
-                    <!-- Main Image with Zoom -->
-                    <div class="flex-1 order-1 lg:order-2">
-                        <div class="zoom-container bg-white rounded-lg border aspect-square">
-                            <img src="<%=selectedVariant.productImage[0]%>" alt="<%=product.productName%>"
-                                class="zoom-image w-full h-full object-cover rounded-lg">
-                        </div>
+                    <!-- Thumbnails -->
+                    <div class="flex gap-3 overflow-x-auto pb-2">
+                        <% selectedVariant.productImage.forEach((image, index)=> { %>
+                            <div class="thumbnail-active flex-shrink-0 w-20 h-20 border-2 border-gray-200 rounded-xl overflow-hidden <%= index === 0 ? 'active' : '' %>"
+                                data-index="<%= index %>">
+                                <img src="<%= image %>" alt="Product view <%= index + 1 %>"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <% }) %>
                     </div>
                 </div>
 
                 <!-- Product Details -->
-                <div class="space-y-6">
-                    <!-- Product Title and Rating -->
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">New Arrival</span>
-                            <span class="text-gray-600">|</span>
-                            <span class="text-gray-800 font-medium">
-                                <%=product.brand.brandName%>
+                <div class="space-y-6 lg:space-y-8">
+                    <!-- Product Header -->
+                    <div class="space-y-4">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span
+                                class="bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 text-sm px-3 py-1 rounded-full font-medium">New
+                                Arrival</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="text-accent font-semibold">
+                                <%= product.brand.brandName %>
                             </span>
                         </div>
-                        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                            <%=product.productName%>
+
+                        <h1 class="text-2xl md:text-3xl lg:text-4xl font-playfair font-bold text-primary leading-tight">
+                            <%= product.productName %>
                         </h1>
-                        <div class="flex items-center gap-4">
-                            <div class="flex items-center">
+
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div class="flex items-center space-x-3">
                                 <div class="flex text-yellow-400">
                                     <i class="fas fa-star text-sm"></i>
                                     <i class="fas fa-star text-sm"></i>
@@ -85,50 +293,71 @@
                                     <i class="fas fa-star text-sm"></i>
                                     <i class="far fa-star text-sm"></i>
                                 </div>
-                                <span class="ml-2 text-sm text-gray-600">0 Reviews</span>
+                                <span class="text-sm text-text-secondary">(0 Reviews)</span>
                             </div>
+                            <span class="text-text-secondary text-sm">
+                                <i class="fas fa-tag mr-1"></i>
+                                <%= product.category.name %>'s Watch
+                            </span>
                         </div>
-                        <p class="text-gray-600 text-sm mt-2">
-                            <%=product.category.name%>'s Watch
-                        </p>
                     </div>
 
-                    <!-- Pricing -->
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-4">
-                            <span class="text-gray-500 line-through text-lg">₹<%=selectedVariant.regularPrice%>
-                            </span>
-                            <span class="text-3xl font-bold text-gray-900">₹<%=selectedVariant.offerPrice%></span>
-                            <span class="text-green-600 font-medium">Save
-                                ₹<%=product.colorVariants[0].regularPrice-=selectedVariant.offerPrice%></span>
-                        </div>
-                        <p class="text-sm text-gray-600">Inclusive of all taxes*</p>
-                        <p class="text-sm text-gray-600">
-                            <span class="underline">Shipping</span> calculated at checkout.
-                        </p>
-                        <div class="flex items-center gap-2 text-sm">
-                            <div class="w-2 h-2 bg-orange-400 rounded-full"></div>
-                            <span class="text-orange-600 font-medium">Low stock - 1 item left</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-sm">
-                            <!-- <span>Login/Signup to use</span> -->
-                            <span class="text-purple-600 font-bold">⚡ NeuCoins</span>
-                            <span>on this purchase</span>
+                    <!-- Pricing Section -->
+                    <div class="glass-effect rounded-2xl p-6 premium-shadow border border-white/20">
+                        <div class="space-y-4">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <span class="text-text-secondary line-through text-xl">₹<%=
+                                        selectedVariant.regularPrice.toLocaleString() %></span>
+                                <span class="text-3xl md:text-4xl font-bold text-primary">₹<%=
+                                        selectedVariant.offerPrice.toLocaleString() %></span>
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                    Save ₹<%= (selectedVariant.regularPrice -
+                                        selectedVariant.offerPrice).toLocaleString() %>
+                                </span>
+                            </div>
+
+                            <div class="space-y-2 text-sm text-text-secondary">
+                                <p><i class="fas fa-info-circle mr-2 text-blue-500"></i>Inclusive of all taxes</p>
+                                <p><i class="fas fa-shipping-fast mr-2 text-green-500"></i>Free shipping on all orders
+                                </p>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                                <% const availableStock=selectedVariant.stock - cartQuantity; %>
+
+                                    <div class="flex items-center space-x-2">
+                                        <% if (availableStock> 0) { %>
+                                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse-subtle"></div>
+                                            <span class="text-green-600 font-semibold">In Stock: <%= availableStock %>
+                                                    units</span>
+                                            <% } else { %>
+                                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                                <span class="text-red-600 font-semibold">Out of Stock</span>
+                                                <% } %>
+                                    </div>
+
+                                    <div class="flex items-center space-x-2 text-sm">
+                                        <span class="text-purple-600 font-bold">⚡ NeuCoins</span>
+                                        <span class="text-text-secondary">on purchase</span>
+                                    </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Color Selection -->
-                    <div>
-                        <h3 class="text-lg font-medium mb-3">Dial Color: <span class="font-normal">
-                                <%=selectedVariant.colorName%>
-                            </span></h3>
-                        <div class="flex gap-3">
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-primary">
+                            Dial Color: <span class="text-accent font-normal">
+                                <%= selectedVariant.colorName %>
+                            </span>
+                        </h3>
+                        <div class="flex flex-wrap gap-3">
                             <% product.colorVariants.forEach((variant)=> { %>
-                                <a href="/product-detail/<%= product._id %>?variant=<%= variant._id %>">
-
+                                <a href="/product-detail/<%= product._id %>?variant=<%= variant._id %>"
+                                    class="color-variant">
                                     <div
-                                        class="w-12 h-12 rounded-full border-2 border-gray-300 cursor-pointer overflow-hidden">
-                                        <img src="<%=variant.productImage[0]%>" alt="<%=variant.colorName%>"
+                                        class="w-16 h-16 rounded-full border-3 border-gray-200 overflow-hidden hover:border-accent transition-all duration-300 <%= selectedVariant._id.toString() === variant._id.toString() ? 'selected' : '' %>">
+                                        <img src="<%= variant.productImage[0] %>" alt="<%= variant.colorName %>"
                                             class="w-full h-full object-cover">
                                     </div>
                                 </a>
@@ -137,163 +366,220 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex gap-4">
-                        <a href="/cart" id="addToCartButton"
-                            class="flex-1 bg-white border-2 border-gray-900 text-gray-900 py-4 px-8 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-300 transform hover:scale-105">
-                            <i class="fas fa-shopping-cart mr-2"></i>ADD TO CART
-                    </a>
-                        <button
-                            class="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white py-4 px-8 rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-105">
-                            <i class="fas fa-bolt mr-2"></i>BUY NOW
-                        </button>
-                    </div>
+                    <div class="space-y-4">
+                        <input type="hidden" id="productId" value="<%= product._id %>">
+                        <input type="hidden" id="stock" value="<%= selectedVariant.stock %>">
+                        <input type="hidden" id="variantId" value="<%= selectedVariant._id %>">
 
-                    <!-- 3D Try On -->
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 bg-red-500 rounded flex items-center justify-center">
-                            <i class="fas fa-cube text-white text-xs"></i>
+                        <button type="button" id="addToCartButton"
+                            class="w-full bg-gradient-to-r from-primary to-gray-800 text-white py-4 px-8 rounded-xl font-bold text-lg hover:from-gray-800 hover:to-primary transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl flex items-center justify-center space-x-3 group disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-shopping-cart group-hover:scale-110 transition-transform duration-300"></i>
+                            <span id="addToCartText">ADD TO CART</span>
+                            <div id="addToCartSpinner" class="loading-spinner hidden"></div>
+                        </button>
+
+                        <!-- Additional Features -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div
+                                class="flex items-center justify-center space-x-2 bg-red-50 text-red-600 py-3 px-4 rounded-xl hover:bg-red-100 transition-colors cursor-pointer">
+                                <i class="fas fa-cube"></i>
+                                <span class="font-medium">3D Try On</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-center space-x-2 bg-purple-50 text-purple-600 py-3 px-4 rounded-xl hover:bg-purple-100 transition-colors cursor-pointer">
+                                <i class="fas fa-heart"></i>
+                                <span class="font-medium">Add to Wishlist</span>
+                            </div>
                         </div>
-                        <span class="text-red-600 font-medium underline cursor-pointer">3D Try On</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Features Section -->
             <!-- Premium Features Section -->
-            <div class="mt-20">
+            <div class="mt-16 lg:mt-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-2xl md:text-3xl font-playfair font-bold text-primary mb-4">Why Choose Eon Forge</h2>
+                    <p class="text-text-secondary text-lg max-w-2xl mx-auto">Experience luxury with our premium services
+                        and guarantees</p>
+                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
-
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
                     <!-- 100% Original -->
-                    <div class="relative flex flex-col items-center text-center group">
+                    <div
+                        class="feature-card glass-effect rounded-2xl p-8 premium-shadow border border-white/20 text-center group">
                         <div
-                            class="absolute inset-0 bg-gradient-to-r from-orange-400 to-yellow-500 rounded-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-300 transform scale-110">
-                        </div>
-                        <div
-                            class="relative w-20 h-20 bg-gradient-to-br from-orange-400 to-yellow-500 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-2xl transition-all duration-300">
+                            class="w-20 h-20 bg-gradient-to-br from-orange-400 to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                             <i class="fas fa-certificate text-2xl text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-orange-600 transition-colors">
-                            100% ORIGINAL</h3>
-                        <p class="text-gray-600 leading-relaxed">Authentic products with manufacturer warranty and
+                        <h3 class="text-xl font-bold text-primary mb-3">100% ORIGINAL</h3>
+                        <p class="text-text-secondary leading-relaxed">Authentic products with manufacturer warranty and
                             quality guarantee</p>
-                        <div
-                            class="mt-4 w-12 h-1 bg-gradient-to-r from-orange-400 to-yellow-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        </div>
                     </div>
 
                     <!-- 7 Day Return -->
-                    <div class="relative flex flex-col items-center text-center group">
+                    <div
+                        class="feature-card glass-effect rounded-2xl p-8 premium-shadow border border-white/20 text-center group">
                         <div
-                            class="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-300 transform scale-110">
-                        </div>
-                        <div
-                            class="relative w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-2xl transition-all duration-300">
+                            class="w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                             <i class="fas fa-undo-alt text-2xl text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">7
-                            DAY RETURN</h3>
-                        <p class="text-gray-600 leading-relaxed">Hassle-free returns within 7 days of delivery with full
-                            refund</p>
-                        <div
-                            class="mt-4 w-12 h-1 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        </div>
+                        <h3 class="text-xl font-bold text-primary mb-3">7 DAY RETURN</h3>
+                        <p class="text-text-secondary leading-relaxed">Hassle-free returns within 7 days of delivery
+                            with full refund</p>
                     </div>
 
                     <!-- Free Shipping -->
-                    <div class="relative flex flex-col items-center text-center group">
+                    <div
+                        class="feature-card glass-effect rounded-2xl p-8 premium-shadow border border-white/20 text-center group">
                         <div
-                            class="absolute inset-0 bg-gradient-to-r from-green-400 to-teal-500 rounded-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-300 transform scale-110">
-                        </div>
-                        <div
-                            class="relative w-20 h-20 bg-gradient-to-br from-green-400 to-teal-500 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-2xl transition-all duration-300">
+                            class="w-20 h-20 bg-gradient-to-br from-green-400 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                             <i class="fas fa-shipping-fast text-2xl text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors">
-                            FREE SHIPPING</h3>
-                        <p class="text-gray-600 leading-relaxed">Complimentary shipping on all orders with secure
+                        <h3 class="text-xl font-bold text-primary mb-3">FREE SHIPPING</h3>
+                        <p class="text-text-secondary leading-relaxed">Complimentary shipping on all orders with secure
                             packaging</p>
-                        <div
-                            class="mt-4 w-12 h-1 bg-gradient-to-r from-green-400 to-teal-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        </div>
                     </div>
-
                 </div>
-
             </div>
 
             <!-- Product Description and Specifications -->
-            <div class="mt-16">
-                <div class="border-b border-gray-200">
-                    <nav class="flex space-x-8">
-                        <button class="py-4 px-1 border-b-2 border-black font-medium text-gray-900">
-                            DESCRIPTION
-                        </button>
-                        <button
-                            class="py-4 px-1 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700">
-                            SPECIFICATION
-                        </button>
-                    </nav>
-                </div>
-                <div class="py-8">
+            <div class="mt-16 lg:mt-20">
+                <div class="glass-effect rounded-2xl p-6 md:p-8 premium-shadow border border-white/20">
+                    <div class="border-b border-gray-200">
+                        <nav class="flex space-x-8">
+                            <button class="tab-button py-4 px-1 font-semibold text-primary active"
+                                data-tab="description">
+                                DESCRIPTION
+                            </button>
+                            <button
+                                class="tab-button py-4 px-1 font-semibold text-text-secondary hover:text-primary transition-colors"
+                                data-tab="specification">
+                                SPECIFICATION
+                            </button>
+                        </nav>
+                    </div>
 
-                    <p class="text-gray-700 leading-relaxed">
-                        <%=product.description%>
-                    </p>
+                    <div class="py-8">
+                        <div id="description-content" class="tab-content">
+                            <div class="prose prose-lg max-w-none">
+                                <p class="text-text-primary leading-relaxed text-lg">
+                                    <%= product.description %>
+                                </p>
+                            </div>
+                        </div>
 
+                        <div id="specification-content" class="tab-content hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <h4 class="font-semibold text-primary text-lg">Product Details</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between py-2 border-b border-gray-100">
+                                            <span class="text-text-secondary">Brand</span>
+                                            <span class="font-medium text-primary">
+                                                <%= product.brand.brandName %>
+                                            </span>
+                                        </div>
+                                        <div class="flex justify-between py-2 border-b border-gray-100">
+                                            <span class="text-text-secondary">Category</span>
+                                            <span class="font-medium text-primary">
+                                                <%= product.category.name %>
+                                            </span>
+                                        </div>
+                                        <div class="flex justify-between py-2 border-b border-gray-100">
+                                            <span class="text-text-secondary">Color</span>
+                                            <span class="font-medium text-primary">
+                                                <%= selectedVariant.colorName %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <h4 class="font-semibold text-primary text-lg">Features</h4>
+                                    <ul class="space-y-2 text-text-secondary">
+                                        <li class="flex items-center space-x-2">
+                                            <i class="fas fa-check text-green-500"></i>
+                                            <span>Water Resistant</span>
+                                        </li>
+                                        <li class="flex items-center space-x-2">
+                                            <i class="fas fa-check text-green-500"></i>
+                                            <span>Scratch Resistant</span>
+                                        </li>
+                                        <li class="flex items-center space-x-2">
+                                            <i class="fas fa-check text-green-500"></i>
+                                            <span>Premium Materials</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-
-
             <!-- You May Also Like Section -->
-            <div class="mt-16">
-                <h2 class="text-2xl font-bold text-center mb-8">YOU MAY ALSO LIKE</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div class="mt-16 lg:mt-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-2xl md:text-3xl font-playfair font-bold text-primary mb-4">You May Also Like</h2>
+                    <p class="text-text-secondary text-lg">Discover more timepieces from the same collection</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                     <% sameBrandProducts.forEach(product=> { %>
-                        <div class="bg-white rounded-lg border overflow-hidden hover:shadow-lg transition-shadow">
-                            <a href="/product-detail/<%= product._id %>">
-                                <div class="relative">
+                        <div
+                            class="product-card glass-effect rounded-2xl overflow-hidden premium-shadow border border-white/20 group">
+                            <a href="/product-detail/<%= product._id %>" class="block">
+                                <div class="relative overflow-hidden">
                                     <img src="<%= product.colorVariants[0].productImage[0] %>"
-                                        alt="<%= product.productName %>" class="w-full h-48 object-cover">
+                                        alt="<%= product.productName %>"
+                                        class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500">
                                     <% if(product.hasOffer) { %>
                                         <span
-                                            class="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">Sale</span>
+                                            class="absolute top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">Sale</span>
                                         <% } %>
                                 </div>
-                                <div class="p-4">
-                                    <h3 class="font-medium text-sm mb-1">
+                                <div class="p-4 space-y-2">
+                                    <h3
+                                        class="font-semibold text-primary text-sm line-clamp-2 group-hover:text-accent transition-colors">
                                         <%= product.productName %>
                                     </h3>
-                                    <p class="text-xs text-gray-500 mb-2">
+                                    <p class="text-xs text-text-secondary">
                                         <%= product.brand.brandName %>
                                     </p>
                                     <div class="flex items-center gap-2">
-                                        <span class="text-gray-500 line-through text-sm">₹<%=
-                                                product.colorVariants[0].regularPrice %></span>
-                                        <span class="font-bold text-lg">₹<%= product.colorVariants[0].offerPrice %>
-                                                </span>
+                                        <span class="text-text-secondary line-through text-sm">₹<%=
+                                                product.colorVariants[0].regularPrice.toLocaleString() %></span>
+                                        <span class="font-bold text-primary">₹<%=
+                                                product.colorVariants[0].offerPrice.toLocaleString() %></span>
                                     </div>
-                                    <p class="text-xs text-green-600">
-                                        Save ₹<%= product.colorVariants[0].regularPrice -
-                                            product.colorVariants[0].offerPrice %>
+                                    <p class="text-xs text-green-600 font-medium">
+                                        Save ₹<%= (product.colorVariants[0].regularPrice -
+                                            product.colorVariants[0].offerPrice).toLocaleString() %>
                                     </p>
                                 </div>
                             </a>
                         </div>
                         <% }) %>
                 </div>
-
             </div>
-
         </div>
-        <%- include("../../views/partials/user/footer")%>
+
+        <%- include("../../views/partials/user/footer") %>
+
             <script>
+                // Toastr configuration
+                toastr.options = {
+                    "closeButton": true,
+                    "progressBar": true,
+                    "positionClass": "toast-top-right",
+                    "timeOut": "3000",
+                    "preventDuplicates": true
+                };
+
                 document.addEventListener('DOMContentLoaded', function () {
                     const zoomContainer = document.querySelector('.zoom-container');
                     const zoomImage = document.querySelector('.zoom-image');
 
-                    // Zoom effect
+                    // Enhanced zoom effect
                     zoomContainer.addEventListener('mousemove', function (e) {
                         const rect = zoomContainer.getBoundingClientRect();
                         const x = e.clientX - rect.left;
@@ -309,7 +595,7 @@
                         zoomImage.style.transformOrigin = 'center center';
                     });
 
-                    // Thumbnail switching without fade
+                    // Enhanced thumbnail switching
                     function initializeThumbnails() {
                         const thumbnails = document.querySelectorAll(".thumbnail-active");
                         const mainImage = document.querySelector(".zoom-image");
@@ -317,17 +603,21 @@
                         thumbnails.forEach((thumbnail) => {
                             thumbnail.addEventListener("click", function () {
                                 // Remove active class from all thumbnails
-                                thumbnails.forEach((t) => t.classList.remove("active", "border-blue-500"));
-                                thumbnails.forEach((t) => t.classList.add("border-gray-200"));
+                                thumbnails.forEach((t) => {
+                                    t.classList.remove("active");
+                                });
 
                                 // Add active class to clicked thumbnail
-                                this.classList.add("active", "border-blue-500");
-                                this.classList.remove("border-gray-200");
+                                this.classList.add("active");
 
-                                // Update main image immediately
+                                // Update main image with fade effect
                                 const img = this.querySelector("img");
                                 if (img && mainImage) {
-                                    mainImage.src = img.src;
+                                    mainImage.style.opacity = '0.7';
+                                    setTimeout(() => {
+                                        mainImage.src = img.src;
+                                        mainImage.style.opacity = '1';
+                                    }, 150);
                                 }
                             });
                         });
@@ -335,18 +625,116 @@
 
                     initializeThumbnails();
 
-                    // Tab switching
-                    const tabButtons = document.querySelectorAll('nav button');
+                    // Enhanced tab switching
+                    const tabButtons = document.querySelectorAll('.tab-button');
+                    const tabContents = document.querySelectorAll('.tab-content');
+
                     tabButtons.forEach(button => {
                         button.addEventListener('click', function () {
+                            const targetTab = this.getAttribute('data-tab');
+
+                            // Update button states
                             tabButtons.forEach(btn => {
-                                btn.classList.remove('border-black', 'text-gray-900');
-                                btn.classList.add('border-transparent', 'text-gray-500');
+                                btn.classList.remove('active', 'text-primary');
+                                btn.classList.add('text-text-secondary');
                             });
 
-                            this.classList.add('border-black', 'text-gray-900');
-                            this.classList.remove('border-transparent', 'text-gray-500');
+                            this.classList.add('active', 'text-primary');
+                            this.classList.remove('text-text-secondary');
+
+                            // Update content visibility
+                            tabContents.forEach(content => {
+                                content.classList.add('hidden');
+                            });
+
+                            const targetContent = document.getElementById(`${targetTab}-content`);
+                            if (targetContent) {
+                                targetContent.classList.remove('hidden');
+                            }
                         });
+                    });
+
+                    // Enhanced add to cart functionality
+                    document.getElementById('addToCartButton').addEventListener('click', async () => {
+                        const button = document.getElementById('addToCartButton');
+                        const buttonText = document.getElementById('addToCartText');
+                        const spinner = document.getElementById('addToCartSpinner');
+
+                        const productId = document.getElementById('productId').value;
+                        const stock = document.getElementById('stock').value;
+                        const variantId = document.getElementById('variantId').value;
+
+                        // Show loading state
+                        button.disabled = true;
+                        buttonText.textContent = 'ADDING...';
+                        spinner.classList.remove('hidden');
+
+                        try {
+                            const response = await fetch('/addCart', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                credentials: 'same-origin',
+                                body: JSON.stringify({ productId, stock, variantId })
+                            });
+
+                            const data = await response.json();
+
+                            if (response.ok) {
+                                toastr.success('Product added to cart successfully!', 'Success');
+
+                                // Update button to show success
+                                buttonText.textContent = 'ADDED TO CART';
+                                button.classList.remove('from-primary', 'to-gray-800');
+                                button.classList.add('from-green-500', 'to-green-600');
+                                setTimeout(() => {
+                                    resetButton(); 
+                                }, 1500);
+
+                                // Redirect after delay
+                                // if (data.redirectUrl) {
+                                //     setTimeout(() => {
+                                //         window.location.href = data.redirectUrl;
+                                //     }, 1500);
+                                // }
+                            } else {
+                                toastr.error(data.message || 'Failed to add product to cart.', 'Error');
+                                resetButton();
+                            }
+
+                        } catch (error) {
+                            console.error('Error adding to cart:', error);
+                            toastr.error('Server error. Please try again.', 'Error');
+                            resetButton();
+                        }
+
+                        function resetButton() {
+                            button.disabled = false;
+                            buttonText.textContent = 'ADD TO CART';
+                            spinner.classList.add('hidden');
+                            button.classList.remove('from-green-500', 'to-green-600');
+                            button.classList.add('from-primary', 'to-gray-800');
+                        }
+                    });
+
+                    // Add smooth scroll behavior
+                    document.documentElement.style.scrollBehavior = 'smooth';
+
+                    // Initialize animations
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.style.animationPlayState = 'running';
+                            }
+                        });
+                    });
+
+                    document.querySelectorAll('.feature-card, .product-card').forEach(el => {
+                        observer.observe(el);
                     });
                 });
             </script>
+</body>
+
+</html>

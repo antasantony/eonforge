@@ -37,24 +37,21 @@ const isLogin = (req, res, next) => {
 };
 
 
+const isLogged = (req, res, next) => {
+    if (req.session.userId) {
+        return res.redirect('/');
+    }
+    next(); // Proceed to userController.loadHomePage if not logged in
+};
+
 const adminAuth = (req, res, next) => {
-    User.findOne({ isAdmin: true })
+    if (req.session.admin) {
+        return next();
+    } else {
+        res.redirect('/admin/login');
+    }
+};
 
-        .then(data => {
-            if (data) {
-
-                next();
-
-            } else {
-                res.redirect('/admin/login')
-            }
-        })
-
-        .catch(error => {
-            console.log("Error in adminAuth middleware", error);
-            res.status(500).send('Internal server Error')
-        })
-}
 
 const adminLogin = (req, res, next) => {
     console.log('is login called')
@@ -68,6 +65,7 @@ const adminLogin = (req, res, next) => {
 module.exports = {
     userAuth,
     isLogin,
+    isLogged,
     adminAuth,
     adminLogin 
 }

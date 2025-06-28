@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eon Forge - Order Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600;800&family=Playfair+Display:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'playfair': ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        'primary': '#1a1a1a',
+                        'accent': '#d4af37',
+                        'accent-light': '#f4e4a6',
+                        'cream': '#ffffff',
+                        'warm-gray': '#f8f9fa',
+                        'text-primary': '#2d2d2d',
+                        'text-secondary': '#6b7280',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-in': 'slideIn 0.5s ease-out',
+                        'pulse-glow': 'pulseGlow 0.2s ease-in-out infinite',
+                        'modal-in': 'modalIn 0.3s ease-out',
+                        'modal-out': 'modalOut 0.3s ease-in',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            from: { opacity: '0', transform: 'translateY(20px)' },
+                            to: { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideIn: {
+                            from: { transform: 'translateY(15px)', opacity: '0' },
+                            to: { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 10px rgba(212, 175, 55, 0.3)' },
+                            '50%': { boxShadow: '0 0 20px rgba(212, 175, 55, 0.5)' },
+                        },
+                        modalIn: {
+                            from: { opacity: '0', transform: 'scale(0.95)' },
+                            to: { opacity: '1', transform: 'scale(1)' },
+                        },
+                        modalOut: {
+                            from: { opacity: '1', transform: 'scale(1)' },
+                            to: { opacity: '0', transform: 'scale(0.95)' },
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .premium-shadow {
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #d4af37 0%, #f4e4a6 100%);
+            color: #1a1a1a;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #fee2e2;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-cancel:hover {
+            background: #fee2e2;
+            border-color: #f87171;
+            transform: translateY(-1px);
+        }
+
+        .order-item-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .order-item-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            animation: modalIn 0.3s ease-out;
+        }
+
+        .modal-content.closing {
+            animation: modalOut 0.3s ease-in;
+        }
+
+        .textarea-resize {
+            resize: vertical;
+            min-height: 100px;
+            max-height: 200px;
+        }
+    </style>
+</head>
+
+<body class="gradient-bg font-inter min-h-screen">
+    <!-- Breadcrumb -->
+    <nav class="bg-white/70 px-4 py-4 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center space-x-3 text-sm">
+                <a href="/"
+                    class="text-text-secondary hover:text-accent transition-colors font-medium flex items-center space-x-1">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                <a href="/orders" class="text-text-secondary hover:text-accent transition-colors font-medium">Orders</a>
+                <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                <span class="text-primary font-semibold">Order Details</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Header -->
+        <div class="text-center mb-12 animate-fade-in">
+            <h1 class="text-4xl md:text-5xl font-playfair font-bold text-primary mb-4">Order Details</h1>
+            <p class="text-text-secondary text-lg max-w-2xl mx-auto">
+                Order <span class="font-semibold text-accent">#<%= orderId || 'N/A' %></span> placed on
+                <%const date=new Date(order.createdOn)%>
+                    <span class="font-semibold">
+                        <%=date.getDate()%>/<%=date.getMonth()+1%>/<%=date.getFullYear()%>
+                    </span>
+            </p>
+        </div>
+
+        <!-- Order Details Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Order Items and Summary -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Order Items -->
+                <div class="glass-effect rounded-3xl p-8 premium-shadow animate-slide-in">
+                    <h2 class="text-2xl font-playfair font-bold text-primary mb-6 flex items-center">
+                        <i class="fas fa-box text-accent mr-2"></i>
+                        Items Ordered
+                    </h2>
+                    <div id="orderItemsList" class="space-y-6">
+                        <% (cartItems || []).forEach((item, index)=> { %>
+                            <div class="order-item-hover bg-warm-gray p-6 rounded-xl flex flex-col sm:flex-row sm:items-center gap-4"
+                                style="animation-delay: <%= index * 0.1 %>s">
+                                <img src="<%= item.productImage || '/placeholder-watch.jpg' %>"
+                                    alt="<%= item.productName %>"
+                                    class="w-20 h-20 object-cover rounded-lg border border-gray-100">
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-semibold text-primary">
+                                        <%= item.productName %>
+                                    </h4>
+                                    <p class="text-text-secondary text-sm">
+                                        <%= item.brandName || 'Eon Forge' %>
+                                    </p>
+                                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-text-secondary">
+                                        <p>Qty: <%= item.quantity %>
+                                        </p>
+                                        <% if (item.color) { %>
+                                            <p>Color: <%= item.color %>
+                                            </p>
+                                            <% } %>
+                                                <% if (item.size) { %>
+                                                    <p>Size: <%= item.size %>
+                                                    </p>
+                                                    <% } %>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between sm:justify-end gap-4">
+                                    <p class="text-lg font-semibold text-primary">₹<%= (item.total ||
+                                            0).toLocaleString() %>
+                                    </p>
+                                    <% if (item.discountedPrice) { %>
+                                        <p class="text-xs text-green-600 sm:hidden">Saved ₹<%= ((item.price -
+                                                item.discountedPrice) * item.quantity).toLocaleString() %>
+                                        </p>
+                                        <% } %>
+                                            <% if (item.status !=='Cancelled' && item.status !=='Delivered' ) { %>
+                                                <button class="btn-cancel"
+                                                    onclick="openCancelModal('<%= orderId %>', '<%= item.id %>', '<%= item.productName %>')">
+                                                    <i class="fas fa-times"></i> Cancel
+                                                </button>
+                                                <% } %>
+
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="glass-effect rounded-3xl p-8 premium-shadow animate-slide-in">
+                    <h2 class="text-2xl font-playfair font-bold text-primary mb-6 flex items-center">
+                        <i class="fas fa-receipt text-accent mr-2"></i>
+                        Order Summary
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Subtotal (<%= (cartItems || []).length %>
+                                    <%= (cartItems || []).length===1 ? 'item' : 'items' %>)</span>
+                            <span class="font-semibold text-primary">₹<%= (subtotal || 0).toLocaleString() %></span>
+                        </div>
+                        <% if (discount> 0) { %>
+                            <div class="flex justify-between text-sm text-green-600">
+                                <span class="text-text-secondary">Discount</span>
+                                <span class="font-semibold">-₹<%= discount.toLocaleString() %></span>
+                            </div>
+                            <% } %>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-text-secondary">Delivery Fee</span>
+                                    <span class="font-semibold text-primary">
+                                        <%= deliveryFee===0 ? 'Free' : '₹' + deliveryFee.toLocaleString() %>
+                                    </span>
+                                </div>
+                                <% if (paymentMethod==='cod' ) { %>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-text-secondary">COD Fee</span>
+                                        <span class="font-semibold text-primary">₹50</span>
+                                    </div>
+                                    <% } %>
+                                        <% if (tax> 0) { %>
+                                            <div class="flex justify-between text-sm">
+                                                <span class="text-text-secondary">Tax</span>
+                                                <span class="font-semibold text-primary">₹<%= tax.toLocaleString() %>
+                                                </span>
+                                            </div>
+                                            <% } %>
+                                                <div
+                                                    class="flex justify-between text-lg font-bold pt-4 border-t border-gray-100">
+                                                    <span class="text-primary">Total</span>
+                                                    <span class="text-primary">₹<%= ((subtotal || 0) - (discount || 0) +
+                                                            (deliveryFee || 0) + (paymentMethod==='cod' ? 50 : 0) + (tax
+                                                            || 0)).toLocaleString() %></span>
+                                                </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Delivery & Payment Info -->
+            <div class="lg:sticky lg:top-8 h-fit">
+                <div class="glass-effect rounded-3xl p-8 premium-shadow animate-slide-in">
+                    <!-- Delivery Address -->
+                    <h2 class="text-xl font-playfair font-bold text-primary mb-4 flex items-center">
+                        <i class="fas fa-map-marker-alt text-accent mr-2"></i>
+                        Delivery Address
+                    </h2>
+                    <div class="mb-6">
+                        <% const defaultAddress=(addresses || []).find(addr=> addr.isDefault) || (addresses || [])[0];
+                            %>
+                            <% if (defaultAddress) { %>
+                                <h3 class="text-lg font-semibold text-primary">
+                                    <%= fullName || 'Customer' %>
+                                </h3>
+                                <p class="text-text-secondary text-sm">
+                                    <%= defaultAddress.address %>
+                                </p>
+                                <p class="text-text-secondary text-sm">
+                                    <%= defaultAddress.city %>, <%= defaultAddress.state || '' %>
+                                            <%= defaultAddress.pinCode %>
+                                </p>
+                                <p class="text-text-secondary text-sm">
+                                    <%= defaultAddress.country || 'India' %>
+                                </p>
+                                <p class="text-text-secondary text-sm mt-2">
+                                    <i class="fas fa-phone-alt mr-1"></i>
+                                    <%= defaultAddress.phone || 'Not provided' %>
+                                </p>
+                                <% } else { %>
+                                    <p class="text-text-secondary text-sm">No address found.</p>
+                                    <% } %>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <h2 class="text-xl font-playfair font-bold text-primary mb-4 flex items-center">
+                        <i class="fas fa-credit-card text-accent mr-2"></i>
+                        Payment Method
+                    </h2>
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                            <i class="fas <%= paymentMethod === 'cod' ? 'fa-money-bill-wave text-green-600' : 
+                                              paymentMethod === 'upi' ? 'fa-mobile-alt text-blue-600' : 
+                                              paymentMethod === 'netbanking' ? 'fa-university text-teal-600' : 
+                                              'fa-credit-card text-purple-600' %> text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-primary font-semibold">
+                                <%= paymentMethod==='cod' ? 'Cash on Delivery' : paymentMethod==='upi' ? 'UPI Payment' :
+                                    paymentMethod==='netbanking' ? 'Net Banking' : 'Card Payment' %>
+                            </p>
+                            <p class="text-text-secondary text-sm">
+                                <%= paymentMethod==='cod' ? 'Pay on delivery' : 'Payment completed' %>
+                            </p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-text-secondary">
+                        Status: <span class="font-semibold text-green-600">Completed</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div
+            class="mt-12 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 animate-slide-in">
+            <a href="/orders" class="btn-primary">
+                <i class="fas fa-list"></i> View All Orders
+            </a>
+            <a href="/shop" class="btn-secondary">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+        </div>
+    </main>
+
+    <!-- Cancel Modal -->
+    <div id="cancelModal" class="modal-overlay hidden">
+        <div class="modal-content glass-effect rounded-2xl p-6 max-w-md w-full mx-4 premium-shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-playfair font-bold text-primary">Cancel Item</h3>
+                <button onclick="closeCancelModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <p class="text-text-secondary mb-4">You are about to cancel: <span id="modalProductName"
+                    class="font-semibold text-primary"></span></p>
+            <div class="mb-4">
+                <label for="cancelReason" class="block text-sm font-medium text-primary mb-2">Reason for
+                    Cancellation</label>
+                <textarea id="cancelReason"
+                    class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
+                    placeholder="Please provide a reason for cancelling this item"></textarea>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeCancelModal()" class="btn-secondary">Close</button>
+                <button onclick="submitCancellation()" class="btn-primary">
+                    <i class="fas fa-check mr-1"></i> Submit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentOrderId = null;
+    let currentItemId = null;
+
+    function openCancelModal(orderId, itemId, productName) {
+        console.log('orderid', orderId);
+        console.log('itemid', itemId);
+
+        // Set global variables
+        currentOrderId = orderId;
+        currentItemId = itemId;
+
+           
+
+            document.getElementById('modalProductName').textContent = productName;
+            document.getElementById('cancelModal').classList.remove('hidden');
+            document.getElementById('cancelModal').classList.add('show');
+            document.getElementById('cancelReason').value = '';
+        }
+
+        function closeCancelModal() {
+            const modal = document.getElementById('cancelModal');
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.remove('show');
+                modal.classList.add('hidden');
+                modalContent.classList.remove('closing');
+            }, 300);
+        }
+
+        async function submitCancellation() {
+            const reason = document.getElementById('cancelReason').value.trim();
+            if (!reason) {
+                alert('Please provide a reason for cancellation.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/cancel-order-item/${currentOrderId}/${currentItemId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Item cancelled successfully.');
+                    closeCancelModal();
+                    setTimeout(() => location.reload(), 1000); // Refresh the page to reflect change
+                } else {
+                    alert(data.message || 'Failed to cancel item.');
+                }
+            } catch (err) {
+                console.error('Cancellation error:', err);
+                alert('Server error');
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const orderItems = document.querySelectorAll('.order-item-hover');
+            orderItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+
+</html>

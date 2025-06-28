@@ -1,66 +1,138 @@
 const mongoose = require("mongoose");
-const {Schema} = mongoose;
-const {v4:uuidv4} = require('uuid');
-
+const { Schema } = mongoose;
+const { v4: uuidv4 } = require('uuid');
 
 const orderSchema = new Schema({
-    orderId : {
-        type:String,
-        default:()=>uuidv4(),
-        unique : true
+    orderId: {
+        type: String,
+        default: () => uuidv4(),
+        unique: true
     },
-    orderItems:[{
-        product:{
-            type:Schema.Types.ObjectId,
-            ref :"product",
-            required:true
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    orderItems: [{
+        product: {
+            type: Schema.Types.ObjectId,
+            ref: 'Product',
+            required: true
         },
-        quantity:{
-            type:Number,
-            required:true
+        variantId: {
+            type: Schema.Types.ObjectId,
+            required: true
         },
-        price:{
-            type:Number,
-            default:0
+        stock: {
+            type: Number,
+            required: true
+        },
+        price: {
+            type: Number,
+            required: true
+        },
+        status: {
+            type: String,
+            enum: ['Ordered', 'Cancelled', 'Returned'],
+            default: 'Ordered'
+        },
+        cancelReason: {
+            type: String,
+            default: null
+        },
+        returnStatus: {
+            type: String,
+            enum: ['None', 'Requested', 'Approved', 'Rejected'],
+            default: 'None'
+        },
+        returnReason: {
+            type: String,
+            default: null
         }
     }],
-    totalPrice:{
-         type:Number,
-         required:true 
-    },
-    dicount:{
-        type:Number,
-        default:0
-    },
-    finalAmout:{
-        type:Number,
-        required:true
-    },
-    address:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        required:true
-    },
-    invoiceDate:{
-        type:Date,
 
+    totalPrice: {
+        type: Number,
+        required: true
     },
-    status:{
-        type:String,
-        required:true,
-        enum:["Pending","Processing","Shipped","Delivered","Cancelled","Return Request","Returned"]
+    discount: {
+        type: Number,
+        default: 0
     },
-    createdOn:{
-        type:Date,
-        default:Date.now,
-        required:true
+    finalAmount: {
+        type: Number,
+        required: true
     },
-    couponApplied:{
-        type:Boolean,
-        default:false
+    address: {
+        addressType: {
+            type: String,
+            enum: ['home', 'work', 'other'],
+            required: true
+        },
+        street: {
+            type: String,
+            required: true
+        },
+        city: {
+            type: String,
+            required: true
+        },
+        state: {
+            type: String,
+            required: true
+        },
+        pin: {
+            type: String,
+            required: true
+        },
+        country: {
+            type: String,
+            required: true
+        },
+        phone: {
+            type: String,
+            required: true,
+            match: /^[0-9]{10}$/
+        },
+        isDefault: {
+            type: Boolean,
+            default: false
+        }
+    },
+    paymentMethod: {
+        type: String,
+        enum: ['cod', 'upi', 'netbanking', 'card'],
+        required: true
+    },
+    invoiceDate: {
+        type: Date,
+        default: Date.now
+    },
+    status: {
+        type: String,
+        required: true,
+        enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned"],
+        default: "Pending"
+    },
+    returnStatus: {
+        type: String,
+        enum: ['None', 'Requested', 'Approved', 'Rejected'],
+        default: 'None'
+    },
+    cancelReason: {
+        type: String,
+        default: null,
+    },
+    createdOn: {
+        type: Date,
+        default: Date.now,
+        required: true
+    },
+    couponApplied: {
+        type: Boolean,
+        default: false
     }
+});
 
-})
-
-const Order = mongoose.model("Order",orederSchema);
-module.exports= Order;
+const Order = mongoose.model("Order", orderSchema);
+module.exports = Order;

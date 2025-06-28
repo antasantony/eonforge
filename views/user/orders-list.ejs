@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eon Forge - Order Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'playfair': ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        'primary': '#1a1a1a',
+                        'accent': '#d4af37',
+                        'accent-light': '#f4e4a6',
+                        'cream': '#fefdfb',
+                        'warm-gray': '#f8f7f4',
+                        'text-primary': '#2d2d2d',
+                        'text-secondary': '#6b7280',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+                        'modal-in': 'modalIn 0.3s ease-out',
+                        'modal-out': 'modalOut 0.3s ease-in',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            from: { opacity: '0', transform: 'translateY(20px)' },
+                            to: { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideUp: {
+                            from: { transform: 'translateY(10px)', opacity: '0' },
+                            to: { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 10px rgba(212, 175, 55, 0.3)' },
+                            '50%': { boxShadow: '0 0 20px rgba(212, 175, 55, 0.5)' },
+                        },
+                        modalIn: {
+                            from: { opacity: '0', transform: 'scale(0.95)' },
+                            to: { opacity: '1', transform: 'scale(1)' },
+                        },
+                        modalOut: {
+                            from: { opacity: '1', transform: 'scale(1)' },
+                            to: { opacity: '0', transform: 'scale(0.95)' },
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #fefdfb 0%, #f8f7f4 100%);
+        }
+
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .premium-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #d4af37 0%, #f4e4a6 100%);
+            color: #1a1a1a;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.4);
+            background: linear-gradient(45deg, #e0c050 0%, #fff0b3 100%);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ef4444 0%, #f87171 100%);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .order-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            animation: modalIn 0.3s ease-out;
+        }
+
+        .modal-content.closing {
+            animation: modalOut 0.3s ease-in;
+        }
+
+        .textarea-resize {
+            resize: vertical;
+            min-height: 100px;
+            max-height: 200px;
+        }
+    </style>
+</head>
+
+<body class="gradient-bg font-inter min-h-screen">
+    <!-- Breadcrumb -->
+    <nav class="bg-white/70 px-4 py-4 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center space-x-3 text-sm">
+                <a href="/" class="text-text-secondary hover:text-accent transition-colors font-medium flex items-center space-x-1">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                <span class="text-primary font-semibold">Order Management</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Header -->
+        <div class="text-center mb-12 animate-fade-in">
+            <h1 class="text-4xl md:text-5xl font-playfair font-bold text-primary mb-4">Your Orders</h1>
+            <p class="text-text-secondary text-lg max-w-2xl mx-auto">
+                View and manage your order history, track shipments, or initiate returns.
+            </p>
+        </div>
+
+       <!-- Search Bar -->
+        <div class="mb-8">
+            <form action="/orders" method="get" class="relative max-w-md mx-auto">
+                <input type="text" name="search" id="orderSearch" placeholder="Search by Order ID..."
+                    value="<%= typeof search !== 'undefined' ? search : '' %>"
+                    class="w-full px-4 py-3 pr-20 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-sm">
+
+
+                <button type="submit" class="absolute right-12 top-1/2 transform -translate-y-1/2 text-text-secondary">
+                    <i class="fas fa-search"></i>
+                </button>
+
+
+                <% if (search) { %>
+                    <a href="/orders" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-text-secondary">
+                        <i class="fas fa-times cursor-pointer"></i>
+                    </a>
+                    <% } %>
+            </form>
+        </div>
+
+        <!-- Order List -->
+        <div class="glass-effect rounded-3xl p-8 premium-shadow animate-slide-up">
+            <h2 class="text-2xl font-playfair font-bold text-primary mb-6 flex items-center">
+                <i class="fas fa-list-alt text-accent mr-2"></i> Order History
+            </h2>
+            <div id="orderList" class="space-y-6">
+                <% (orders || []).forEach((order, index) => { %>
+                    <div class="order-card bg-warm-gray rounded-xl p-6 premium-shadow animate-slide-up" style="animation-delay: <%= index * 0.1 %>s">
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 items-center">
+                            <div class="sm:col-span-2">
+                                <h3 class="text-lg font-semibold text-primary">Order #<%= order.orderId %></h3>
+                                <% const orderDate = new Date(order.createdOn); %>
+                                <p class="text-sm text-text-secondary">Placed on <%= orderDate.toLocaleDateString() %> at <%= orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></p>
+                                <p class="text-sm text-text-secondary">Total: ₹<%= (order.totalPrice || 0).toLocaleString() %></p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-text-secondary">Status: 
+                                    <span class="font-semibold <%= order.status === 'Delivered' ? 'text-green-600' : order.status === 'Cancelled' ? 'text-red-600' : 'text-accent' %>">
+                                        <%= order.status %>
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="sm:col-span-2 flex justify-end gap-2">
+                                <a href="/order-details?orderId=<%= order.orderId %>" class="btn-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-secondary">
+                                    <i class="fas fa-download"></i> Invoice
+                                </button>
+                                <% if (order.status !== 'Cancelled' && order.status !== 'Delivered') { %>
+                                    <button onclick="showCancelModal('<%= order.orderId %>')" class="btn-danger">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                <% } else if (order.status === 'Delivered') { %>
+                                    <button onclick="showReturnModal('<%= order.orderId %>')" class="btn-danger">
+                                        <i class="fas fa-undo"></i> Return
+                                    </button>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+                <% if (!orders || orders.length === 0) { %>
+                    <div class="text-center py-12">
+                        <i class="fas fa-shopping-bag text-4xl text-accent mb-4"></i>
+                        <p class="text-lg text-text-secondary">No orders found.</p>
+                        <a href="/shop" class="btn-primary mt-4">
+                            <i class="fas fa-shopping-bag"></i> Start Shopping
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+
+    <!-- Cancel Order Modal -->
+    <div id="cancelModal" class="modal-overlay hidden">
+        <div class="modal-content glass-effect rounded-2xl p-6 max-w-md w-full mx-4 premium-shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-playfair font-bold text-primary">Cancel Order</h3>
+                <button onclick="closeCancelModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <p class="text-text-secondary mb-4">Are you sure you want to cancel Order #<span id="cancelOrderId"></span>?</p>
+            <div class="mb-4">
+                <label for="cancelReason" class="block text-sm font-medium text-primary mb-2">Reason for Cancellation (Optional)</label>
+                <textarea id="cancelReason" class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent" placeholder="Provide a reason if any"></textarea>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeCancelModal()" class="btn-secondary">Close</button>
+                <button onclick="confirmCancelOrder()" class="btn-danger">
+                    <i class="fas fa-check mr-1"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Order Modal -->
+    <div id="returnModal" class="modal-overlay hidden">
+        <div class="modal-content glass-effect rounded-2xl p-6 max-w-md w-full mx-4 premium-shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-playfair font-bold text-primary">Return Order</h3>
+                <button onclick="closeReturnModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <p class="text-text-secondary mb-4">Please provide a reason for returning Order #<span id="returnOrderId"></span>.</p>
+            <div class="mb-4">
+                <label for="returnReason" class="block text-sm font-medium text-primary mb-2">Reason for Return (Required)</label>
+                <textarea id="returnReason" class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent" placeholder="Provide a reason for return"></textarea>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeReturnModal()" class="btn-secondary">Close</button>
+                <button onclick="confirmReturnOrder()" id="returnConfirmBtn" class="btn-danger" >
+                    <i class="fas fa-check mr-1"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data from controller
+        const orders = <%- JSON.stringify(orders || []) %>;
+
+        // Search Orders
+        document.getElementById('orderSearch').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const orderList = document.getElementById('orderList');
+            orderList.innerHTML = '';
+
+            const filteredOrders = orders.filter(order => order.orderId.toLowerCase().includes(searchTerm));
+            if (filteredOrders.length === 0) {
+                orderList.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-shopping-bag text-4xl text-accent mb-4"></i>
+                        <p class="text-lg text-text-secondary">No orders found.</p>
+                        <a href="/shop" class="btn-primary mt-4">
+                            <i class="fas fa-shopping-bag"></i> Start Shopping
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredOrders.forEach((order, index) => {
+                const orderDiv = document.createElement('div');
+                orderDiv.className = 'order-card bg-warm-gray rounded-xl p-6 premium-shadow animate-slide-up';
+                orderDiv.style.animationDelay = `${index * 0.1}s`;
+                orderDiv.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 items-center">
+                        <div class="sm:col-span-2">
+                            <h3 class="text-lg font-semibold text-primary">Order #${order.orderId}</h3>
+                            <p class="text-sm text-text-secondary">Placed on ${new Date(order.createdOn).toLocaleDateString()} at ${new Date(order.createdOn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                            <p class="text-sm text-text-secondary">Total: ₹${(order.totalPrice || 0).toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-text-secondary">Status: 
+                                <span class="font-semibold ${order.status === 'Delivered' ? 'text-green-600' : order.status === 'Cancelled' ? 'text-red-600' : 'text-accent'}">${order.status}</span>
+                            </p>
+                        </div>
+                        <div class="sm:col-span-2 flex justify-end gap-2">
+                            <a href="/order-details?orderId=${order.orderId}" class="btn-primary">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <button onclick="downloadInvoice('${order.orderId}')" class="btn-secondary">
+                                <i class="fas fa-download"></i> Invoice
+                            </button>
+                            ${order.status !== 'Cancelled' && order.status !== 'Delivered' ? `
+                                <button onclick="showCancelModal('${order.orderId}')" class="btn-danger">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            ` : order.status === 'Delivered' ? `
+                                <button onclick="showReturnModal('${order.orderId}')" class="btn-danger">
+                                    <i class="fas fa-undo"></i> Return
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                orderList.appendChild(orderDiv);
+            });
+        });
+
+        // Modal Functions
+        function showCancelModal(orderId) {
+            document.getElementById('cancelOrderId').textContent = orderId;
+            document.getElementById('cancelModal').classList.remove('hidden');
+            document.getElementById('cancelModal').classList.add('show');
+            document.getElementById('cancelReason').value = '';
+        }
+
+        function closeCancelModal() {
+            const modal = document.getElementById('cancelModal');
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.remove('show');
+                modal.classList.add('hidden');
+                modalContent.classList.remove('closing');
+            }, 300);
+        }
+
+        function showReturnModal(orderId) {
+            document.getElementById('returnOrderId').textContent = orderId;
+            document.getElementById('returnModal').classList.remove('hidden');
+            document.getElementById('returnModal').classList.add('show');
+            document.getElementById('returnReason').value = '';
+            document.getElementById('returnConfirmBtn').disabled = true;
+        }
+
+        function closeReturnModal() {
+            const modal = document.getElementById('returnModal');
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.remove('show');
+                modal.classList.add('hidden');
+                modalContent.classList.remove('closing');
+            }, 300);
+        }
+
+        function confirmCancelOrder() {
+            const orderId = document.getElementById('cancelOrderId').textContent;
+            const reason = document.getElementById('cancelReason').value;
+            fetch('/cancel-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, reason })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Order cancelled successfully.');
+                        location.reload();
+                    } else {
+                        alert('Failed to cancel order.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            closeCancelModal();
+        }
+
+        function confirmReturnOrder() {
+            const orderId = document.getElementById('returnOrderId').textContent;
+            const reason = document.getElementById('returnReason').value;
+            fetch('/return-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, reason })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Return request submitted successfully.');
+                        location.reload();
+                    } else {
+                        alert('Failed to submit return request.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            closeReturnModal();
+        }
+
+        // Enable return confirm button only if reason is provided
+        document.getElementById('returnReason').addEventListener('input', function () {
+            document.getElementById('returnConfirmBtn').disabled = this.value.trim() === '';
+        });
+
+        // Download Invoice
+        function downloadInvoice(orderId) {
+            window.location.href = `/download-invoice?orderId=${orderId}`;
+        }
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const orderCards = document.querySelectorAll('.order-card');
+            orderCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+

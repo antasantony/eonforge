@@ -1,5 +1,6 @@
 const User = require("../../models/userSchema");
-const Address = require("../../models/addressSchema")
+const Address = require("../../models/addressSchema");
+const Order=require("../../models/orderSchema");
 
 const nodemailer = require('nodemailer');
 const bcrypt = require("bcrypt");
@@ -196,12 +197,25 @@ const userProfile = async (req, res) => {
     let user = null;
     if (isLoggedIn) user = await User.findById(userId).lean();
     const addressData = await Address.findOne({userId}).lean()
-    console.log('address data from ',addressData)
-    
+ const order=await Order.find({userId})
+ .sort({ createdOn: -1 }) 
+  .limit(3); 
+ const orderCount = await Order.countDocuments({ userId });
+ const totalSpent = order.reduce((sum, order) => sum + order.finalAmount, 0);
+console.log('totalspent', totalSpent);
+
+console.log('user order count:', orderCount);
+
+ console.log('user profile order count',order)
+    const walletBalance=100000
     res.render('profile', {
       user,
       isLoggedIn,
-      userAddress: addressData
+      userAddress: addressData,
+      order,
+      orderCount,
+      totalSpent,
+      walletBalance
     })
   } catch (error) {
     console.log(error)
@@ -226,12 +240,15 @@ const loadEditProfile = async (req, res) => {
     }
 
     const user = await User.findById(userId).lean();
+    const  isGoogle=!!user.googleId
+   
     if (!user) {
       return res.redirect('/login');
     }
     res.render('editProfile', {
       user,
       isLoggedIn: true,
+      showchangepassword:!isGoogle,
     });
   } catch (error) {
     console.error('Error loading edit profile:', error);
@@ -524,6 +541,7 @@ const postAddAddress = async (req, res) => {
     const userAddress = await Address.findOne({ userId });
     const newAddress = { type, street, city, state, pin, country, phone, isDefault: isDefault === 'on' };
     console.log('New address:', newAddress);
+    
 
     if (userAddress) {
       userAddress.address.push(newAddress);

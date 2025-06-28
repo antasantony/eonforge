@@ -58,6 +58,11 @@ const getProductPage = async (req, res) => {
         isBlocked: p.isBlocked,
       };
     });
+   
+    
+
+
+
 
     res.render('product-add', {
       cat: await Category.find({ isListed: true }).lean(),
@@ -67,6 +72,7 @@ const getProductPage = async (req, res) => {
       totalPages,
       search,
       limit,
+      
     });
   } catch (error) {
     console.error('Error in getProductPage:', error, error.stack);

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eon Forge - Order Confirmation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'playfair': ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        'primary': '#1a1a1a',
+                        'accent': '#d4af37',
+                        'accent-light': '#f4e4a6',
+                        'cream': '#fefdfb',
+                        'warm-gray': '#f8f7f4',
+                        'text-primary': '#2d2d2d',
+                        'text-secondary': '#6b7280',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            from: { opacity: '0', transform: 'translateY(20px)' },
+                            to: { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideUp: {
+                            from: { transform: 'translateY(10px)', opacity: '0' },
+                            to: { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #fefdfb 0%, #f8f7f4 100%);
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .premium-shadow {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d4af37 0%, #f4e4a6 100%);
+            color: #1a1a1a;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        .item-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="gradient-bg font-inter min-h-screen">
+    <!-- Breadcrumb -->
+    <nav class="bg-white/70 px-4 py-4 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center space-x-3 text-sm">
+                <a href="/" class="text-text-secondary hover:text-accent transition-colors font-medium flex items-center space-x-1">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                <a href="/cart" class="text-text-secondary hover:text-accent transition-colors font-medium">Cart</a>
+                <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                <span class="text-primary font-semibold">Order Confirmation</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Title and Confirmation Message -->
+        <div class="text-center mb-12 animate-fade-in">
+            <div class="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-check-circle text-3xl text-green-600"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-playfair font-bold text-primary mb-4">Order Confirmed!</h1>
+            <p class="text-text-secondary text-lg max-w-2xl mx-auto">
+                Your order <span class="font-semibold text-accent">#<%= orderId || 'N/A' %></span> has been successfully placed. 
+                A confirmation email has been sent to your registered email address.
+            </p>
+        </div>
+
+        <!-- Order Details -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" id="orderContent">
+            <!-- Left Column: Order Items, Address, Payment -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Order Items -->
+                <div class="glass-effect rounded-3xl p-8 premium-shadow animate-slide-up">
+                    <h2 class="text-2xl font-playfair font-bold text-primary mb-6 flex items-center">
+                        <i class="fas fa-box text-accent mr-2"></i>
+                        Your Order
+                    </h2>
+                    <div id="cartItemsList" class="space-y-4">
+                        <% (cartItems || []).forEach((item, index) => { %>
+                            <div class="item-card bg-warm-gray p-6 rounded-xl grid grid-cols-1 sm:grid-cols-[100px_1fr_auto] gap-4 items-center animate-slide-up" style="animation-delay: <%= index * 0.1 %>s">
+                                <img src="<%= item.productImage || '/placeholder-watch.jpg' %>" alt="<%= item.productName %>" 
+                                     class="w-20 h-20 object-cover rounded-lg border border-gray-100">
+                                <div class="flex flex-col">
+                                    <h4 class="text-lg font-semibold text-primary"><%= item.productName %></h4>
+                                    <p class="text-sm text-text-secondary"><%= item.brandName || 'Eon Forge' %></p>
+                                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-text-secondary">
+                                        <p>Qty: <%= item.quantity %></p>
+                                        <% if (item.color) { %>
+                                            <p>Color: <%= item.color %></p>
+                                        <% } %>
+                                        <% if (item.size) { %>
+                                            <p>Size: <%= item.size %></p>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-lg font-semibold text-primary">₹<%= (item.total || 0).toLocaleString() %></p>
+                                    <% if (item.discountedPrice) { %>
+                                        <p class="text-xs text-green-600">Saved ₹<%= ((item.price - item.discountedPrice) * item.quantity).toLocaleString() %></p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <!-- Delivery Address & Payment Method -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Delivery Address -->
+                    <div class="glass-effect rounded-3xl p-6 premium-shadow animate-slide-up">
+                        <h2 class="text-xl font-playfair font-bold text-primary mb-4 flex items-center">
+                            <i class="fas fa-map-marker-alt text-accent mr-2"></i>
+                            Delivery Address
+                        </h2>
+                        <div id="addressList" class="space-y-1">
+                            <% const defaultAddress = (addresses || []).find(addr => addr.isDefault) || (addresses || [])[0]; %>
+                            <% if (defaultAddress) { %>
+                                <h3 class="text-lg font-semibold text-primary"><%= fullName || 'Customer' %></h3>
+                                <p class="text-sm text-text-secondary"><%= defaultAddress.address %></p>
+                                <p class="text-sm text-text-secondary"><%= defaultAddress.city %>, <%= defaultAddress.state || '' %> <%= defaultAddress.pinCode %></p>
+                                <p class="text-sm text-text-secondary"><%= defaultAddress.country || 'India' %></p>
+                                <p class="text-sm text-text-secondary mt-2">
+                                    <i class="fas fa-phone-alt mr-1"></i> <%= defaultAddress.phone || 'Not provided' %>
+                                </p>
+                            <% } else { %>
+                                <p class="text-sm text-text-secondary">No address found.</p>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="glass-effect rounded-3xl p-6 premium-shadow animate-slide-up" style="animation-delay: 0.1s">
+                        <h2 class="text-xl font-playfair font-bold text-primary mb-4 flex items-center">
+                            <i class="fas fa-credit-card text-accent mr-2"></i>
+                            Payment Method
+                        </h2>
+                        <div class="flex items-center space-x-4 mb-2">
+                            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                                <i class="fas <%= paymentMethod === 'cod' ? 'fa-money-bill-wave text-green-600' : 
+                                              paymentMethod === 'upi' ? 'fa-mobile-alt text-blue-600' : 
+                                              paymentMethod === 'netbanking' ? 'fa-university text-teal-600' : 
+                                              'fa-credit-card text-purple-600' %> text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="text-primary font-semibold">
+                                    <%= paymentMethod === 'cod' ? 'Cash on Delivery' : 
+                                        paymentMethod === 'upi' ? 'UPI Payment' : 
+                                        paymentMethod === 'netbanking' ? 'Net Banking' : 
+                                        'Card Payment' %>
+                                </p>
+                                <p class="text-sm text-text-secondary">
+                                    <%= paymentMethod === 'cod' ? 'Pay when your order arrives' :
+                                        paymentMethod === 'upi' ? 'Payment completed via UPI' :
+                                        paymentMethod === 'netbanking' ? 'Payment via bank transfer' :
+                                        'Secure card payment processed' %>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-text-secondary mt-2">
+                            Status: <span class="font-semibold text-green-600">Completed</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Order Summary -->
+            <div class="lg:sticky lg:top-8 h-fit">
+                <div class="glass-effect rounded-3xl p-8 premium-shadow animate-slide-up">
+                    <h2 class="text-2xl font-playfair font-bold text-primary mb-6 flex items-center">
+                        <i class="fas fa-receipt text-accent mr-2"></i>
+                        Order Summary
+                    </h2>
+                    <div id="cartSummary" class="space-y-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Subtotal (<%= (cartItems || []).length %> <%= (cartItems || []).length === 1 ? 'item' : 'items' %>)</span>
+                            <span class="font-semibold text-primary">₹<%= (subtotal || 0).toLocaleString() %></span>
+                        </div>
+                        <% if (discount > 0) { %>
+                            <div class="flex justify-between text-sm text-green-600">
+                                <span class="text-text-secondary">Discount</span>
+                                <span class="font-semibold">-₹<%= discount.toLocaleString() %></span>
+                            </div>
+                        <% } %>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Delivery Fee</span>
+                            <span class="font-semibold text-primary"><%= deliveryFee === 0 ? 'Free' : '₹' + deliveryFee.toLocaleString() %></span>
+                        </div>
+                        <% if (paymentMethod === 'cod') { %>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-text-secondary">COD Fee</span>
+                                <span class="font-semibold text-primary">₹50</span>
+                            </div>
+                        <% } %>
+                        <% if (tax > 0) { %>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-text-secondary">Tax</span>
+                                <span class="font-semibold text-primary">₹<%= tax.toLocaleString() %></span>
+                            </div>
+                        <% } %>
+                        <div class="flex justify-between text-lg font-bold pt-4 border-t border-gray-100">
+                            <span class="text-primary">Total</span>
+                            <span class="text-primary">₹<%= ((subtotal || 0) - (discount || 0) + (deliveryFee || 0) + (paymentMethod === 'cod' ? 50 : 0) + (tax || 0)).toLocaleString() %></span>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-100">
+                        <div class="flex items-center space-x-3 bg-accent/5 p-3 rounded-lg">
+                            <div class="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-gift text-accent"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-primary">Premium Packaging</p>
+                                <p class="text-xs text-text-secondary">Your luxury timepiece will arrive in our signature gift box</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Support -->
+        <div class="mt-8 glass-effect rounded-3xl p-6 premium-shadow animate-slide-up">
+            <h2 class="text-xl font-playfair font-bold text-primary mb-4 flex items-center">
+                <i class="fas fa-headset text-accent mr-2"></i>
+                Need Help?
+            </h2>
+            <p class="text-sm text-text-secondary mb-4">Our customer support team is available to assist you with any questions about your order.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="mailto:support@eonforge.com" class="flex items-center space-x-3 p-3 bg-warm-gray rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-envelope text-accent"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-primary">Email Us</p>
+                        <p class="text-xs text-text-secondary">support@eonforge.com</p>
+                    </div>
+                </a>
+                <a href="tel:+18005551234" class="flex items-center space-x-3 p-3 bg-warm-gray rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-phone-alt text-accent"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-primary">Call Us</p>
+                        <p class="text-xs text-text-secondary">+1 (800) 555-1234</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-12 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 animate-slide-up">
+            <a href="/order-details?orderId=<%= orderId || '' %>" class="btn-primary">
+                <i class="fas fa-receipt"></i> View Order Details
+            </a>
+            <a href="/shop" class="btn-secondary">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+        </div>
+
+        <!-- Empty Cart State -->
+        <div id="emptyCart" class="text-center py-12 hidden animate-fade-in">
+            <div class="max-w-md mx-auto">
+                <div class="w-24 h-24 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-shopping-bag text-3xl text-accent"></i>
+                </div>
+                <h2 class="text-2xl font-playfair font-bold text-primary mb-4">No Order Found</h2>
+                <p class="text-base text-text-secondary mb-6">It seems there was an issue with your order. Explore our collection to start shopping.</p>
+                <a href="/products" class="btn-primary">
+                    <i class="fas fa-shopping-bag"></i> Explore Collection
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Data from controller
+        const cartItems = <%- JSON.stringify(cartItems || []) %>;
+        const addresses = <%- JSON.stringify(addresses || []) %>;
+        const paymentMethod = '<%= paymentMethod || "cod" %>';
+        const orderId = '<%= orderId || "" %>';
+        const userFullName = '<%= fullName || "Customer" %>';
+
+        // Render Address
+        function renderAddress() {
+            const addressList = document.getElementById('addressList');
+            const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0];
+            
+            if (!defaultAddress) {
+                addressList.innerHTML = '<p class="text-sm text-text-secondary">No address found.</p>';
+                return;
+            }
+
+            addressList.innerHTML = `
+                <h3 class="text-lg font-semibold text-primary">${userFullName}</h3>
+                <p class="text-sm text-text-secondary">${defaultAddress.address}</p>
+                <p class="text-sm text-text-secondary">${defaultAddress.city}, ${defaultAddress.state || ''} ${defaultAddress.pinCode}</p>
+                <p class="text-sm text-text-secondary">${defaultAddress.country || 'India'}</p>
+                <p class="text-sm text-text-secondary mt-2">
+                    <i class="fas fa-phone-alt mr-1"></i> ${defaultAddress.phone || 'Not provided'}
+                </p>
+            `;
+        }
+
+        // Show Empty Cart
+        function showEmptyCart() {
+            document.getElementById('orderContent').classList.add('hidden');
+            document.getElementById('emptyCart').classList.remove('hidden');
+        }
+
+        // Initialize on Page Load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!cartItems || cartItems.length === 0) {
+                showEmptyCart();
+            } else {
+                renderAddress();
+            }
+
+            // Apply animation delays
+            const items = document.querySelectorAll('.item-card');
+            items.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

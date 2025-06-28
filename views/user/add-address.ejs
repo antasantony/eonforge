@@ -1,14 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Addresses</title>
+    <title>Eon Forge - Manage Addresses</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'playfair': ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        'primary': '#1a1a1a',
+                        'accent': '#d4af37',
+                        'accent-light': '#f4e4a6',
+                        'cream': '#fefdfb',
+                        'warm-gray': '#f8f7f4',
+                        'text-primary': '#2d2d2d',
+                        'text-secondary': '#6b7280',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'scale-in': 'scaleIn 0.2s ease-out',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         .glassmorphism {
             background: rgba(255, 255, 255, 0.25);
             backdrop-filter: blur(10px);
@@ -16,7 +59,7 @@
         }
 
         .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fefdfb 0%, #f8f7f4 100%);
         }
 
         .address-card {
@@ -36,53 +79,120 @@
             transform: translateY(-1px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d4af37 0%, #f4e4a6 100%);
+            color: #1a1a1a;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -5px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: #d4af37;
+            color: #d4af37;
+            transform: translateY(-1px);
+        }
+
+        .btn-map {
+            background: #f4e4a6;
+            color: #1a1a1a;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-map:hover {
+            background: #e0d094;
+            transform: translateY(-1px);
+        }
+
+        .swal2-popup {
+            border-radius: 1rem !important;
+            padding: 2rem !important;
+        }
+
+        .swal2-title {
+            font-family: 'Playfair Display', serif !important;
+            color: #1a1a1a !important;
+        }
+
+        .swal2-html-container {
+            margin: 1rem 0 !important;
+        }
     </style>
 </head>
 
-<body class="bg-gray-50 min-h-screen">
-    <!-- Header Section -->
+<body class="gradient-bg min-h-screen">
     <div class="gradient-bg py-12">
         <div class="container mx-auto px-4">
-            <div class="text-center text-white">
-                <h1 class="text-3xl font-bold mb-2">Manage Addresses</h1>
-                <p class="text-lg opacity-90">Add, edit, and organize your delivery addresses</p>
+            <div class="text-center text-primary animate-fade-in">
+                <h1 class="text-3xl font-playfair font-bold mb-2">Manage Addresses</h1>
+                <p class="text-lg text-text-secondary">Add, edit, and organize your delivery addresses</p>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="container mx-auto px-4 -mt-6 pb-12">
         <div class="max-w-6xl mx-auto">
-            <!-- Header Card -->
-            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 animate-slide-up">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Your Addresses</h2>
-                        <p class="text-gray-600">Manage your delivery locations for faster checkout</p>
+                        <h2 class="text-2xl font-playfair font-bold text-primary mb-2">Your Addresses</h2>
+                        <p class="text-text-secondary">Manage your delivery locations for faster checkout</p>
                     </div>
                     <button onclick="openAddAddressModal()"
-                        class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition duration-300 font-medium shadow-lg">
+                        class="btn-primary shadow-lg">
                         <i class="fas fa-plus mr-2"></i>Add New Address
                     </button>
                 </div>
             </div>
 
-            <!-- Address Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="addressGrid">
-                <% if (address && address.address.length> 0) { %>
-                    <% address.address.forEach((addr,index)=> { %>
+                <% if (address && address.address.length > 0) { %>
+                    <% address.address.forEach((addr, index) => { %>
                         <div class="address-card bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
                             <div class="flex justify-between items-start mb-4">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-12 h-12 rounded-xl flex items-center justify-center
-              <%= addr.type === 'home' ? 'bg-green-100' : addr.type === 'work' ? 'bg-blue-100' : 'bg-purple-100' %>">
-                                        <i
-                                            class="text-xl
-                <%= addr.type === 'home' ? 'fas fa-home text-green-600' : addr.type === 'work' ? 'fas fa-building text-blue-600' : 'fas fa-map-marker-alt text-purple-600' %>">
+                                        <%= addr.type === 'home' ? 'bg-green-100' : addr.type === 'work' ? 'bg-blue-100' : 'bg-purple-100' %>">
+                                        <i class="text-xl
+                                            <%= addr.type === 'home' ? 'fas fa-home text-green-600' : addr.type === 'work' ? 'fas fa-building text-blue-600' : 'fas fa-map-marker-alt text-purple-600' %>">
                                         </i>
                                     </div>
                                     <div>
-                                        <h3 class="font-bold text-gray-800 capitalize">
+                                        <h3 class="font-bold text-primary capitalize">
                                             <%= addr.type %>
                                         </h3>
                                         <% if (addr.isDefault) { %>
@@ -90,83 +200,86 @@
                                                 class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                 <i class="fas fa-check-circle mr-1"></i>Default
                                             </span>
-                                            <% } else { %>
-                                                <span
-                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                                    Secondary
-                                                </span>
-                                                <% } %>
+                                        <% } else { %>
+                                            <span
+                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-text-secondary">
+                                                Secondary
+                                            </span>
+                                        <% } %>
                                     </div>
                                 </div>
                                 <div class="flex space-x-1">
                                     <button
                                         onclick="openEditAddressModal('<%=address._id %>', '<%= addr.street %>', '<%= addr.city %>', '<%= addr.state %>', '<%= addr.pin %>', '<%= addr.country %>', '<%= addr.type %>', '<%= addr.phone  %>')"
-                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition duration-300">
+                                        class="p-2 text-accent hover:bg-accent/10 rounded-lg transition duration-300">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button onclick='deleteAddress("<%=address._id%>","<%=addr._id%>")'
                                         class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition duration-300">
                                         <i class="fas fa-trash"></i>
                                     </button>
-
                                 </div>
-                            </div>    
+                            </div>
                             <div class="space-y-2">
-
-                                
-                                <p class="text-gray-800 font-medium">
+                                <p class="text-text-primary font-medium">
                                     <%= addr.street %>
                                 </p>
-                                <p class="text-gray-600">
+                                <p class="text-text-secondary">
                                     <%= addr.city %>, <%= addr.pin %>
                                 </p>
-                                <p class="text-gray-600">
+                                <p class="text-text-secondary">
                                     <%= addr.state %>, <%= addr.country %>
                                 </p>
                                 <% if (addr.phone) { %>
-                                    <p class="text-gray-600"><i class="fas fa-phone-alt mr-2"></i>
+                                    <p class="text-text-secondary"><i class="fas fa-phone-alt mr-2"></i>
                                         <%= addr.phone %>
                                     </p>
-                                    <% } %>
+                                <% } %>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-100">
                                 <button
-                                    class="w-full bg-blue-50 text-blue-600 py-2 rounded-lg hover:bg-blue-100 transition duration-300 font-medium">
+                                    class="w-full btn-map">
                                     <i class="fas fa-map-marker-alt mr-2"></i>View on Map
                                 </button>
                             </div>
                         </div>
-                        <% }) %>
-                            <% } else { %>
-                                <!-- Show empty state if no address -->
-                                <script>
-                                    document.getElementById('emptyState').classList.remove('hidden');
-                                </script>
-                                <% } %>
+                    <% }) %>
+                <% } else { %>
+                    <div id="emptyState" class="hidden col-span-3 text-center py-12">
+                        <div class="w-24 h-24 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-map-marker-alt text-accent text-3xl"></i>
+                        </div>
+                        <h4 class="text-xl font-playfair font-semibold text-primary mb-2">No addresses yet</h4>
+                        <p class="text-text-secondary mb-6">Add an address to get started</p>
+                        <button onclick="openAddAddressModal()"
+                            class="btn-primary">
+                            Add Address
+                        </button>
+                    </div>
+                    <script>
+                        document.getElementById('emptyState').classList.remove('hidden');
+                    </script>
+                <% } %>
             </div>
 
-
-            <!-- Add Address Modal -->
             <div id="addAddressModal"
                 class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 p-4">
                 <div
                     class="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto">
                     <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-plus text-blue-600 text-2xl"></i>
+                        <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-plus text-accent text-2xl"></i>
                         </div>
-                        <h3 class="text-2xl font-bold text-gray-800">Add New Address</h3>
-                        <p class="text-gray-600 mt-2">Enter your delivery address details</p>
+                        <h3 class="text-2xl font-playfair font-bold text-primary">Add New Address</h3>
+                        <p class="text-text-secondary mt-2">Enter your delivery address details</p>
                     </div>
 
                     <form id="addAddressForm" class="space-y-6" enctype="application/x-www-form-urlencoded">
-                        <!-- Address Type -->
                         <div class="space-y-2">
-                            <label class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">Address
-                                Type</label>
+                            <label class="block text-text-primary font-semibold text-sm uppercase tracking-wide">Address Type</label>
                             <div class="grid grid-cols-3 gap-3">
                                 <label
-                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition duration-300">
+                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-accent transition duration-300">
                                     <input type="radio" name="type" value="home" class="sr-only" checked>
                                     <div class="text-center">
                                         <i class="fas fa-home text-green-600 text-xl mb-1"></i>
@@ -174,7 +287,7 @@
                                     </div>
                                 </label>
                                 <label
-                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition duration-300">
+                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-accent transition duration-300">
                                     <input type="radio" name="type" value="work" class="sr-only">
                                     <div class="text-center">
                                         <i class="fas fa-building text-blue-600 text-xl mb-1"></i>
@@ -182,7 +295,7 @@
                                     </div>
                                 </label>
                                 <label
-                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition duration-300">
+                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-accent transition duration-300">
                                     <input type="radio" name="type" value="other" class="sr-only">
                                     <div class="text-center">
                                         <i class="fas fa-map-marker-alt text-purple-600 text-xl mb-1"></i>
@@ -191,68 +304,59 @@
                                 </label>
                             </div>
                         </div>
-
-                        <!-- Street Address -->
                         <div class="space-y-2">
-                            <label for="street" class="block text-gray-700 font-semibold text-sm">
-                                <i class="fas fa-road text-blue-600 mr-2"></i>Street Address
+                            <label for="street" class="block text-text-primary font-semibold text-sm">
+                                <i class="fas fa-road text-accent mr-2"></i>Street Address
                             </label>
                             <input type="text" id="street" name="street"
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                placeholder="Enter street address" required>
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                placeholder="Enter street address">
                         </div>
-
-                        <!-- City and State -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="space-y-2">
-                                <label for="city" class="block text-gray-700 font-semibold text-sm">
-                                    <i class="fas fa-city text-blue-600 mr-2"></i>City
+                                <label for="city" class="block text-text-primary font-semibold text-sm">
+                                    <i class="fas fa-city text-accent mr-2"></i>City
                                 </label>
                                 <input type="text" id="city" name="city"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                    placeholder="Enter city" required>
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                    placeholder="Enter city">
                             </div>
                             <div class="space-y-2">
-                                <label for="state" class="block text-gray-700 font-semibold text-sm">
-                                    <i class="fas fa-map text-blue-600 mr-2"></i>State
+                                <label for="state" class="block text-text-primary font-semibold text-sm">
+                                    <i class="fas fa-map text-accent mr-2"></i>State
                                 </label>
                                 <input type="text" id="state" name="state"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                    placeholder="Enter state" required>
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                    placeholder="Enter state">
                             </div>
                         </div>
-
-                        <!-- pin and Phone Number -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="space-y-2">
-                                <label for="pin" class="block text-gray-700 font-semibold text-sm">
-                                    <i class="fas fa-mail-bulk text-blue-600 mr-2"></i>Pin Code
+                                <label for="pin" class="block text-text-primary font-semibold text-sm">
+                                    <i class="fas fa-mail-bulk text-accent mr-2"></i>Pin Code
                                 </label>
                                 <input type="text" id="pin" name="pin"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                    placeholder="Enter pin code" required>
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                    placeholder="Enter pin code">
                             </div>
                             <div class="space-y-2">
-                                <label for="phone" class="block text-gray-700 font-semibold text-sm">
-                                    <i class="fas fa-phone-alt text-blue-600 mr-2"></i>Phone Number
+                                <label for="phone" class="block text-text-primary font-semibold text-sm">
+                                    <i class="fas fa-phone-alt text-accent mr-2"></i>Phone Number
                                 </label>
                                 <input type="tel" id="phone" name="phone"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                    placeholder="e.g., 9876543210" pattern="[0-9]{10}" required
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                    placeholder="e.g., 9876543210" pattern="[0-9]{10}"
                                     oninvalid="this.setCustomValidity('Please enter a 10-digit phone number (e.g., 9876543210)')"
                                     oninput="this.setCustomValidity('')">
-                                <p class="text-gray-500 text-xs mt-1">Enter exactly 10 digits</p>
+                                <p class="text-text-secondary text-xs mt-1">Enter exactly 10 digits</p>
                             </div>
                         </div>
-
-                        <!-- Country -->
                         <div class="space-y-2">
-                            <label for="country" class="block text-gray-700 font-semibold text-sm">
-                                <i class="fas fa-globe text-blue-600 mr-2"></i>Country
+                            <label for="country" class="block text-text-primary font-semibold text-sm">
+                                <i class="fas fa-globe text-accent mr-2"></i>Country
                             </label>
                             <select id="country" name="country"
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                required>
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus">
                                 <option value="">Select country</option>
                                 <option value="India">India</option>
                                 <option value="United States">United States</option>
@@ -261,24 +365,20 @@
                                 <option value="Australia">Australia</option>
                             </select>
                         </div>
-
-                        <!-- Default Address Checkbox -->
-                        <div class="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+                        <div class="flex items-center space-x-3 p-4 bg-warm-gray rounded-xl">
                             <input type="checkbox" id="isDefault" name="isDefault"
-                                class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
-                            <label for="isDefault" class="text-gray-700 font-medium">
-                                <i class="fas fa-star text-yellow-500 mr-2"></i>Set as default address
+                                class="w-5 h-5 text-accent rounded focus:ring-accent-light">
+                            <label for="isDefault" class="text-text-primary font-medium">
+                                <i class="fas fa-star text-accent mr-2"></i>Set as default address
                             </label>
                         </div>
-
-                        <!-- Action Buttons -->
                         <div class="flex space-x-3 pt-4">
                             <button type="button" onclick="closeAddAddressModal()"
-                                class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-300 transition duration-300 font-medium">
+                                class="flex-1 btn-secondary">
                                 Cancel
                             </button>
                             <button type="submit"
-                                class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition duration-300 font-medium">
+                                class="flex-1 btn-primary">
                                 <i class="fas fa-save mr-2"></i>Save Address
                             </button>
                         </div>
@@ -286,30 +386,25 @@
                 </div>
             </div>
 
-            <!-- Edit Address Modal -->
             <div id="editAddressModal"
                 class="hidden fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 p-4">
                 <div
                     class="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto">
                     <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-edit text-green-600 text-2xl"></i>
+                        <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-edit text-accent text-2xl"></i>
                         </div>
-                        <h3 class="text-2xl font-bold text-gray-800">Edit Address</h3>
-                        <p class="text-gray-600 mt-2">Update your address information</p>
+                        <h3 class="text-2xl font-playfair font-bold text-primary">Edit Address</h3>
+                        <p class="text-text-secondary mt-2">Update your address information</p>
                     </div>
 
                     <form id="editAddressForm" class="space-y-6" enctype="application/x-www-form-urlencoded">
                         <input type="hidden" id="editAddressId" name="id">
-
-
-                        <!-- Address Type -->
                         <div class="space-y-2">
-                            <label class="block text-gray-700 font-semibold text-sm uppercase tracking-wide">Address
-                                Type</label>
+                            <label class="block text-text-primary font-semibold text-sm uppercase tracking-wide">Address Type</label>
                             <div class="grid grid-cols-3 gap-3">
                                 <label
-                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition duration-300">
+                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-accent transition duration-300">
                                     <input type="radio" name="editType" value="home" class="sr-only">
                                     <div class="text-center">
                                         <i class="fas fa-home text-green-600 text-xl mb-1"></i>
@@ -317,7 +412,7 @@
                                     </div>
                                 </label>
                                 <label
-                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition duration-300">
+                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-accent transition duration-300">
                                     <input type="radio" name="editType" value="work" class="sr-only">
                                     <div class="text-center">
                                         <i class="fas fa-building text-blue-600 text-xl mb-1"></i>
@@ -325,7 +420,7 @@
                                     </div>
                                 </label>
                                 <label
-                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition duration-300">
+                                    class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-accent transition duration-300">
                                     <input type="radio" name="editType" value="other" class="sr-only">
                                     <div class="text-center">
                                         <i class="fas fa-map-marker-alt text-purple-600 text-xl mb-1"></i>
@@ -334,68 +429,59 @@
                                 </label>
                             </div>
                         </div>
-
-                        <!-- Street Address -->
                         <div class="space-y-2">
-                            <label for="editStreet" class="block text-gray-700 font-semibold text-sm">
-                                <i class="fas fa-road text-blue-600 mr-2"></i>Street Address
+                            <label for="editStreet" class="block text-text-primary font-semibold text-sm">
+                                <i class="fas fa-road text-accent mr-2"></i>Street Address
                             </label>
                             <input type="text" id="editStreet" name="street"
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                placeholder="Enter street address" required>
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                placeholder="Enter street address">
                         </div>
-
-                        <!-- City and State -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="space-y-2">
-                                <label for="editCity" class="block text-gray-700 font-semibold text-sm">
-                                    <i class="fas fa-city text-blue-600 mr-2"></i>City
+                                <label for="editCity" class="block text-text-primary font-semibold text-sm">
+                                    <i class="fas fa-city text-accent mr-2"></i>City
                                 </label>
                                 <input type="text" id="editCity" name="city"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                    placeholder="Enter city" required>
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                    placeholder="Enter city">
                             </div>
                             <div class="space-y-2">
-                                <label for="editState" class="block text-gray-700 font-semibold text-sm">
-                                    <i class="fas fa-map text-blue-600 mr-2"></i>State
+                                <label for="editState" class="block text-text-primary font-semibold text-sm">
+                                    <i class="fas fa-map text-accent mr-2"></i>State
                                 </label>
                                 <input type="text" id="editState" name="state"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                    placeholder="Enter state" required>
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                    placeholder="Enter state">
                             </div>
                         </div>
-
-                        <!-- pin and Phone Number -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="space-y-2">
-                                <label for="editpin" class="block text-gray-700 font-semibold text-sm">
-                                    <i class="fas fa-mail-bulk text-blue-600 mr-2"></i>Pin Code
+                                <label for="editpin" class="block text-text-primary font-semibold text-sm">
+                                    <i class="fas fa-mail-bulk text-accent mr-2"></i>Pin Code
                                 </label>
                                 <input type="text" id="editpin" name="pin"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                    placeholder="Enter pin code" required>
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                    placeholder="Enter pin code">
                             </div>
                             <div class="space-y-2">
-                                <label for="editPhone" class="block text-gray-700 font-semibold text-sm">
-                                    <i class="fas fa-phone-alt text-blue-600 mr-2"></i>Phone Number
+                                <label for="editPhone" class="block text-text-primary font-semibold text-sm">
+                                    <i class="fas fa-phone-alt text-accent mr-2"></i>Phone Number
                                 </label>
                                 <input type="tel" id="editPhone" name="phone"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                    placeholder="e.g., 9876543210" pattern="[0-9]{10}" required
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                    placeholder="e.g., 9876543210" pattern="[0-9]{10}"
                                     oninvalid="this.setCustomValidity('Please enter a 10-digit phone number (e.g., 9876543210)')"
                                     oninput="this.setCustomValidity('')">
-                                <p class="text-gray-500 text-xs mt-1">Enter exactly 10 digits</p>
+                                <p class="text-text-secondary text-xs mt-1">Enter exactly 10 digits</p>
                             </div>
                         </div>
-
-                        <!-- Country -->
                         <div class="space-y-2">
-                            <label for="editCountry" class="block text-gray-700 font-semibold text-sm">
-                                <i class="fas fa-globe text-blue-600 mr-2"></i>Country
+                            <label for="editCountry" class="block text-text-primary font-semibold text-sm">
+                                <i class="fas fa-globe text-accent mr-2"></i>Country
                             </label>
                             <select id="editCountry" name="country"
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 input-focus"
-                                required>
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus">
                                 <option value="">Select country</option>
                                 <option value="India">India</option>
                                 <option value="United States">United States</option>
@@ -404,15 +490,13 @@
                                 <option value="Australia">Australia</option>
                             </select>
                         </div>
-
-                        <!-- Action Buttons -->
                         <div class="flex space-x-3 pt-4">
                             <button type="button" onclick="closeEditAddressModal()"
-                                class="flex-1 bg-gray-200 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-300 transition duration-300 font-medium">
+                                class="flex-1 btn-secondary">
                                 Cancel
                             </button>
                             <button type="submit"
-                                class="flex-1 bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-blue-700 transition duration-300 font-medium">
+                                class="flex-1 btn-primary">
                                 <i class="fas fa-save mr-2"></i>Update Address
                             </button>
                         </div>
@@ -420,285 +504,243 @@
                 </div>
             </div>
 
-            <script>
-                // Radio button styling
-                document.addEventListener('DOMContentLoaded', function () {
-                    const radioGroups = document.querySelectorAll('input[type="radio"]');
-                    radioGroups.forEach(radio => {
-                        radio.addEventListener('change', function () {
-                            const groupName = this.name;
-                            document.querySelectorAll(`input[name="${groupName}"]`).forEach(input => {
-                                input.closest('label').classList.remove('border-blue-500', 'bg-blue-50');
-                            });
-                            if (this.checked) {
-                                this.closest('label').classList.add('border-blue-500', 'bg-blue-50');
-                            }
-                        });
-                        // Initialize checked radio styling
-                        if (radio.checked) {
-                            radio.closest('label').classList.add('border-blue-500', 'bg-blue-50');
-                        }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const radioGroups = document.querySelectorAll('input[type="radio"]');
+            radioGroups.forEach(radio => {
+                radio.addEventListener('change', function () {
+                    const groupName = this.name;
+                    document.querySelectorAll(`input[name="${groupName}"]`).forEach(input => {
+                        input.closest('label').classList.remove('border-accent', 'bg-accent/10');
                     });
+                    if (this.checked) {
+                        this.closest('label').classList.add('border-accent', 'bg-accent/10');
+                    }
                 });
-
-                function openAddAddressModal() {
-                    document.getElementById('addAddressModal').classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
+                if (radio.checked) {
+                    radio.closest('label').classList.add('border-accent', 'bg-accent/10');
                 }
+            });
+        });
 
-                function closeAddAddressModal() {
-                    document.getElementById('addAddressModal').classList.add('hidden');
-                    document.getElementById('addAddressForm').reset();
-                    document.body.style.overflow = 'auto';
-                    document.querySelectorAll('input[name="type"]').forEach(input => {
-                        input.closest('label').classList.remove('border-blue-500', 'bg-blue-50');
-                    });
-                    document.querySelector('input[name="type"][value="home"]').closest('label').classList.add('border-blue-500', 'bg-blue-50');
-                }
+        function openAddAddressModal() {
+            document.getElementById('addAddressModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
 
-                function openEditAddressModal(id, street, city, state, pin, country, type, phone) {
+        function closeAddAddressModal() {
+            document.getElementById('addAddressModal').classList.add('hidden');
+            document.getElementById('addAddressForm').reset();
+            document.body.style.overflow = 'auto';
+            document.querySelectorAll('input[name="type"]').forEach(input => {
+                input.closest('label').classList.remove('border-accent', 'bg-accent/10');
+            });
+            document.querySelector('input[name="type"][value="home"]').closest('label').classList.add('border-accent', 'bg-accent/10');
+        }
 
-                    document.getElementById('editAddressId').value = id;
-                    document.getElementById('editStreet').value = street;
-                    document.getElementById('editCity').value = city;
-                    document.getElementById('editState').value = state;
-                    document.getElementById('editpin').value = pin;
-                    document.getElementById('editCountry').value = country;
-                    document.getElementById('editPhone').value = phone;
+        function openEditAddressModal(id, street, city, state, pin, country, type, phone) {
+            document.getElementById('editAddressId').value = id;
+            document.getElementById('editStreet').value = street;
+            document.getElementById('editCity').value = city;
+            document.getElementById('editState').value = state;
+            document.getElementById('editpin').value = pin;
+            document.getElementById('editCountry').value = country;
+            document.getElementById('editPhone').value = phone;
 
-                    document.querySelectorAll('input[name="editType"]').forEach(input => {
-                        input.closest('label').classList.remove('border-blue-500', 'bg-blue-50');
-                    });
-                    document.querySelector(`input[name="editType"][value="${type}"]`).checked = true;
-                    document.querySelector(`input[name="editType"][value="${type}"]`).closest('label').classList.add('border-blue-500', 'bg-blue-50');
+            document.querySelectorAll('input[name="editType"]').forEach(input => {
+                input.closest('label').classList.remove('border-accent', 'bg-accent/10');
+            });
+            document.querySelector(`input[name="editType"][value="${type}"]`).checked = true;
+            document.querySelector(`input[name="editType"][value="${type}"]`).closest('label').classList.add('border-accent', 'bg-accent/10');
 
-                    document.getElementById('editAddressModal').classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
-                }
+            document.getElementById('editAddressModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
 
-                function closeEditAddressModal() {
-                    document.getElementById('editAddressModal').classList.add('hidden');
-                    document.getElementById('editAddressForm').reset();
-                    document.body.style.overflow = 'auto';
-                    document.querySelectorAll('input[name="editType"]').forEach(input => {
-                        input.closest('label').classList.remove('border-blue-500', 'bg-blue-50');
-                    });
-                }
+        function closeEditAddressModal() {
+            document.getElementById('editAddressModal').classList.add('hidden');
+            document.getElementById('editAddressForm').reset();
+            document.body.style.overflow = 'auto';
+            document.querySelectorAll('input[name="editType"]').forEach(input => {
+                input.closest('label').classList.remove('border-accent', 'bg-accent/10');
+            });
+        }
 
+        document.getElementById('addAddressModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeAddAddressModal();
+            }
+        });
 
+        document.getElementById('editAddressModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeEditAddressModal();
+            }
+        });
 
-                document.getElementById('addAddressModal').addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeAddAddressModal();
-                    }
-                });
+        document.getElementById('addAddressForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            if (!this.checkValidity()) {
+                this.reportValidity();
+                return;
+            }
 
-                document.getElementById('editAddressModal').addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeEditAddressModal();
-                    }
-                });
-
-                // Form submissions
-                document.getElementById('addAddressForm').addEventListener('submit', async function (event) {
-                    event.preventDefault();
-                    if (!this.checkValidity()) {
-                        this.reportValidity();
-                        return;
-                    }
-
-                    Swal.fire({
-                        title: 'Adding Address...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    try {
-                        const form = event.target;
-                        const formData = new FormData(form);
-                        const data = Object.fromEntries(formData);
-                        console.log('Sending form data:', data);
-
-                        const response = await fetch('/add-address', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(data)
-                        });
-                        const result = await response.json();
-
-                        if (response.ok) {
-                            Swal.fire({
-                                title: 'Success!',
-                                text: 'Address added successfully!',
-                                icon: 'success',
-                                confirmButtonColor: '#3B82F6'
-                            }).then(() => {
-                                closeAddAddressModal();
-                                location.reload();
-                            });
-                        } else {
-                            throw new Error(result.message || 'Failed to add address');
-                        }
-                    } catch (error) {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: error.message,
-                            icon: 'error',
-                            confirmButtonColor: '#EF4444'
-                        });
-                    }
-                });
-
-                document.getElementById('editAddressForm').addEventListener('submit', async function (event) {
-                    event.preventDefault();
-                    if (!this.checkValidity()) {
-                        this.reportValidity();
-                        return;
-                    }
-
-                    Swal.fire({
-                        title: 'Updating Address...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    try {
-                        const form = event.target;
-                        const formData = new FormData(form);
-                        const data = Object.fromEntries(formData);
-                        console.log('Sending form data:', data);
-
-                        const response = await fetch('/update-address', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(data)
-                        });
-                        const result = await response.json();
-
-                        if (response.ok) {
-                            Swal.fire({
-                                title: 'Success!',
-                                text: 'Address updated successfully!',
-                                icon: 'success',
-                                confirmButtonColor: '#3B82F6'
-                            }).then(() => {
-                                closeEditAddressModal();
-                                location.reload();
-                            });
-                        } else {
-                            throw new Error(result.message || 'Failed to update address');
-                        }
-                    } catch (error) {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: error.message,
-                            icon: 'error',
-                            confirmButtonColor: '#EF4444'
-                        });
-                    }
-                });
-
-
-                //   function deleteAddress(id) {
-                //         Swal.fire({
-                //             title: 'Delete Address?',
-                //             text: 'Are you sure you want to delete this address? This action cannot be undone.',
-                //             icon: 'warning',
-                //             showCancelButton: true,
-                //             confirmButtonText: 'Yes, delete it!',
-                //             cancelButtonText: 'Keep address',
-                //             confirmButtonColor: '#EF4444',
-                //             cancelButtonColor: '#6B7280'
-                //         }).then((result) => {
-                //             if (result.isConfirmed) {
-                //                 Swal.fire({
-                //                     title: 'Deleting Address...',
-                //                     allowOutsideClick: false,
-                //                     didOpen: () => {
-                //                         Swal.showLoading();
-                //                     }
-                //                 });
-                //                 setTimeout(() => {
-                //                     Swal.fire({
-                //                         title: 'Deleted!',
-                //                         text: 'Address has been deleted successfully.',
-                //                         icon: 'success',
-                //                         confirmButtonColor: '#3B82F6'
-                //                     }).then(() => {
-                //                         location.reload();
-                //                     });
-                //                 }, 1500);
-                //             }
-                //         });
-                //     }
-
-                function deleteAddress(userId, addressId) {
-    Swal.fire({
-        title: 'Delete Address?',
-        text: 'Are you sure you want to delete this address? This action cannot be undone.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Keep address',
-        confirmButtonColor: '#EF4444',
-        cancelButtonColor: '#6B7280'
-    }).then((result) => {
-        if (result.isConfirmed) {
             Swal.fire({
-                title: 'Deleting Address...',
+                title: 'Adding Address...',
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
             });
 
-            fetch('/delete-address', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userId, addressId })
-            })
-            .then(response =>
-                response.json().then(data => ({
-                    ok: response.ok,
-                    status: response.status,
-                    body: data
-                }))
-            )
-            .then(({ ok, body }) => {
-                if (ok) {
+            try {
+                const form = event.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+                console.log('Sending form data:', data);
+
+                const response = await fetch('/add-address', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
                     Swal.fire({
-                        title: 'Deleted!',
-                        text: body.message || 'Address has been deleted successfully.',
+                        title: 'Success!',
+                        text: 'Address added successfully!',
                         icon: 'success',
-                        confirmButtonColor: '#3B82F6'
-                    }).then(() => location.reload());
+                        confirmButtonColor: '#d4af37'
+                    }).then(() => {
+                        closeAddAddressModal();
+                        location.reload();
+                    });
                 } else {
-                    throw new Error(body.message || 'Failed to delete address.');
+                    throw new Error(result.message || 'Failed to add address');
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 Swal.fire({
                     title: 'Error!',
-                    text: error.message || 'An error occurred while deleting the address.',
+                    text: error.message,
                     icon: 'error',
                     confirmButtonColor: '#EF4444'
                 });
+            }
+        });
+
+        document.getElementById('editAddressForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            if (!this.checkValidity()) {
+                this.reportValidity();
+                return;
+            }
+
+            Swal.fire({
+                title: 'Updating Address...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const form = event.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+                console.log('Sending form data:', data);
+
+                const response = await fetch('/update-address', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Address updated successfully!',
+                        icon: 'success',
+                        confirmButtonColor: '#d4af37'
+                    }).then(() => {
+                        closeEditAddressModal();
+                        location.reload();
+                    });
+                } else {
+                    throw new Error(result.message || 'Failed to update address');
+                }
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#EF4444'
+                });
+            }
+        });
+
+        function deleteAddress(userId, addressId) {
+            Swal.fire({
+                title: 'Delete Address?',
+                text: 'Are you sure you want to delete this address? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Keep address',
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6b7280'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Deleting Address...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    fetch('/delete-address', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ userId, addressId })
+                    })
+                        .then(response =>
+                            response.json().then(data => ({
+                                ok: response.ok,
+                                status: response.status,
+                                body: data
+                            }))
+                        )
+                        .then(({ ok, body }) => {
+                            if (ok) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: body.message || 'Address has been deleted successfully.',
+                                    icon: 'success',
+                                    confirmButtonColor: 'OK#d4af37'
+                                }).then(() => location.reload());
+                            } else {
+                                throw new Error(body.message || 'Failed to delete address.');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: error.message || 'An error occurred while deleting the address.',
+                                icon: 'error',
+                                confirmButtonColor: '#EF4444'
+                            });
+                        });
+                }
             });
         }
-    });
-}
-
-            </script>
+    </script>
 </body>
-
 </html>
