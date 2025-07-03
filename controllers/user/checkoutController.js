@@ -287,8 +287,8 @@ const placeOrder = async (req, res) => {
                 price: item.price
             })),
             totalPrice: subtotal,
-            discount: 0, // Fixed typo
-            finalAmount: totalAmount, // Fixed typo
+            discount: 0, 
+            finalAmount: totalAmount, 
             address: addressFields,
             status: "Pending",
             invoiceDate: new Date(),
@@ -307,7 +307,7 @@ const placeOrder = async (req, res) => {
             );
         }
 
-// await Cart.findOneAndUpdate({ userId },{$pull:{}});
+    await Cart.findOneAndDelete({userId})
 
         res.status(200).json({
             success: true,
@@ -330,89 +330,72 @@ const loadPlaceOrder = async (req, res) => {
     try {
         const userId = req.session.userId;
         if (!userId) return res.redirect('/login');
-
-        // Find the most recent order for the user
         const order = await Order.findOne({ userId })
             .sort({ createdOn: -1 })
+            .populate({
+                path: 'orderItems.product',
+                populate: { path: 'brand' } 
+            })
             .lean();
-        // it is only use for name
+
+        if (!order) {
+            return res.redirect('/cart'); 
+        }
+
         const user = await User.findById(userId);
-        console.log('it is only use for name', user.firstName)
 
+        // Process order items
+        const orderItems = order.orderItems.map(item => {
+            const product = item.product;
+            const variant = product?.colorVariants?.find(
+                v => v._id.toString() === item.variantId.toString()
+            ) || {};
 
-        // Fetch cart data
-        const cartData = await Cart.findOne({ userId })
-            .populate('items.productId')
-            .populate('items.variantId')
-            .lean();
+            return {
+                id: item._id.toString(),
+                productId: product?._id.toString(),
+                variantId: item.variantId.toString(),
+                productName: product?.productName || 'N/A',
+                productImage: variant.productImage?.[0] || '/placeholder.svg',
+                color: variant.colorName || 'N/A',
+                price: item.price,
+                quantity: item.stock, // Quantity ordered
+                total: item.price * item.stock,
+                brandName: product?.brand?.brandName || 'N/A',
+                status: item.status || 'Ordered'
+            };
+        }).filter(Boolean); 
+    
+        const addresses = [{
+            _id: 'order-address',
+            address: order.address.street || 'N/A',
+            city: order.address.city || 'N/A',
+            state: order.address.state || 'N/A',
+            pinCode: order.address.pin || 'N/A',
+            country: order.address.country || 'N/A',
+            phone: order.address.phone || 'N/A',
+            isDefault: order.address.isDefault || false
+        }];
 
-        let cartItems = [];
-        let subtotal = 0;
-        if (cartData && cartData.items.length > 0) {
-            cartItems = cartData.items.map(item => {
-                const product = item.productId;
-                const variant = product?.colorVariants.find(
-                    v => v._id.toString() === item.variantId.toString()
-                );
-
-                if (!product || !variant) {
-                    console.error(`Product or variant not found for item: ${item._id}`);
-                    return null;
-                }
-
-                return {
-                    id: item._id.toString(),
-                    productId: product._id.toString(),
-                    variantId: item.variantId.toString(),
-                    productName: product.productName || 'N/A',
-                    productImage: variant.productImage?.[0] || '/placeholder.svg',
-                    color: variant.colorName || 'N/A',
-                    price: item.price,
-                    quantity: item.quantity !== undefined ? item.quantity : item.stock || 1,
-                    total: item.totalPrice,
-                    brandName: product.brand?.brandName || 'N/A',
-                    stock: variant.stock,
-                    status: variant.stock > 0 ? 'Available' : 'Out of Stock'
-                };
-            }).filter(Boolean);
-
-            subtotal = cartData.items.reduce((sum, item) => sum + item.totalPrice, 0);
-        }
-
-        // Fetch addresses
-        const addressDoc = await Address.findOne({ userId }).lean();
-        let addresses = [];
-        if (addressDoc?.address?.length > 0) {
-            addresses = addressDoc.address.map(addr => ({
-                _id: addr._id.toString(),
-
-                address: addr.street || 'N/A',
-                city: addr.city || 'N/A',
-                pinCode: addr.pin || 'N/A',
-                phone: addr.phone,
-                isDefault: addr.isDefault || false
-            }));
-        }
-        console.log('load pplaceorder show fullname need', cartItems)
-        const deliveryFee = 50;
-        const discount = 0
+        // Calculate delivery fee if not stored separately
+        const deliveryFee = order.finalAmount - order.totalPrice - (order.discount || 0);
 
         res.render('place-order', {
-            paymentMethod: order ? order.paymentMethod : 'cod',
-            orderId: order ? order.orderId : '',
-            cartItems: cartItems || [],
-            addresses: addresses || [],
-            subtotal: subtotal || 0,
-            deliveryFee: deliveryFee || 0,
-            order: order || null,
+            paymentMethod: order.paymentMethod,
+            orderId: order.orderId,
+            cartItems: orderItems,
+            addresses: addresses,
+            subtotal: order.totalPrice,
+            deliveryFee: deliveryFee > 0 ? deliveryFee : 0, // Ensure non-negative
+            order: order,
             fullName: user?.firstName || 'Customer',
             email: user?.email || '',
-            discount: discount,
-            tax: 0 //
+            discount: order.discount || 0,
+            tax: 0 // Add if applicable
         });
 
     } catch (error) {
-        console.error('Loading place order error:', error);
+        console.error('Error loading order confirmation:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
@@ -424,31 +407,35 @@ const orderDetails = async (req, res) => {
         // Find the most recent order for the user
         const order = await Order.findOne({ userId })
             .sort({ createdOn: -1 })
+            .populate({
+                path: 'orderItems.product',
+                populate: { path: 'brand' } // Populate brand if needed
+            })
             .lean();
-        // it is only use for name
+
+        if (!order) {
+            return res.redirect('/orders'); // Redirect to orders page if no order found
+        }
+
         const user = await User.findById(userId);
-        console.log('it is only use for name', user.firstName)
+        console.log('User data for order details:', user.firstName);
 
-
-        // Fetch cart data
-        const cartData = await Cart.findOne({ userId })
-            .populate('items.productId')
-            .populate('items.variantId')
-            .lean();
-
-        let cartItems = [];
+        // Process order items for display
+        let orderItems = [];
         let subtotal = 0;
-        if (cartData && cartData.items.length > 0) {
-            cartItems = cartData.items.map(item => {
-                const product = item.productId;
-                const variant = product?.colorVariants.find(
-                    v => v._id.toString() === item.variantId.toString()
-                );
-
-                if (!product || !variant) {
-                    console.error(`Product or variant not found for item: ${item._id}`);
+        
+        if (order.orderItems && order.orderItems.length > 0) {
+            orderItems = order.orderItems.map(item => {
+                const product = item.product;
+                if (!product) {
+                    console.error(`Product not found for order item: ${item._id}`);
                     return null;
                 }
+
+                // Find the variant in the product
+                const variant = product.colorVariants?.find(
+                    v => v._id.toString() === item.variantId.toString()
+                ) || {};
 
                 return {
                     id: item._id.toString(),
@@ -458,53 +445,49 @@ const orderDetails = async (req, res) => {
                     productImage: variant.productImage?.[0] || '/placeholder.svg',
                     color: variant.colorName || 'N/A',
                     price: item.price,
-                    quantity: item.quantity !== undefined ? item.quantity : item.stock || 1,
-                    total: item.totalPrice,
+                    quantity: item.stock, // Quantity ordered
+                    total: item.price * item.stock,
                     brandName: product.brand?.brandName || 'N/A',
-                    stock: variant.stock,
-                    status: variant.stock > 0 ? 'Available' : 'Out of Stock'
+                    status: item.status || 'Ordered' // Use order item status
                 };
-            }).filter(Boolean);
+            }).filter(Boolean); // Remove any null items
 
-            subtotal = cartData.items.reduce((sum, item) => sum + item.totalPrice, 0);
+            subtotal = orderItems.reduce((sum, item) => sum + item.total, 0);
         }
 
-        console.log('productdetails cart',cartItems)
+        // Prepare address data from order
+        const addresses = [{
+            _id: 'order-address',
+            address: order.address.street || 'N/A',
+            city: order.address.city || 'N/A',
+            state: order.address.state || 'N/A',
+            pinCode: order.address.pin || 'N/A',
+            country: order.address.country || 'N/A',
+            phone: order.address.phone || 'N/A',
+            isDefault: order.address.isDefault || false
+        }];
 
-        // Fetch addresses
-        const addressDoc = await Address.findOne({ userId }).lean();
-        let addresses = [];
-        if (addressDoc?.address?.length > 0) {
-            addresses = addressDoc.address.map(addr => ({
-                _id: addr._id.toString(),
-
-                address: addr.street || 'N/A',
-                city: addr.city || 'N/A',
-                pinCode: addr.pin || 'N/A',
-                phone: addr.phone,
-                isDefault: addr.isDefault || false
-            }));
-        }
-        console.log('load pplaceorder show fullname need', cartItems)
-        const deliveryFee = 50;
-        const discount = 0
+        // Calculate delivery fee if not stored separately
+        const deliveryFee = order.finalAmount - order.totalPrice - (order.discount || 0);
 
         res.render('order-details', {
-            paymentMethod: order ? order.paymentMethod : 'cod',
-            orderId: order ? order.orderId : '',
-            cartItems: cartItems || [],
-            addresses: addresses || [],
-            subtotal: subtotal || 0,
-            deliveryFee: deliveryFee || 0,
-            order: order || null,
+            paymentMethod: order.paymentMethod,
+            orderId: order.orderId,
+            cartItems: orderItems, // Note: Still called cartItems for template compatibility
+            addresses: addresses,
+            subtotal: order.totalPrice,
+            deliveryFee: deliveryFee > 0 ? deliveryFee : 0,
+            order: order,
             fullName: user?.firstName || 'Customer',
             email: user?.email || '',
-            discount: discount,
-            tax: 0 //
+            discount: order.discount || 0,
+            tax: 0, // Add if applicable
+            orderDate: order.createdOn || new Date(),
+            orderStatus: order.status || 'Pending'
         });
 
     } catch (error) {
-        console.error('Loading place order error:', error);
+        console.error('Error loading order details:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };

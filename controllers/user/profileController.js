@@ -269,7 +269,7 @@ const editProfile = async (req, res) => {
 
     const { firstName, lastName, email, phone, dob, bio } = req.body;
 
-    // Build update object
+    // updating edit data
     const editData = {
       firstName: firstName?.trim() || '',
       lastName: lastName?.trim() || '',
@@ -324,17 +324,7 @@ const editProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('Update Error:', error);
-    if (error.code === 11000) {
-      const field = Object.keys(error.keyValue)[0];
-      return res.status(400).json({
-        success: false,
-        message: `${field.charAt(0).toUpperCase() + field.slice(1)} already in use.`,
-      });
-    }
-    return res.status(500).json({
-      success: false,
-      message: 'An error occurred while updating the profile.',
-    });
+   
   }
 };
 
@@ -408,7 +398,6 @@ const changeEmailOtp = async (req, res) => {
     return res.json({ success: false, message: 'An error occurred. Please try again.' });
   }
 };
-
 const loadUpdateEmail = async (req, res) => {
   try {
     if (req.session.email) {
@@ -421,31 +410,91 @@ const loadUpdateEmail = async (req, res) => {
 
 }
 
+// 1. Send OTP to new email
 const updateEmail = async (req, res) => {
   try {
-    const newEmail = req.body.email;
-
+    const newEmail = req.body.email?.trim(); // Trim here
     const userId = req.session.userId;
+
     if (!userId) {
       return res.status(401).json({ success: false, message: "Unauthorized access. Please log in." });
     }
-    if (!newEmail || !newEmail.trim()) {
+
+    if (!newEmail) {
       return res.status(400).json({ success: false, message: "Email is required." });
     }
+
     const existingUser = await User.findOne({ email: newEmail });
     if (existingUser) {
       return res.status(409).json({ success: false, message: "This email is already in use." });
     }
-    await User.findByIdAndUpdate(userId, { email: newEmail });
 
+    const otp = generateOtp();
+    const emailSent = await sendVerificationEmail(newEmail, otp);
 
-    return res.json({ success: true, redirectUrl: '/profile', message: "Email updated successfully." });
+    if (emailSent) {
+      req.session.otp = otp;
+      req.session.otpExpiresAt = Date.now() + 2 * 60 * 1000; // 2 minutes
+      req.session.newEmail = newEmail;
+
+      console.log('OTP:', otp);
+      return res.json({ success: true, redirectUrl: '/change-newEmail-otp' });
+    } else {
+      return res.json({ success: false, message: 'Failed to send OTP. Please try again.' });
+    }
 
   } catch (error) {
-    console.error("Error updating email:", error);
+    console.error("Error in updateEmail:", error);
     return res.status(500).json({ success: false, message: "Something went wrong. Please try again." });
   }
 };
+
+
+// 2. Render OTP page for new email
+const loadChangeNewEmailOtp = async (req, res) => {
+  try {
+    res.render('newEmail-otp'); // Ensure your EJS file is named correctly
+  } catch (error) {
+    console.error('Error loading change email OTP page:', error);
+    return res.redirect('/pageNotFound');
+  }
+};
+
+
+// 3. Verify OTP and update email in DB
+const changeNewEmailOtp = async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const { otp: sessionOtp, otpExpiresAt, newEmail, userId } = req.session;
+
+    if (!sessionOtp || !otpExpiresAt || !newEmail || !userId) {
+      return res.json({ success: false, message: 'Session expired. Please start over.' });
+    }
+
+    if (Date.now() > otpExpiresAt) {
+      return res.json({ success: false, message: 'OTP has expired. Please request a new one.' });
+    }
+
+    if (otp !== sessionOtp) {
+      return res.json({ success: false, message: 'Incorrect OTP. Please try again.' });
+    }
+
+    await User.findByIdAndUpdate(userId, { email: newEmail });
+     console.log('new email added',)
+    // Clean up session
+    req.session.otp = null;
+    req.session.otpExpiresAt = null;
+    req.session.newEmail = null;
+
+    return res.json({ success: true, redirectUrl: '/editProfile', message: 'Email updated successfully.' });
+
+  } catch (error) {
+    console.error('Error verifying new email OTP:', error);
+    return res.status(500).json({ success: false, message: 'An error occurred. Please try again.' });
+  }
+};
+
+
 
 const changePassword = async (req, res) => {
   try {
@@ -670,6 +719,8 @@ module.exports = {
   changeEmailOtp,
   loadUpdateEmail,
   updateEmail,
+  loadChangeNewEmailOtp,
+  changeNewEmailOtp,
   changePassword,
   addAddress,
   postAddAddress,

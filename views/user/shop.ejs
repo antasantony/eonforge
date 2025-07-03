@@ -1,125 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Luxury Watch Collection</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          primary: '#333333',
-          secondary: '#666666',
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#333333',
+            secondary: '#666666',
+          }
         }
       }
     }
-  }
-</script>
-<style>
-  /* Custom styles for dual range slider */
-  .range-slider {
-    position: relative;
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    background: #e5e7eb;
-    outline: none;
-  }
+  </script>
+  <style>
+    /* Custom styles for dual range slider */
+    .range-slider {
+      position: relative;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #e5e7eb;
+      outline: none;
+    }
 
-  .range-slider input[type="range"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 6px;
-    background: none;
-    pointer-events: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-  }
+    .range-slider input[type="range"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: none;
+      pointer-events: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
 
-  .range-slider input[type="range"]::-webkit-slider-thumb {
-    height: 18px;
-    width: 18px;
-    border-radius: 50%;
-    background: #333333;
-    border: 2px solid #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    pointer-events: all;
-    -webkit-appearance: none;
-  }
+    .range-slider input[type="range"]::-webkit-slider-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #333333;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      pointer-events: all;
+      -webkit-appearance: none;
+    }
 
-  .range-slider input[type="range"]::-moz-range-thumb {
-    height: 18px;
-    width: 18px;
-    border-radius: 50%;
-    background: #333333;
-    border: 2px solid #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    pointer-events: all;
-    -moz-appearance: none;
-  }
+    .range-slider input[type="range"]::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #333333;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      pointer-events: all;
+      -moz-appearance: none;
+    }
 
-  .price-input-group {
-    position: relative;
-  }
+    .price-input-group {
+      position: relative;
+    }
 
-  .price-input-group .currency-symbol {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6b7280;
-    font-size: 14px;
-    pointer-events: none;
-  }
+    .price-input-group .currency-symbol {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      font-size: 14px;
+      pointer-events: none;
+    }
 
-  .price-input-group input {
-    padding-left: 24px;
-  }
+    .price-input-group input {
+      padding-left: 24px;
+    }
 
-  /* Wishlist styles */
-  .wishlist-btn {
-    transition: all 0.3s ease;
-  }
+    /* Wishlist styles */
+    .wishlist-btn {
+      transition: all 0.3s ease;
+    }
 
-  .wishlist-btn.active {
-    color: #ef4444;
-  }
+    .wishlist-btn.active {
+      color: #ef4444;
+    }
 
-  .wishlist-btn:hover i {
-    color: #ef4444;
-  }
+    .wishlist-btn:hover i {
+      color: #ef4444;
+    }
 
-  .wishlist-btn.active i {
-    color: #ef4444;
-  }
+    .wishlist-btn.active i {
+      color: #ef4444;
+    }
 
-  /* Toast notification */
-  .toast {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    background-color: #333;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 50;
-  }
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background-color: #333;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 50;
+    }
 
-  .toast.show {
-    opacity: 1;
-  }
-</style>
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
 </head>
 
 <body class="bg-gray-50">
@@ -167,7 +168,7 @@
           <form action="/filter" method="get" class="bg-white p-4 rounded-lg shadow-sm mb-4" id="filterForm">
             <!-- Preserve search and page -->
             <input type="hidden" name="search" value="<%= search || '' %>">
-            <input type="hidden" name="page"  value="1" %>">
+            <input type="hidden" name="page" value="1" %>">
 
             <!-- Brand Filter -->
             <div class="mb-6">
@@ -259,12 +260,11 @@
               </div>
             </div>
 
-            <a href="/filter?page=<%= currentPage || 1 %>&search=<%= encodeURIComponent(search || '') %>"
-              id="clearFilters"
+            <a href="/filter?minPrice=1705&maxPrice=680000 %>" id="clearFilters"
               class="block w-full mt-2 border border-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-50 transition text-center">
               Clear All Filters
             </a>
-          </form>
+
         </aside>
 
         <!-- Product Listing -->
@@ -284,13 +284,16 @@
                 <span class="mr-2">Sort by:</span>
                 <select id="sortSelect" name="sort"
                   class="border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                  <option value="featured">Featured</option>
-                  <option value="price-low-high">Price: Low to High</option>
-                  <option value="price-high-low">Price: High to Low</option>
-                  <option value="name-a-z">Name: A to Z</option>
-                  <option value="name-z-a">Name: Z to A</option>
+                  <option value="featured" <%=sort==='featured' ? 'selected' : '' %>>Featured</option>
+                  <option value="price-low-high" <%=sort==='price-low-high' ? 'selected' : '' %>>Price: Low to High
+                  </option>
+                  <option value="price-high-low" <%=sort==='price-high-low' ? 'selected' : '' %>>Price: High to Low
+                  </option>
+                  <option value="name-a-z" <%=sort==='name-a-z' ? 'selected' : '' %>>Name: A to Z</option>
+                  <option value="name-z-a" <%=sort==='name-z-a' ? 'selected' : '' %>>Name: Z to A</option>
                 </select>
               </div>
+              </form>
             </div>
 
             <!-- Products Grid -->
@@ -304,9 +307,11 @@
                         <img src="<%= product.colorVariants[0].productImage[0] %>" alt="<%= product.productName %>"
                           class="w-full h-48 object-contain p-4">
                       </a>
-                      <span class="absolute top-2 left-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded">Sale</span>
-                      <button class="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 wishlist-btn" 
-                              data-product-id="<%= product._id %>">
+                      <span
+                        class="absolute top-2 left-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded">Sale</span>
+                      <button
+                        class="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 wishlist-btn"
+                        data-product-id="<%= product._id %>">
                         <i class="far fa-heart text-gray-600"></i>
                       </button>
                     </div>
@@ -322,7 +327,8 @@
                       </p>
                       <div class="flex items-center">
                         <span class="font-bold">₹<%= product.colorVariants[0].offerPrice %></span>
-                        <span class="text-gray-500 line-through text-sm ml-2">₹<%= product.colorVariants[0].regularPrice %></span>
+                        <span class="text-gray-500 line-through text-sm ml-2">₹<%= product.colorVariants[0].regularPrice
+                            %></span>
                       </div>
                     </div>
                   </div>
@@ -477,9 +483,9 @@
         });
 
         // Wishlist functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
           const wishlistButtons = document.querySelectorAll('.wishlist-btn');
-          
+
           // Function to show toast notifications
           function showToast(message, isSuccess = true) {
             const toast = document.createElement('div');
@@ -487,9 +493,9 @@
             toast.textContent = message;
             toast.style.backgroundColor = isSuccess ? '#333' : '#ef4444';
             document.body.appendChild(toast);
-            
+
             setTimeout(() => toast.classList.add('show'), 10);
-            
+
             setTimeout(() => {
               toast.classList.remove('show');
               setTimeout(() => document.body.removeChild(toast), 300);
@@ -507,13 +513,13 @@
                 body: JSON.stringify({ productId }),
                 credentials: 'include'
               });
-              
+
               const result = await response.json();
-              
+
               if (result.success) {
                 button.classList.toggle('active');
                 const icon = button.querySelector('i');
-                
+
                 if (button.classList.contains('active')) {
                   icon.classList.remove('far');
                   icon.classList.add('fas');
@@ -539,7 +545,7 @@
                 credentials: 'include'
               });
               const result = await response.json();
-              
+
               if (result.success && result.wishlistItems) {
                 wishlistButtons.forEach(button => {
                   const productId = button.getAttribute('data-product-id');
@@ -558,7 +564,7 @@
 
           // Add event listeners to wishlist buttons
           wishlistButtons.forEach(button => {
-            button.addEventListener('click', async function(e) {
+            button.addEventListener('click', async function (e) {
               e.preventDefault();
               const productId = this.getAttribute('data-product-id');
               await toggleWishlist(productId, this);
@@ -570,4 +576,5 @@
         });
       </script>
 </body>
+
 </html>

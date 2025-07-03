@@ -541,10 +541,23 @@ console.log('sorting answer',sort)
       .skip(skip)
       .lean();
 
-      const filteredProducts = products.filter(product => {
-        return product.brand && product.brand.isBlocked === false &&
-              product.category && product.category.isListed === true;
-      });
+     const filteredProducts = products.filter(product => {
+  const isValid = product.brand && !product.brand.isBlocked &&
+                  product.category && product.category.isListed &&
+                  !product.isBlocked &&
+                  product.colorVariants.length > 0 &&
+                  product.colorVariants.every(variant =>
+                    !variant.isBlocked &&
+                    variant.offerPrice >= minPrice &&
+                    variant.offerPrice <= maxPrice
+                  );
+
+  return isValid;
+});
+
+
+
+      console.log('filter',filteredProducts)
 
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);

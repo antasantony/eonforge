@@ -39,13 +39,14 @@ router.get('/filter', userController.filterProducts);
 
 //=========== profile Managenent ============//
 
-router.get('/forgot-password', profileController.loadForgotPassword);
-router.post('/forgot-password', profileController.forgotPassword);
-router.get('/forgotPassword-otp', profileController.loadForgotPasswordOtp)
-router.post('/forgotPassword-otp', profileController.forgotPasswordOtp);
-router.post('/forgotResend-otp', profileController.forgotResendOtp);
-router.get('/reset-password', profileController.resetPassword);
-router.patch('/reset-password', profileController.updatePassword);
+router.get('/forgot-password', isLogin, profileController.loadForgotPassword);
+router.post('/forgot-password', isLogin, profileController.forgotPassword);
+router.get('/forgotPassword-otp', isLogin, profileController.loadForgotPasswordOtp);
+router.post('/forgotPassword-otp', isLogin, profileController.forgotPasswordOtp);
+router.post('/forgotResend-otp', isLogin, profileController.forgotResendOtp);
+router.get('/reset-password', isLogin, profileController.resetPassword);
+router.patch('/reset-password', isLogin, profileController.updatePassword);
+
 router.get('/profile', userAuth, profileController.userProfile)     //userAuth//
 router.get('/editProfile', userAuth, profileController.loadEditProfile)
 router.post('/editProfile', userAuth, uploads.single("profileImage"), profileController.editProfile)
@@ -55,6 +56,8 @@ router.get('/change-email-otp', userAuth, profileController.loadChangeEmailOtp)
 router.post('/change-email-otp', userAuth, profileController.changeEmailOtp)
 router.get('/update-email', userAuth, profileController.loadUpdateEmail)
 router.post('/update-email', userAuth, profileController.updateEmail)
+router.get('/change-newEmail-otp',userAuth,profileController. loadChangeNewEmailOtp)
+router.post('/change-newEmail-otp',userAuth,profileController.changeNewEmailOtp)
 router.post('/change-password', userAuth, profileController.changePassword)
 
 //=============  address management  ===============//

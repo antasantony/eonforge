@@ -133,7 +133,7 @@
 
         if (result.success) {
             setTimeout(() => {
-                window.location.href = result.redirectUrl || '/profile';
+                window.location.href = result.redirectUrl || '/change-email-otp';
             }, 1000);
         } else {
             // Restore button if not redirecting
