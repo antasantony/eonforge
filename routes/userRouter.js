@@ -95,6 +95,8 @@ router.get('/place-order',checkoutController.loadPlaceOrder)
 router.get('/order-details',checkoutController.orderDetails)
 router.get('/orders',checkoutController.orders);
 router.patch('/cancel-order-item/:orderId/:itemId',checkoutController.cancelOrderItem)
+router.post('/return-order-item', checkoutController.returnOrderItem);
+
 router.post('/cancel-order', checkoutController.cancelOrder)
 router.post('/return-order', checkoutController.returnOrder);
 

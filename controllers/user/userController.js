@@ -372,7 +372,7 @@ const loadShopPage = async (req, res) => {
 
     const userId = req.session.userId;
     const isLoggedIn = !!userId;
-    const user = isLoggedIn ? await User.findById(userId) : null;
+    const user = isLoggedIn ? await User.findOne({_id:userId,isBlocked:false}) : null;
 
     let wishlistProductIds = [];
     if (isLoggedIn) {

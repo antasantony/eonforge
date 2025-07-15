@@ -567,6 +567,48 @@ const cancelOrderItem = async (req, res) => {
   }
 };
 
+// return order item
+const returnOrderItem = async (req, res) => {
+  try {
+    const { orderId, itemId, reason } = req.body;
+    console.log('return item order data', req.body);
+
+    if (!reason || reason.trim() === '') {
+      return res.status(400).json({ success: false, message: 'Return reason is required' });
+    }
+
+    const order = await Order.findOne({ orderId });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Find the item in orderItems
+    const item = order.orderItems.find(i => i._id.toString() === itemId);
+
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Order item not found' });
+    }
+
+    if (item.status !== 'Delivered') {
+      return res.status(400).json({ success: false, message: 'Only delivered items can be returned' });
+    }
+
+    // Update item status only
+    item.status = 'Return Request';
+    item.returnReason = reason;
+
+    await order.save();
+
+    res.json({ success: true, message: 'Return request submitted successfully' });
+
+  } catch (err) {
+    console.error('Return order error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
 
 
 
@@ -652,5 +694,6 @@ module.exports = {
     orders,
     cancelOrderItem,
     cancelOrder,
-    returnOrder
+    returnOrder,
+    returnOrderItem
 }

@@ -33,8 +33,8 @@ const orderSchema = new Schema({
         },
         status: {
             type: String,
-            enum: ['Ordered', 'Cancelled', 'Returned'],
-            default: 'Ordered'
+             enum: ["None","Cancelled", "Return Request", "Returned","Rejected"],
+            default: 'None'
         },
         cancelReason: {
             type: String,

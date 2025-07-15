@@ -1,13 +1,18 @@
 // controllers/user/cartController.js
+const User = require('../../models/userSchema');
 const Product = require('../../models/productSchema');
 const Cart = require('../../models/cartSchema');
 const Wishlist = require('../../models/wishlistSchema')
 
-const addToCart = async (req, res) => {
+const addToCart = async (req, res) => { 
   try {
     const userId = req.session.userId;
     const { productId, variantId } = req.body;
-
+    
+    const user=await User.findById(userId)
+    if (!user || user.isBlocked) {
+      return res.status(403).json({ success: false, message: 'You are blocked from making purchases' });
+    }
     if (!userId) return res.status(401).json({ message: 'Login required' });
 
     const product = await Product.findById(productId).populate('brand');

@@ -137,6 +137,32 @@
             transform: translateY(-1px);
         }
 
+        .btn-return {
+            background: #ede9fe;
+            /* light purple */
+            color: #7c3aed;
+            /* deep purple */
+            border: 2px solid #ddd6fe;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-return:hover {
+            background: #ddd6fe;
+            border-color: #a78bfa;
+            /* brighter purple */
+            transform: translateY(-1px);
+        }
+
+
+
         .order-item-hover {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -256,12 +282,22 @@
                                                 item.discountedPrice) * item.quantity).toLocaleString() %>
                                         </p>
                                         <% } %>
-                                            <% if (order.status !== 'Cancelled' && order.status !== 'Delivered'&&order.status !=='Return Request'&&order.status !=='Returned'&&order.status !=='Rejected') { %>
-                                                <button class="btn-cancel"
-                                                    onclick="openCancelModal('<%= orderId %>', '<%= item.id %>', '<%= item.productName %>')">
-                                                    <i class="fas fa-times"></i> Cancel
-                                                </button>
-                                                <% } %>
+                                            <% if (item.status !=='Cancelled' && item.status !=='Returned' &&
+                                                item.status !=='Rejected' ) { %>
+                                                <% if (order.status==='Delivered' ) { %>
+                                                    <button
+                                                        onclick="openReturnModal('<%= order.orderId %>', '<%= item._id %>')"
+                                                        class="btn-return">
+                                                        <i class="fas fa-undo mr-1"></i> Return
+                                                    </button>
+                                                    <% } else { %>
+                                                        <button class="btn-cancel"
+                                                            onclick="openCancelModal('<%= orderId %>', '<%= item.id %>', '<%= item.productName %>')">
+                                                            <i class="fas fa-times"></i> Cancel
+                                                        </button>
+                                                        <% } %>
+                                                            <% } %>
+
 
                                 </div>
                             </div>
@@ -419,19 +455,42 @@
         </div>
     </div>
 
+    <!-- Return Order Modal -->
+    <div id="returnModal" class="modal-overlay hidden">
+        <div class="modal-content glass-effect rounded-2xl p-6 max-w-md w-full mx-4 premium-shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-playfair font-bold text-primary">Return Order</h3>
+                <button onclick="closeReturnModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <p class="text-text-secondary mb-4">Please provide a reason for returning Order #<span id="returnOrderId"></span>.</p>
+            <div class="mb-4">
+                <label for="returnReason" class="block text-sm font-medium text-primary mb-2">Reason for Return (Required)</label>
+                <textarea id="returnReason" class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent" placeholder="Provide a reason for return"></textarea>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeReturnModal()" class="btn-secondary">Close</button>
+                <button onclick="confirmReturnOrder()" id="returnConfirmBtn" class="btn-return" >
+                    <i class="fas fa-check mr-1"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-    let currentOrderId = null;
-    let currentItemId = null;
+        let currentOrderId = null;
+        let currentItemId = null;
 
-    function openCancelModal(orderId, itemId, productName) {
-        console.log('orderid', orderId);
-        console.log('itemid', itemId);
+        function openCancelModal(orderId, itemId, productName) {
+            console.log('orderid', orderId);
+            console.log('itemid', itemId);
 
-        // Set global variables
-        currentOrderId = orderId;
-        currentItemId = itemId;
+            // Set global variables
+            currentOrderId = orderId;
+            currentItemId = itemId;
 
-           
+
 
             document.getElementById('modalProductName').textContent = productName;
             document.getElementById('cancelModal').classList.remove('hidden');
@@ -486,74 +545,142 @@
             });
         });
 
+        // return functionallity
 
+        function openReturnModal(orderId, itemId, productName) {
+    currentOrderId = orderId;
+    currentItemId = itemId;
 
-         // Wishlist functionality
-        document.addEventListener('DOMContentLoaded', function () {
-          const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+    document.getElementById('returnModal').classList.remove('hidden');
+    document.getElementById('returnModal').classList.add('show');
 
-          // Function to show toast notifications
-          function showToast(message, isSuccess = true) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            toast.style.backgroundColor = isSuccess ? '#333' : '#ef4444';
-            document.body.appendChild(toast);
+    document.getElementById('returnReason').value = '';
+    document.getElementById('returnConfirmBtn').disabled = true;
 
-            setTimeout(() => toast.classList.add('show'), 10);
+    // Optional: display product name in the modal
+    document.getElementById('returnProductName').textContent = productName || '';
+}
 
+        function closeReturnModal() {
+            const modal = document.getElementById('returnModal');
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.classList.add('closing');
             setTimeout(() => {
-              toast.classList.remove('show');
-              setTimeout(() => document.body.removeChild(toast), 300);
-            }, 3000);
-          }
+                modal.classList.remove('show');
+                modal.classList.add('hidden');
+                modalContent.classList.remove('closing');
+            }, 300);
+        }
+        
 
-          // Toggle wishlist status
-          async function toggleWishlist(productId, button) {
-            console.log("wishlist productId:", productId);
+        async function confirmReturnOrder() {
+    const reason = document.getElementById('returnReason').value.trim();
 
-            try {
-              const response = await fetch('/addWishlist', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ productId }),
-                credentials: 'include'
-              });
+    if (!currentOrderId || !currentItemId || !reason) {
+        alert('Missing order/item ID or reason');
+        return;
+    }
 
-              const result = await response.json();
+    try {
+        const response = await fetch('/return-order-item', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderId: currentOrderId,
+                itemId: currentItemId,
+                reason
+            })
+        });
 
-              if (result.success) {
-                const icon = button.querySelector('i');
+        const data = await response.json();
 
-                if (result.action === 'added') {
-                  button.classList.add('active');
-                  icon.classList.remove('far');
-                  icon.classList.add('fas', 'text-red-600'); // filled red heart
-                  showToast('Added to wishlist!');
-                } else {
-                  button.classList.remove('active');
-                  icon.classList.remove('fas', 'text-red-600');
-                  icon.classList.add('far'); // outlined heart
-                  showToast('Removed from wishlist');
-                }
-              } else {
-                showToast(result.message || 'Error updating wishlist', false);
-              }
-            } catch (error) {
-              console.error('Error:', error);
-              showToast('Please login to manage wishlist', false);
+        if (data.success) {
+            alert('Return request submitted successfully.');
+            location.reload();
+        } else {
+            alert(data.message || 'Failed to submit return request.');
+        }
+
+        closeReturnModal();
+    } catch (err) {
+        console.error('Return error:', err);
+        alert('Server error');
+    }
+}
+
+
+        // Enable return confirm button only if reason is provided
+        document.getElementById('returnReason').addEventListener('input', function () {
+            document.getElementById('returnConfirmBtn').disabled = this.value.trim() === '';
+        });
+
+
+        // Wishlist functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+
+            // Function to show toast notifications
+            function showToast(message, isSuccess = true) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                toast.style.backgroundColor = isSuccess ? '#333' : '#ef4444';
+                document.body.appendChild(toast);
+
+                setTimeout(() => toast.classList.add('show'), 10);
+
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => document.body.removeChild(toast), 300);
+                }, 3000);
             }
-          }
-          // Add event listeners to wishlist buttons
-          wishlistButtons.forEach(button => {
-            button.addEventListener('click', async function (e) {
-              e.preventDefault();
-              const productId = this.getAttribute('data-product-id');
-              await toggleWishlist(productId, this);
+
+            // Toggle wishlist status
+            async function toggleWishlist(productId, button) {
+                console.log("wishlist productId:", productId);
+
+                try {
+                    const response = await fetch('/addWishlist', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId }),
+                        credentials: 'include'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const icon = button.querySelector('i');
+
+                        if (result.action === 'added') {
+                            button.classList.add('active');
+                            icon.classList.remove('far');
+                            icon.classList.add('fas', 'text-red-600'); // filled red heart
+                            showToast('Added to wishlist!');
+                        } else {
+                            button.classList.remove('active');
+                            icon.classList.remove('fas', 'text-red-600');
+                            icon.classList.add('far'); // outlined heart
+                            showToast('Removed from wishlist');
+                        }
+                    } else {
+                        showToast(result.message || 'Error updating wishlist', false);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Please login to manage wishlist', false);
+                }
+            }
+            // Add event listeners to wishlist buttons
+            wishlistButtons.forEach(button => {
+                button.addEventListener('click', async function (e) {
+                    e.preventDefault();
+                    const productId = this.getAttribute('data-product-id');
+                    await toggleWishlist(productId, this);
+                });
             });
-          });
         });
     </script>
 </body>
