@@ -1,19 +1,23 @@
 const Product = require("./productSchema");
 
-const mongoose = required("mongoose");
+const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
 const wishlistSchema = new Schema({
     userId:{
-        type:Schema.types.ObjectId,
+        type:Schema.Types.ObjectId,
         ref:"User",
         required:true,
     },
     products:[{
         productId:{
-            type:Schema.types.ObjectId,
+            type:Schema.Types.ObjectId,
             ref:'Product',
             required:true
+        },
+        variantId: {
+            type: Schema.Types.ObjectId,
+            required: true
         },
         addedOn:{
             type:Date,

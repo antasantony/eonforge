@@ -70,10 +70,17 @@ router.delete('/delete-address', userAuth, profileController.deleteAddress)
 
 //========== cart management  ==================//
 
-router.get('/cart', cartController.loadCart)
+router.get('/cart',userAuth, cartController.loadCart)
 router.post('/addCart', cartController.addToCart)
 router.post('/update-cart',cartController.updateCart)
 router.post('/remove-from-cart', cartController.removeFromCart);
+//================  wishlist ==================//
+router.get('/wishlist',userAuth,cartController.loadWishlist)
+router.post('/addWishlist',userAuth,cartController.addWishlist)
+router.post('/remove-from-wishlist',cartController.removeFromWishlist);
+router.post('/wishlist-to-cart', cartController.addToCartFromWishlist);
+
+
 
 
 //============= checkout management  ==============//

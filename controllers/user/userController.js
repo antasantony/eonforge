@@ -2,6 +2,7 @@ const User = require("../../models/userSchema");
 const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const Brand = require('../../models/brandSchema')
+const Wishlist = require('../../models/wishlistSchema')
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer")
 const bcrypt = require("bcrypt")
@@ -32,13 +33,14 @@ const loadHomePage = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(4)
       .lean();
-  
+
     const brands = await Brand.find({ isBlocked: false }).limit(13).lean();
     const p = await Product.findOne().lean();
 
     const isLoggedIn = !!userId;
     let user = null;
-    if (isLoggedIn) user = await User.findById(userId).lean();
+    if (isLoggedIn) user = await User.findOne({_id:userId,isBlocked:false})
+      console.log(user)
 
     // let sameBrandProducts = [];
     // if (p && p.brand) {
@@ -283,11 +285,11 @@ const login = async (req, res) => {
     if (googleId) {
       findUser = await User.findOne({ email })
       if (!findUser) {
-        findUser = new User({ email: email, googleId: googleId,isBlocked:false })
-        console.log('googleid from login',findUser.googleId)
+        findUser = new User({ email: email, googleId: googleId, isBlocked: false })
+        console.log('googleid from login', findUser.googleId)
         await findUser.save();
-      } 
-       if (!findUser.googleId) {
+      }
+      if (!findUser.googleId) {
         return res.json({ success: false, message: 'This email is registered using password. Please use normal login.' })
       }
       if (findUser.isBlocked) {
@@ -298,9 +300,9 @@ const login = async (req, res) => {
       return res.json({ success: true, redirectUrl: '/' });
     } else {
 
-      findUser = await User.findOne({ isAdmin: 0, email: email,isBlocked:false });
-      if(!email||!password){
-        return res.json({success:false,message:'username and password are required.'})
+      findUser = await User.findOne({ isAdmin: 0, email: email, isBlocked: false });
+      if (!email || !password) {
+        return res.json({ success: false, message: 'username and password are required.' })
       }
       if (!findUser) {
         return res.json({ success: false, message: 'Invalid email address' })
@@ -343,9 +345,9 @@ const logout = async (req, res) => {
       if (err) {
         console.log("Session destruction error", err.message);
       }
-      
-       res.clearCookie('connect.sid'); // 👈 Clear cookie manually
-      res.redirect('/login');        
+
+      res.clearCookie('connect.sid'); // 👈 Clear cookie manually
+      res.redirect('/login');
 
     })
   } catch (error) {
@@ -372,6 +374,14 @@ const loadShopPage = async (req, res) => {
     const isLoggedIn = !!userId;
     const user = isLoggedIn ? await User.findById(userId) : null;
 
+    let wishlistProductIds = [];
+    if (isLoggedIn) {
+      const wishlist = await Wishlist.findOne({ userId }).lean();
+      if (wishlist) {
+        wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+      }
+    }
+
     // Ensure brands and categories are arrays
     if (!Array.isArray(selectedBrands)) selectedBrands = selectedBrands ? [selectedBrands] : [];
     if (!Array.isArray(selectedCategories)) selectedCategories = selectedCategories ? [selectedCategories] : [];
@@ -379,8 +389,8 @@ const loadShopPage = async (req, res) => {
     // Fetch all brands and categories for the template
     const brands = await Brand.find({ isBlocked: false }).lean();
     const categories = await Category.find({ isListed: true }).lean();
-    console.log('brand blocking fine',brands)
-    console.log('category blocking fine',categories)
+    console.log('brand blocking fine', brands)
+    console.log('category blocking fine', categories)
 
     // Build query
     let query = { isBlocked: false, 'colorVariants.stock': { $gt: 0 } };
@@ -396,7 +406,7 @@ const loadShopPage = async (req, res) => {
     if (selectedBrands.length > 0) {
       const brandIds = await Brand.find({ brandName: { $in: selectedBrands }, isBlocked: false }).distinct('_id');
       if (brandIds.length > 0) {
-        query.brand = { $in: brandIds,isBlocked:false};
+        query.brand = { $in: brandIds, isBlocked: false };
       }
     }
     if (selectedCategories.length > 0) {
@@ -425,19 +435,24 @@ const loadShopPage = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .lean();
+      // get variant id
 
-      const filteredProducts = products.filter(product => {
-        return product.brand && product.brand.isBlocked === false &&
-              product.category && product.category.isListed === true;
-      });
+
+   const filteredProducts = products.filter(product => {
+  return product.brand && product.brand.isBlocked === false &&
+         product.category && product.category.isListed === true;
+}).map(product => {
+  product.selectedVariant = product.colorVariants[0]; // first variant as default
+  return product;
+});
 
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
-
+ 
     res.render('shop', {
       isLoggedIn,
       user,
-      products:filteredProducts,
+      products: filteredProducts,
       brand: brands,
       category: categories,
       search,
@@ -449,6 +464,7 @@ const loadShopPage = async (req, res) => {
       totalPages,
       currentPage: page,
       totalProducts,
+       wishlistProductIds,
       noResults: products.length === 0 && (search || selectedBrands.length > 0 || selectedCategories.length > 0 || minPrice || maxPrice) ? `No products found.` : null
     });
   } catch (error) {
@@ -462,6 +478,15 @@ const filterProducts = async (req, res) => {
     const isLoggedIn = !!userId;
     const user = isLoggedIn ? await User.findById(userId) : null;
 
+    
+    let wishlistProductIds = [];
+    if (isLoggedIn) {
+      const wishlist = await Wishlist.findOne({ userId }).lean();
+      if (wishlist) {
+        wishlistProductIds = wishlist.products.map(item => item.productId.toString());
+      }
+    }
+
     // Query parameters
     const search = req.query.search || '';
     let selectedBrands = req.query.brand || [];
@@ -474,8 +499,8 @@ const filterProducts = async (req, res) => {
     const skip = (page - 1) * limit;
     console.log(selectedBrands)
 
-console.log('sorting answer',req.query.sort)
-console.log('sorting answer',sort)
+    console.log('sorting answer', req.query.sort)
+    console.log('sorting answer', sort)
 
 
 
@@ -511,7 +536,7 @@ console.log('sorting answer',sort)
         { category: { $in: await Category.find({ name: regex, isListed: true }).distinct('_id') } }
       ];
     }
-   
+
     //  console.log('minprice',minPrice)
     //  console.log('maxprice',maxPrice)
 
@@ -520,7 +545,7 @@ console.log('sorting answer',sort)
       if (minPrice) query['colorVariants.offerPrice'].$gte = minPrice;
       if (maxPrice) query['colorVariants.offerPrice'].$lte = maxPrice;
     }
-     
+
     // Sorting
     let sortOption = { createdAt: -1 }; // Default: featured (newest first)
     if (sort === 'price-low-high') sortOption = { 'colorVariants.offerPrice': 1 };
@@ -540,24 +565,28 @@ console.log('sorting answer',sort)
       .limit(limit)
       .skip(skip)
       .lean();
-
-     const filteredProducts = products.filter(product => {
-  const isValid = product.brand && !product.brand.isBlocked &&
-                  product.category && product.category.isListed &&
-                  !product.isBlocked &&
-                  product.colorVariants.length > 0 &&
-                  product.colorVariants.every(variant =>
-                    !variant.isBlocked &&
-                    variant.offerPrice >= minPrice &&
-                    variant.offerPrice <= maxPrice
-                  );
-
-  return isValid;
+// get variant id
+products.forEach(product => {
+  product.selectedVariant = product.colorVariants?.[0]; // pick the first variant
 });
 
+    const filteredProducts = products.filter(product => {
+      const isValid = product.brand && !product.brand.isBlocked &&
+        product.category && product.category.isListed &&
+        !product.isBlocked &&
+        product.colorVariants.length > 0 &&
+        product.colorVariants.every(variant =>
+          !variant.isBlocked &&
+          variant.offerPrice >= minPrice &&
+          variant.offerPrice <= maxPrice
+        );
+
+      return isValid;
+    });
 
 
-      console.log('filter',filteredProducts)
+
+    console.log('filter', filteredProducts)
 
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
@@ -566,7 +595,7 @@ console.log('sorting answer',sort)
       user,
       isLoggedIn,
       search,
-      products:filteredProducts,
+      products: filteredProducts,
       brand: brands,
       category: categories,
       selectedBrands,
@@ -577,6 +606,8 @@ console.log('sorting answer',sort)
       totalPages,
       currentPage: page,
       totalProducts,
+       wishlistProductIds,
+      
       noResults: products.length === 0 && (search || selectedCategories.length > 0 || selectedBrands.length > 0 || minPrice || maxPrice) ? `No products found.` : null
     });
   } catch (error) {

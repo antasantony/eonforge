@@ -3,6 +3,7 @@ const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const Brand = require('../../models/brandSchema');
 const Cart = require('../../models/cartSchema')
+const Wishlist = require('../../models/wishlistSchema')
 
 
 const loadProductDetail = async (req, res) => {
@@ -10,6 +11,15 @@ const loadProductDetail = async (req, res) => {
     const userId = req.session.userId;
     const isLoggedIn = !!userId;
     const user = isLoggedIn ? await User.findById(userId) : null;
+
+ let wishlistProductIds = [];
+if (isLoggedIn) {
+  const wishlist = await Wishlist.findOne({ userId }).lean();
+  if (wishlist) {
+    wishlistProductIds = wishlist.products.map(item => `${item.productId}:${item.variantId}`);
+  }
+}
+
 
 
     const productId = req.params.id
@@ -50,7 +60,17 @@ const loadProductDetail = async (req, res) => {
         cartQuantity = item ? item.stock : 0;
       }
   console.log('cart quantity in product detail',cartQuantity)
-
+let isInCart = false;
+if (cart) {
+  const item = cart.items.find((value) =>
+    value.productId.toString() === productId &&
+    value.variantId.toString() === selectedVariant._id.toString()
+  );
+  if (item) {
+    cartQuantity = item.stock;
+    isInCart = true;
+  }
+}
     const sameBrandProducts = await Product.find({
       brand: product.brand._id,
       _id: { $ne: product._id },
@@ -65,7 +85,9 @@ const loadProductDetail = async (req, res) => {
       brands,
       selectedVariant,
       sameBrandProducts,
-      cartQuantity
+      cartQuantity,
+      isInCart,
+       wishlistProductIds
 
     })
   } catch (error) {

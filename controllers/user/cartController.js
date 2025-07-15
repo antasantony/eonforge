@@ -1,6 +1,7 @@
 // controllers/user/cartController.js
 const Product = require('../../models/productSchema');
 const Cart = require('../../models/cartSchema');
+const Wishlist = require('../../models/wishlistSchema')
 
 const addToCart = async (req, res) => {
   try {
@@ -78,6 +79,19 @@ const addToCart = async (req, res) => {
     }
 
     await cart.save();
+
+    await Wishlist.updateOne(
+      { userId },
+      {
+        $pull: {
+
+          products: {
+            productId: productId,         // Ensure these are ObjectId types if needed
+            variantId: variantId
+          }
+        }
+      }
+    );
     res.status(200).json({ message: 'Added to cart', redirectUrl: '/cart' });
   } catch (error) {
     console.error('Add to cart error:', error);
@@ -225,9 +239,201 @@ const removeFromCart = async (req, res) => {
   }
 };
 
+
+const addWishlist = async (req, res) => {
+  try {
+    const { productId, variantId } = req.body;
+    const userId = req.session.userId;
+    console.log('addwishlist in wishlist new', req.body);
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Please login to manage wishlist' });
+    }
+
+    if (!variantId) {
+      return res.status(400).json({ success: false, message: 'Variant ID is required' });
+    }
+
+    const productExists = await Product.findById(productId);
+    if (!productExists) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    let wishlist = await Wishlist.findOne({ userId });
+    let action = '';
+
+    if (!wishlist) {
+      // New wishlist
+      wishlist = await Wishlist.create({
+        userId,
+        products: [{ productId, variantId }],
+      });
+      action = 'added';
+    } else {
+      const alreadyExists = wishlist.products.find(
+        p => p.productId.toString() === productId && p.variantId.toString() === variantId
+      );
+
+      if (alreadyExists) {
+        // Remove it
+        wishlist.products = wishlist.products.filter(
+          p => !(p.productId.toString() === productId && p.variantId.toString() === variantId)
+        );
+        action = 'removed';
+      } else {
+        // Add it
+        wishlist.products.push({ productId, variantId });
+        action = 'added';
+      }
+      await wishlist.save();
+    }
+
+    return res.json({
+      success: true,
+      action,
+      message: action === 'added' ? 'Added to wishlist' : 'Removed from wishlist',
+    });
+
+  } catch (error) {
+    console.error('Add to wishlist error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+
+
+const loadWishlist = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) return res.redirect('/login');
+
+    const wishlist = await Wishlist.findOne({ userId })
+      .populate({
+        path: 'products.productId',
+        populate: {
+          path: 'brand',
+        },
+      })
+      .lean();
+   
+
+    res.render('wishlist', {
+      wishlistItems: wishlist ? wishlist.products : []
+    });
+
+  } catch (error) {
+    console.log('wishlist page error:', error);
+    res.status(500).render('500', { message: 'Something went wrong while loading wishlist' });
+  }
+};
+
+
+const removeFromWishlist = async (req, res) => {
+  try {
+    const { productId,variantId } = req.body;
+    const userId = req.session.userId;
+
+    console.log('remove from wishlist',req.body)
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Please login' });
+    }
+
+    const wishlist = await Wishlist.findOne({ userId });
+    if (!wishlist) {
+      return res.status(404).json({ success: false, message: 'Wishlist not found' });
+    }
+
+    // Filter out the product
+    wishlist.products = wishlist.products.filter(
+      item => item.variantId.toString() !== variantId
+    );
+
+    await wishlist.save();
+
+    res.json({ success: true, message: 'Product removed from wishlist' });
+
+  } catch (error) {
+    console.error('Remove wishlist error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+const addToCartFromWishlist = async (req, res) => {
+  try {
+    const { productId, variantId ,quantity} = req.body;
+    console.log('Received body:', req.body);
+
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Please login' });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    const variant = product.colorVariants.id(variantId);
+    if (!variant) {
+      return res.status(404).json({ success: false, message: 'Variant not found' });
+    }
+
+    const price = variant.offerPrice || variant.regularPrice;
+    const totalPrice = price * 1; // Assuming quantity = 1
+
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      cart = new Cart({ userId, items: [] });
+    }
+
+    // Check for duplicate product+variant
+    const itemIndex = cart.items.findIndex(item =>
+      item.productId.toString() === productId &&
+      item.variantId.toString() === variantId
+    );
+
+    if (itemIndex > -1) {
+      return res.status(400).json({ success: false, message: 'Product already in cart' });
+    }
+
+    cart.items.push({
+      productId,
+      variantId,
+      quantity: 1,
+      price,
+      totalPrice
+    });
+
+    await cart.save();
+
+    // Remove from wishlist
+    await Wishlist.updateOne(
+      { userId },
+      { $pull: { products: {variantId } } }
+    );
+
+    return res.json({ success: true, message: 'Moved to cart and removed from wishlist' });
+
+  } catch (error) {
+    console.error('Add to cart from wishlist error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+
+
+
 module.exports = {
   loadCart,
   addToCart,
   updateCart,
-  removeFromCart
+  removeFromCart,
+  loadWishlist,
+  addWishlist,
+  addToCartFromWishlist,
+  removeFromWishlist
 };

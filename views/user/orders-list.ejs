@@ -252,7 +252,7 @@
                                 <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-secondary">
                                     <i class="fas fa-download"></i> Invoice
                                 </button>
-                                <% if (order.status !== 'Cancelled' && order.status !== 'Delivered') { %>
+                                <% if (order.status !== 'Cancelled' && order.status !== 'Delivered'&&order.status !=='Return Request'&&order.status !=='Returned'&&order.status !=='Rejected') { %>
                                     <button onclick="showCancelModal('<%= order.orderId %>')" class="btn-danger">
                                         <i class="fas fa-times"></i> Cancel
                                     </button>

@@ -19,7 +19,8 @@ const loadOrders = async (req, res) => {
             query.status = status;
         }
                 const pendingOrders = await Order.countDocuments({ status: 'Pending' });
-        const returnRequests = await Order.countDocuments({ status: 'Return Requested' });
+        const returnRequests = await Order.countDocuments({ status: 'Return Request' });
+
 // const totalRevenueResult = await Order.aggregate([
 //   { $match: { status: 'Delivered' } }, // only successful orders
 //   { $group: { _id: null, total: { $sum: "$totalAmount" } } }
@@ -124,9 +125,12 @@ const verifyReturnRequest = async (req, res) => {
   const { orderId } = req.params;
   const { approved } = req.body;
 
+  console.log('verify return',req.body)
+  console.log('verify return',req.params)
+
   try {
     const order = await Order.findOne({ orderId });
-
+console.log('order getting',order)
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
@@ -137,6 +141,7 @@ const verifyReturnRequest = async (req, res) => {
       // Optionally: trigger refund logic here
     } else {
       order.returnRejected = true;
+      order.status='Rejected'
     }
 
     await order.save();

@@ -385,11 +385,20 @@
                                 <i class="fas fa-cube"></i>
                                 <span class="font-medium">3D Try On</span>
                             </div>
-                            <div
-                                class="flex items-center justify-center space-x-2 bg-purple-50 text-purple-600 py-3 px-4 rounded-xl hover:bg-purple-100 transition-colors cursor-pointer">
-                                <i class="fas fa-heart"></i>
-                                <span class="font-medium">Add to Wishlist</span>
-                            </div>
+                      
+                            <% const productVariantKey=`${product._id}:${selectedVariant._id}`; %>
+                                <button onclick="toggleWishlist('<%= product._id %>','<%= selectedVariant._id %>', this)"
+                                    class="flex items-center justify-center space-x-2 bg-purple-50 text-purple-600 py-3 px-4 rounded-xl hover:bg-purple-100 transition-colors cursor-pointer wishlist-btn"
+                                    data-product-id="<%= product._id %>" data-variant-id="<%=selectedVariant._id%>">
+
+                                    <i
+                                        class="<%= wishlistProductIds.includes(productVariantKey) ? 'fas text-purple-600' : 'far' %> fa-heart"></i>
+                                    <span class="font-medium">
+                                        <%= wishlistProductIds.includes(productVariantKey) ? 'Remove from Wishlist'
+                                            : 'Add to Wishlist' %>
+                                    </span>
+                                </button>
+
                         </div>
                     </div>
                 </div>
@@ -566,6 +575,7 @@
         <%- include("../../views/partials/user/footer") %>
 
             <script>
+                 const cartItems = <%- JSON.stringify(isInCart) %>;
                 // Toastr configuration
                 toastr.options = {
                     "closeButton": true,
@@ -683,13 +693,13 @@
 
                             if (response.ok) {
                                 toastr.success('Product added to cart successfully!', 'Success');
-
+  
                                 // Update button to show success
                                 buttonText.textContent = 'ADDED TO CART';
                                 button.classList.remove('from-primary', 'to-gray-800');
                                 button.classList.add('from-green-500', 'to-green-600');
                                 setTimeout(() => {
-                                    resetButton(); 
+                                    resetButton();
                                 }, 1500);
 
                                 // Redirect after delay
@@ -732,6 +742,76 @@
 
                     document.querySelectorAll('.feature-card, .product-card').forEach(el => {
                         observer.observe(el);
+                    });
+                });
+
+                // wishlist 
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+
+                    // Function to show toast notifications
+                    function showToast(message, isSuccess = true) {
+                        const toast = document.createElement('div');
+                        toast.className = 'toast';
+                        toast.textContent = message;
+                        toast.style.backgroundColor = isSuccess ? '#333' : '#ef4444';
+                        document.body.appendChild(toast);
+
+                        setTimeout(() => toast.classList.add('show'), 10);
+
+                        setTimeout(() => {
+                            toast.classList.remove('show');
+                            setTimeout(() => document.body.removeChild(toast), 300);
+                        }, 3000);
+                    }
+
+                    // Toggle wishlist status
+                    async function toggleWishlist(productId, variantId, button) {
+                        console.log("wishlist productId:", productId);
+
+                        try {
+                            const response = await fetch('/addWishlist', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ productId, variantId }),
+                                credentials: 'include'
+                            });
+
+                            const result = await response.json();
+
+                            if (result.success) {
+                                const icon = button.querySelector('i');
+
+                                if (result.action === 'added') {
+                                    button.classList.add('active');
+                                    icon.classList.remove('far');
+                                    icon.classList.add('fas', 'text-purple-600'); // filled red heart
+                                    showToast('Added to wishlist!');
+                                } else {
+                                    button.classList.remove('active');
+                                    icon.classList.remove('fas', 'text-purple-600');
+                                    icon.classList.add('far'); // outlined heart
+                                    showToast('Removed from wishlist');
+                                }
+                            } else {
+                                showToast(result.message || 'Error updating wishlist', false);
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            showToast('Please login to manage wishlist', false);
+                        }
+                    }
+                    // Add event listeners to wishlist buttons
+                    wishlistButtons.forEach(button => {
+                        button.addEventListener('click', async function (e) {
+                            e.preventDefault();
+                            const productId = this.getAttribute('data-product-id');
+                            const variantId = this.getAttribute('data-variant-id');
+                            await toggleWishlist(productId, variantId, this);
+                        });
                     });
                 });
             </script>

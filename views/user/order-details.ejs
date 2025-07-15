@@ -256,7 +256,7 @@
                                                 item.discountedPrice) * item.quantity).toLocaleString() %>
                                         </p>
                                         <% } %>
-                                            <% if (item.status !=='Cancelled' && item.status !=='Delivered' ) { %>
+                                            <% if (order.status !== 'Cancelled' && order.status !== 'Delivered'&&order.status !=='Return Request'&&order.status !=='Returned'&&order.status !=='Rejected') { %>
                                                 <button class="btn-cancel"
                                                     onclick="openCancelModal('<%= orderId %>', '<%= item.id %>', '<%= item.productName %>')">
                                                     <i class="fas fa-times"></i> Cancel
@@ -484,6 +484,76 @@
             orderItems.forEach((item, index) => {
                 item.style.animationDelay = `${index * 0.1}s`;
             });
+        });
+
+
+
+         // Wishlist functionality
+        document.addEventListener('DOMContentLoaded', function () {
+          const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+
+          // Function to show toast notifications
+          function showToast(message, isSuccess = true) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.backgroundColor = isSuccess ? '#333' : '#ef4444';
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+              toast.classList.remove('show');
+              setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+          }
+
+          // Toggle wishlist status
+          async function toggleWishlist(productId, button) {
+            console.log("wishlist productId:", productId);
+
+            try {
+              const response = await fetch('/addWishlist', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId }),
+                credentials: 'include'
+              });
+
+              const result = await response.json();
+
+              if (result.success) {
+                const icon = button.querySelector('i');
+
+                if (result.action === 'added') {
+                  button.classList.add('active');
+                  icon.classList.remove('far');
+                  icon.classList.add('fas', 'text-red-600'); // filled red heart
+                  showToast('Added to wishlist!');
+                } else {
+                  button.classList.remove('active');
+                  icon.classList.remove('fas', 'text-red-600');
+                  icon.classList.add('far'); // outlined heart
+                  showToast('Removed from wishlist');
+                }
+              } else {
+                showToast(result.message || 'Error updating wishlist', false);
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              showToast('Please login to manage wishlist', false);
+            }
+          }
+          // Add event listeners to wishlist buttons
+          wishlistButtons.forEach(button => {
+            button.addEventListener('click', async function (e) {
+              e.preventDefault();
+              const productId = this.getAttribute('data-product-id');
+              await toggleWishlist(productId, this);
+            });
+          });
         });
     </script>
 </body>

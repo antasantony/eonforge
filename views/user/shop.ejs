@@ -308,12 +308,16 @@
                           class="w-full h-48 object-contain p-4">
                       </a>
                       <span
-                        class="absolute top-2 left-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded">Sale</span>
-                      <button
-                        class="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 wishlist-btn"
-                        data-product-id="<%= product._id %>">
-                        <i class="far fa-heart text-gray-600"></i>
-                      </button>
+                    <button 
+  onclick="toggleWishlist('<%= product._id %>','<%= product.selectedVariant._id %>', this)"
+  class="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 wishlist-btn"
+  data-product-id="<%= product._id %>" 
+  data-variant-id="<%= product.selectedVariant._id %>">
+  
+  <i class="<%= wishlistProductIds.includes(product._id.toString()) ? 'fas text-red-600' : 'far' %> fa-heart"></i>
+</button>
+
+
                     </div>
                     <div class="p-4">
                       <h3 class="font-semibold text-sm mb-1">
@@ -483,7 +487,8 @@
         });
 
         // Wishlist functionality
-        document.addEventListener('DOMContentLoaded', function () {
+        
+                document.addEventListener('DOMContentLoaded', function () {
           const wishlistButtons = document.querySelectorAll('.wishlist-btn');
 
           // Function to show toast notifications
@@ -503,30 +508,33 @@
           }
 
           // Toggle wishlist status
-          async function toggleWishlist(productId, button) {
+          async function toggleWishlist(productId,variantId, button) {
+            console.log("wishlist productId:", productId);
+
             try {
-              const response = await fetch('/wishlist/toggle', {
+              const response = await fetch('/addWishlist', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ productId }),
+                body: JSON.stringify({ productId,variantId }),
                 credentials: 'include'
               });
 
               const result = await response.json();
 
               if (result.success) {
-                button.classList.toggle('active');
                 const icon = button.querySelector('i');
 
-                if (button.classList.contains('active')) {
+                if (result.action === 'added') {
+                  button.classList.add('active');
                   icon.classList.remove('far');
-                  icon.classList.add('fas');
+                  icon.classList.add('fas', 'text-purple-600'); // filled red heart
                   showToast('Added to wishlist!');
                 } else {
-                  icon.classList.remove('fas');
-                  icon.classList.add('far');
+                  button.classList.remove('active');
+                  icon.classList.remove('fas', 'text-purple-600');
+                  icon.classList.add('far'); // outlined heart
                   showToast('Removed from wishlist');
                 }
               } else {
@@ -537,42 +545,15 @@
               showToast('Please login to manage wishlist', false);
             }
           }
-
-          // Check initial wishlist status
-          async function checkInitialWishlistStatus() {
-            try {
-              const response = await fetch('/wishlist/status', {
-                credentials: 'include'
-              });
-              const result = await response.json();
-
-              if (result.success && result.wishlistItems) {
-                wishlistButtons.forEach(button => {
-                  const productId = button.getAttribute('data-product-id');
-                  if (result.wishlistItems.includes(productId)) {
-                    button.classList.add('active');
-                    const icon = button.querySelector('i');
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                  }
-                });
-              }
-            } catch (error) {
-              console.error('Error checking wishlist status:', error);
-            }
-          }
-
           // Add event listeners to wishlist buttons
           wishlistButtons.forEach(button => {
             button.addEventListener('click', async function (e) {
               e.preventDefault();
               const productId = this.getAttribute('data-product-id');
-              await toggleWishlist(productId, this);
+              const variantId = this.getAttribute('data-variant-id');
+              await toggleWishlist(productId,variantId, this);
             });
           });
-
-          // Check initial wishlist status on page load
-          checkInitialWishlistStatus();
         });
       </script>
 </body>

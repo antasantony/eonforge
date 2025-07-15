@@ -27,9 +27,10 @@ const userAuth = (req, res, next) => {
     }
 
 
-const isLogin = (req, res, next) => {
-    console.log('is login called')
-    if (req.session.userId) {
+const isLogin = async(req, res, next) => {
+    console.log(req.session.userId)
+    const user = await User.findOne({_id:req.session.userId,isBlocked:false})
+    if (user) {
         console.log('hello sesssion1')
         return res.redirect('/');
     }

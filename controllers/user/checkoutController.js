@@ -17,6 +17,8 @@ const loadCheckout = async (req, res) => {
         if (!userId) return res.redirect('/login');
         console.log('userid from checkout', userId)
 
+
+
         //   user data getting
         const user = await User.findById(userId).lean();
 
@@ -28,7 +30,10 @@ const loadCheckout = async (req, res) => {
         const cartData = await Cart.findOne({ userId })
             .populate('items.productId')
             .populate('items.variantId');
-
+            
+            if (!cartData || !cartData.items || cartData.items.length === 0) {
+        return res.redirect('/cart');
+    }
         const cartItems = cartData.items.map(item => {
             const product = item.productId;
             const variant = product?.colorVariants.find(
@@ -69,6 +74,8 @@ const loadCheckout = async (req, res) => {
             otherAddresses = addressDoc.address.filter(addr => addr._id.toString() !== defaultAddress._id.toString());
 
         }
+
+
         console.log('checkout username', defaultAddress)
 
         let subtotal = 0;
@@ -78,6 +85,7 @@ const loadCheckout = async (req, res) => {
 
         const deliveryFee = 50;
         const totalAmount = subtotal + deliveryFee;
+
 
         res.render('checkout', {
             userName,
@@ -283,7 +291,7 @@ const placeOrder = async (req, res) => {
             orderItems: cartItems.map(item => ({
                 product: item.productId,
                 variantId: item.variantId,
-                stock: item.stock,
+                stock: item.quantity,
                 price: item.price
             })),
             totalPrice: subtotal,
@@ -403,9 +411,11 @@ const orderDetails = async (req, res) => {
     try {
         const userId = req.session.userId;
         if (!userId) return res.redirect('/login');
-
+   const {orderId}=req.query
+console.log('order details page again same product',orderId)
+   
         // Find the most recent order for the user
-        const order = await Order.findOne({ userId })
+        const order = await Order.findOne({ userId,orderId})
             .sort({ createdOn: -1 })
             .populate({
                 path: 'orderItems.product',

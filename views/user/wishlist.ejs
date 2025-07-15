@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eon Forge - Wishlist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'playfair': ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        'primary': '#1a1a1a',
+                        'accent': '#d4af37',
+                        'accent-light': '#f4e4a6',
+                        'cream': '#fefdfb',
+                        'warm-gray': '#f8f7f4',
+                        'text-primary': '#2d2d2d',
+                        'text-secondary': '#6b7280',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            from: { opacity: '0', transform: 'translateY(20px)' },
+                            to: { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideUp: {
+                            from: { transform: 'translateY(10px)', opacity: '0' },
+                            to: { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #fefdfb 0%, #f8f7f4 100%);
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .premium-shadow {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d4af37 0%, #f4e4a6 100%);
+            color: #1a1a1a;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        .btn-remove {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #fee2e2;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-remove:hover {
+            background: #fee2e2;
+            border-color: #f87171;
+            transform: translateY(-2px);
+        }
+
+        .item-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="gradient-bg font-inter min-h-screen">
+    <!-- Breadcrumb -->
+    <nav class="bg-white/70 px-4 py-4 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center space-x-3 text-sm">
+                <a href="/" class="text-text-secondary hover:text-accent transition-colors font-medium flex items-center space-x-1">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                <span class="text-primary font-semibold">Wishlist</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Title -->
+        <div class="text-center mb-12 animate-fade-in">
+            <h1 class="text-4xl md:text-5xl font-playfair font-bold text-primary mb-4">Your Wishlist</h1>
+            <p class="text-text-secondary text-lg max-w-2xl mx-auto">
+                Explore your saved items and add them to your cart when you're ready.
+            </p>
+        </div>
+
+        <!-- Wishlist Items -->
+        <div id="wishlistContent" class="grid grid-cols-1 gap-8">
+            <div class="glass-effect rounded-3xl p-8 premium-shadow animate-slide-up">
+                <h2 class="text-2xl font-playfair font-bold text-primary mb-6 flex items-center">
+                    <i class="fas fa-heart text-accent mr-2"></i>
+                    Saved Items
+                </h2>
+                <div id="wishlistItemsList" class="space-y-4">
+                  <% (wishlistItems || []).forEach((item, index) => { %>
+    <% const product = item.productId; %>
+    <% const variantId = item.variantId?.toString(); %>
+    <% const selectedVariant = product.colorVariants.find(v => v._id.toString() === variantId) || product.colorVariants[0]; %>
+    <% if (product && selectedVariant) { %>
+        <div class="item-card bg-warm-gray p-6 rounded-xl grid grid-cols-1 sm:grid-cols-[100px_1fr_auto] gap-4 items-center animate-slide-up" style="animation-delay: <%= index * 0.1 %>s">
+            <img src="<%= selectedVariant.productImage[0] || '/placeholder-watch.jpg' %>" alt="<%= product.productName %>" 
+                class="w-20 h-20 object-cover rounded-lg border border-gray-100">
+            
+            <div class="flex flex-col">
+                <h4 class="text-lg font-semibold text-primary"><%= product.productName %></h4>
+                <p class="text-sm text-text-secondary"><%= product.brand?.brandName || 'Eon Forge' %></p>
+
+                <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-text-secondary">
+                    <% if (selectedVariant?.colorName) { %>
+                        <p>Color: <%= selectedVariant.colorName %></p>
+                    <% } %>
+                    <% if (selectedVariant?.size) { %>
+                        <p>Size: <%= selectedVariant.size %></p>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-end gap-2">
+                <p class="text-lg font-semibold text-primary">
+                    ₹<%= selectedVariant.offerPrice?.toLocaleString() || '0' %>
+                </p>
+                <% if (selectedVariant.regularPrice) { %>
+                    <p class="text-xs text-green-600">
+                        Saved ₹<%= (selectedVariant.regularPrice - selectedVariant.offerPrice).toLocaleString() %>
+                    </p>
+                <% } %>
+
+                <div class="flex gap-2">
+                    <button class="btn-primary add-to-cart-wishlist"
+                            data-product-id="<%= product._id %>"
+                            data-stock="<%= selectedVariant.stock %>"
+                            data-variant-id="<%= selectedVariant._id %>">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                    <button class="btn-remove" onclick="removeFromWishlist('<%= product._id %>','<%= selectedVariant._id %>',this)">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+    <% } %>
+<% }) %>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty Wishlist State -->
+        <div id="emptyWishlist" class="text-center py-12 hidden animate-fade-in">
+            <div class="max-w-md mx-auto">
+                <div class="w-24 h-24 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-heart text-3xl text-accent"></i>
+                </div>
+                <h2 class="text-2xl font-playfair font-bold text-primary mb-4">Your Wishlist is Empty</h2>
+                <p class="text-base text-text-secondary mb-6">Explore our collection to find items you love and add them to your wishlist.</p>
+                <a href="/shop" class="btn-primary">
+                    <i class="fas fa-shopping-bag"></i> Explore Collection
+                </a>
+            </div>
+        </div>
+
+        <!-- Customer Support -->
+        <div class="mt-8 glass-effect rounded-3xl p-6 premium-shadow animate-slide-up">
+            <h2 class="text-xl font-playfair font-bold text-primary mb-4 flex items-center">
+                <i class="fas fa-headset text-accent mr-2"></i>
+                Need Help?
+            </h2>
+            <p class="text-sm text-text-secondary mb-4">Our customer support team is available to assist you with any questions.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="mailto:support@eonforge.com" class="flex items-center space-x-3 p-3 bg-warm-gray rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-envelope text-accent"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-primary">Email Us</p>
+                        <p class="text-xs text-text-secondary">support@eonforge.com</p>
+                    </div>
+                </a>
+                <a href="tel:+18005551234" class="flex items-center space-x-3 p-3 bg-warm-gray rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-phone-alt text-accent"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-primary">Call Us</p>
+                        <p class="text-xs text-text-secondary">+1 (800) 555-1234</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-12 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 animate-slide-up">
+            <a href="/shop" class="btn-primary">
+                <i class="fas fa-shopping-bag"></i> Shop Now
+            </a>
+            <a href="/cart" class="btn-secondary">
+                <i class="fas fa-cart-shopping"></i> View Cart
+            </a>
+        </div>
+    </main>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+   
+    toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        timeOut: 3000,
+        showMethod: 'fadeIn',
+        hideMethod: 'fadeOut'
+    };
+
+    const wishlistItems = <%- JSON.stringify(wishlistItems || []) %>;
+
+
+    function showEmptyWishlist() {
+        document.getElementById('wishlistContent').classList.add('hidden');
+        document.getElementById('emptyWishlist').classList.remove('hidden');
+    }
+
+    async function removeFromWishlist(productId,variantId,button) {
+        try {
+            const res = await fetch('/remove-from-wishlist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ productId ,variantId})
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+                button.closest('.item-card').remove();
+                toastr.success('Removed from wishlist');
+                if (!document.querySelectorAll('.item-card').length) {
+                    showEmptyWishlist();
+                }
+            } else {
+                toastr.error(result.message || 'Failed to remove from wishlist');
+            }
+        } catch (err) {
+            console.error('Remove from wishlist error:', err);
+            toastr.error('Server error. Please try again.');
+        }
+    }
+
+  
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!wishlistItems || wishlistItems.length === 0) {
+            showEmptyWishlist();
+        }
+
+        // Animation delay
+        document.querySelectorAll('.item-card').forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.1}s`;
+        });
+
+    
+        document.querySelectorAll('.add-to-cart-wishlist').forEach(button => {
+            button.addEventListener('click', async () => {
+                const productId = button.dataset.productId;
+                const variantId = button.dataset.variantId;
+                const stock = parseInt(button.dataset.stock, 10);
+
+                if (!productId || !variantId || isNaN(stock)) {
+                    toastr.error('Invalid product data');
+                    return;
+                }
+
+                try {
+                    const cartRes = await fetch('/wishlist-to-cart', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ productId, variantId, quantity: 1 })
+                    });
+
+                    const cartData = await cartRes.json();
+
+                    if (cartRes.ok && cartData.success) {
+                        const removeRes = await fetch('/remove-from-wishlist', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ productId })
+                        });
+
+                        const removeData = await removeRes.json();
+
+                        if (removeData.success) {
+                            const card = button.closest('.item-card');
+                            if (card) card.remove();
+                            toastr.success('Added to cart and removed from wishlist');
+                            if (!document.querySelectorAll('.item-card').length) {
+                                showEmptyWishlist();
+                            }
+                        } else {
+                            toastr.error('Added to cart, but failed to remove from wishlist');
+                        }
+                    } else {
+                        toastr.error(cartData.message || 'Failed to add to cart');
+                    }
+                } catch (err) {
+                    console.error('Add to cart error:', err);
+                    toastr.error('Server error. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
