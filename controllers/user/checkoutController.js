@@ -30,10 +30,10 @@ const loadCheckout = async (req, res) => {
         const cartData = await Cart.findOne({ userId })
             .populate('items.productId')
             .populate('items.variantId');
-            
-            if (!cartData || !cartData.items || cartData.items.length === 0) {
-        return res.redirect('/cart');
-    }
+
+        if (!cartData || !cartData.items || cartData.items.length === 0) {
+            return res.redirect('/cart');
+        }
         const cartItems = cartData.items.map(item => {
             const product = item.productId;
             const variant = product?.colorVariants.find(
@@ -295,8 +295,8 @@ const placeOrder = async (req, res) => {
                 price: item.price
             })),
             totalPrice: subtotal,
-            discount: 0, 
-            finalAmount: totalAmount, 
+            discount: 0,
+            finalAmount: totalAmount,
             address: addressFields,
             status: "Pending",
             invoiceDate: new Date(),
@@ -307,7 +307,7 @@ const placeOrder = async (req, res) => {
 
         await newOrder.save();
 
-        
+
         for (const item of cartItems) {
             await Product.updateOne(
                 { _id: item.productId, 'colorVariants._id': item.variantId },
@@ -315,14 +315,14 @@ const placeOrder = async (req, res) => {
             );
         }
 
-    await Cart.findOneAndDelete({userId})
+        await Cart.findOneAndDelete({ userId })
 
         res.status(200).json({
             success: true,
             orderId: newOrder.orderId,
             redirecturl: '/place-order'
         });
-        
+
 
     } catch (error) {
         console.error('Place order error:', error);
@@ -342,12 +342,12 @@ const loadPlaceOrder = async (req, res) => {
             .sort({ createdOn: -1 })
             .populate({
                 path: 'orderItems.product',
-                populate: { path: 'brand' } 
+                populate: { path: 'brand' }
             })
             .lean();
 
         if (!order) {
-            return res.redirect('/cart'); 
+            return res.redirect('/cart');
         }
 
         const user = await User.findById(userId);
@@ -372,8 +372,8 @@ const loadPlaceOrder = async (req, res) => {
                 brandName: product?.brand?.brandName || 'N/A',
                 status: item.status || 'Ordered'
             };
-        }).filter(Boolean); 
-    
+        }).filter(Boolean);
+
         const addresses = [{
             _id: 'order-address',
             address: order.address.street || 'N/A',
@@ -411,11 +411,11 @@ const orderDetails = async (req, res) => {
     try {
         const userId = req.session.userId;
         if (!userId) return res.redirect('/login');
-   const {orderId}=req.query
-console.log('order details page again same product',orderId)
-   
+        const { orderId } = req.query
+        console.log('order details page again same product', orderId)
+
         // Find the most recent order for the user
-        const order = await Order.findOne({ userId,orderId})
+        const order = await Order.findOne({ userId, orderId })
             .sort({ createdOn: -1 })
             .populate({
                 path: 'orderItems.product',
@@ -433,7 +433,7 @@ console.log('order details page again same product',orderId)
         // Process order items for display
         let orderItems = [];
         let subtotal = 0;
-        
+
         if (order.orderItems && order.orderItems.length > 0) {
             orderItems = order.orderItems.map(item => {
                 const product = item.product;
@@ -464,6 +464,8 @@ console.log('order details page again same product',orderId)
 
             subtotal = orderItems.reduce((sum, item) => sum + item.total, 0);
         }
+
+        console.log('itemid get needed thats why this', order)
 
         // Prepare address data from order
         const addresses = [{
@@ -508,20 +510,36 @@ const orders = async (req, res) => {
         if (!userId) return res.redirect('/login');
 
         const search = req.query.search?.trim() || '';
-        console.log('order listing search', search)
-        const query = { userId };
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
 
+        const query = { userId };
         if (search) {
             query.orderId = { $regex: search, $options: 'i' };
         }
 
+     
         const orders = await Order.find(query)
+            .populate('orderItems.variantId')
             .sort({ createdOn: -1 })
+            .skip(skip)
+            .limit(limit)
             .lean();
-        console.log('order list page', orders)
+
+    
+        const totalOrders = await Order.countDocuments(query);
+
+        const totalPages = Math.ceil(totalOrders / limit);
+orders.forEach(order => {
+  console.log('for item Order ID:', order.orderId);
+  console.log('for item Items:', order.orderItems.status);
+});
         res.render('orders-list', {
             orders,
-            search
+            search,
+            currentPage: page,
+            totalPages
         });
     } catch (error) {
         console.error('Order listing page error:', error);
@@ -531,51 +549,19 @@ const orders = async (req, res) => {
 
 
 
+
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
+
+
 
 const cancelOrderItem = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
     const { reason } = req.body;
 
-    console.log('cancel single item from order', itemId);
-    console.log('reason for cancelling', reason);
-
-    const order = await Order.findOneAndUpdate(
-      {
-        orderId: orderId, // <-- orderId is a string, no need to cast
-        'orderItems._id': new ObjectId(itemId), // <-- Cast itemId to ObjectId
-      },
-      {
-        $set: {
-          'orderItems.$.status': 'Cancelled',
-          'orderItems.$.cancelReason': reason,
-        },
-      },
-      { new: true }
-    );
-
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order or item not found' });
-    }
-
-    res.json({ success: true, message: 'Item cancelled successfully' });
-  } catch (err) {
-    console.error('Cancel item error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
-
-// return order item
-const returnOrderItem = async (req, res) => {
-  try {
-    const { orderId, itemId, reason } = req.body;
-    console.log('return item order data', req.body);
-
-    if (!reason || reason.trim() === '') {
-      return res.status(400).json({ success: false, message: 'Return reason is required' });
-    }
+    console.log('Cancel single item:', itemId);
+    console.log('Reason:', reason);
 
     const order = await Order.findOne({ orderId });
 
@@ -583,29 +569,82 @@ const returnOrderItem = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    // Find the item in orderItems
     const item = order.orderItems.find(i => i._id.toString() === itemId);
 
     if (!item) {
-      return res.status(404).json({ success: false, message: 'Order item not found' });
+      return res.status(404).json({ success: false, message: 'Item not found in order' });
     }
 
-    if (item.status !== 'Delivered') {
-      return res.status(400).json({ success: false, message: 'Only delivered items can be returned' });
+    if (item.status === 'Cancelled') {
+      return res.json({ success: false, message: 'Item already cancelled' });
     }
 
-    // Update item status only
-    item.status = 'Return Request';
-    item.returnReason = reason;
+    // Update item status and reason
+    item.status = 'Cancelled';
+    item.cancelReason = reason || null;
+
+    // ✅ Return stock to inventory
+    await Product.updateOne(
+      { _id: item.product, 'colorVariants._id': item.variantId },
+      { $inc: { 'colorVariants.$.stock': item.stock } }
+    );
+
+    // ✅ Optional: If all items cancelled, update order status too
+    const allCancelled = order.orderItems.every(i => i.status === 'Cancelled');
+    if (allCancelled) {
+      order.status = 'Cancelled';
+      order.cancelReason = 'All items cancelled';
+    }
 
     await order.save();
 
-    res.json({ success: true, message: 'Return request submitted successfully' });
+    return res.json({ success: true, message: 'Item cancelled and stock restored' });
 
   } catch (err) {
-    console.error('Return order error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('Cancel item error:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
+};
+
+// return order item
+const returnOrderItem = async (req, res) => {
+    try {
+        const { orderId, itemId, reason } = req.body;
+        console.log('return item order data', req.body);
+
+        if (!reason || reason.trim() === '') {
+            return res.status(400).json({ success: false, message: 'Return reason is required' });
+        }
+
+        const order = await Order.findOne({ orderId });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        // Find the item in orderItems
+        const item = order.orderItems.find(i => i._id.toString() === itemId);
+        console.log('item find confirming', item)
+        if (!item) {
+            return res.status(404).json({ success: false, message: 'Order item not found' });
+        }
+
+        // if (item.status !== 'Delivered') {
+        //   return res.status(400).json({ success: false, message: 'Only delivered items can be returned' });
+        // }
+
+        // Update item status only
+        item.status = 'Return Request';
+        item.returnReason = reason;
+
+        await order.save();
+
+        res.json({ success: true, message: 'Return request submitted successfully' });
+
+    } catch (err) {
+        console.error('Return order error:', err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
 };
 
 
@@ -629,55 +668,76 @@ const cancelOrder = async (req, res) => {
       return res.json({ success: false, message: 'Order is already cancelled' });
     }
 
+    for (const item of order.orderItems) {
+      item.status = 'Cancelled';
+      item.cancelReason = reason || null;
+
+      // Return stock to inventory
+      await Product.updateOne(
+        { _id: item.product, 'colorVariants._id': item.variantId },
+        { $inc: { 'colorVariants.$.stock': item.stock } }
+      );
+    }
+
+    // Update order-level status
     order.status = 'Cancelled';
     order.cancelReason = reason || null;
 
-    // Optionally: cancel each item inside orderItems too
-    order.orderItems.forEach(item => {
-      item.status = 'Cancelled';
-      item.cancelReason = reason || null;
-    });
-
     await order.save();
 
-    res.json({ success: true, message: 'Order cancelled successfully' });
-  } catch (err) {
-    console.error('Cancel order error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    return res.json({ success: true, message: 'Order cancelled and stock restored' });
+
+  } catch (error) {
+    console.error('Cancel order error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
 
 
 // Return Order
-const returnOrder =  async (req, res) => {
-  try {
-    const { orderId, reason } = req.body;
+const returnOrder = async (req, res) => {
+    try {
+        const { orderId, reason } = req.body;
 
-    if (!reason || reason.trim() === '') {
-      return res.status(400).json({ success: false, message: 'Return reason is required' });
+        // Validate return reason
+        if (!reason || reason.trim() === '') {
+            return res.status(400).json({ success: false, message: 'Return reason is required' });
+        }
+
+        // Find the order
+        const order = await Order.findOne({ orderId });
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        // Allow return only if the order status is 'Delivered'
+        if (order.status !== 'Delivered') {
+            return res.status(400).json({ success: false, message: 'Only delivered orders can be returned' });
+        }
+
+        // Update overall order status
+        order.status = 'Return Request';
+
+        // Update each item's return status and reason
+        order.orderItems.forEach(item => {
+            item.returnStatus = 'Requested';
+            item.returnReason = reason;
+        });
+
+        // Save changes
+        await order.save();
+
+        // Send success response
+        res.json({ success: true, message: 'Return request submitted successfully' });
+
+    } catch (err) {
+        console.error('Return order error:', err);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
-
-    const order = await Order.findOne({ orderId });
-
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
-    if (order.status !== 'Delivered') {
-      return res.json({ success: false, message: 'Only delivered orders can be returned' });
-    }
-
-    order.status = 'Return Request';
-    order.cancelReason = reason; // Reusing cancelReason for return reason if needed
-
-    await order.save();
-
-    res.json({ success: true, message: 'Return request submitted successfully' });
-  } catch (err) {
-    console.error('Return order error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
 };
+
+
 
 
 

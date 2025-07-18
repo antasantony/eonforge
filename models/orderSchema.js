@@ -33,8 +33,8 @@ const orderSchema = new Schema({
         },
         status: {
             type: String,
-             enum: ["None","Cancelled", "Return Request", "Returned","Rejected"],
-            default: 'None'
+             enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned","Rejected"],
+            default: 'Pending'
         },
         cancelReason: {
             type: String,
@@ -42,7 +42,7 @@ const orderSchema = new Schema({
         },
         returnStatus: {
             type: String,
-            enum: ['None', 'Requested', 'Approved', 'Rejected'],
+            enum: ['None', "Return Request", 'Approved', 'Rejected'],
             default: 'None'
         },
         returnReason: {
@@ -119,6 +119,10 @@ const orderSchema = new Schema({
         enum: ['None', 'Requested', 'Approved', 'Rejected'],
         default: 'None'
     },
+    returnReason: {
+            type: String,
+            default: null
+        },
     cancelReason: {
         type: String,
         default: null,

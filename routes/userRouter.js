@@ -60,6 +60,8 @@ router.get('/change-newEmail-otp',userAuth,profileController. loadChangeNewEmail
 router.post('/change-newEmail-otp',userAuth,profileController.changeNewEmailOtp)
 router.post('/change-password', userAuth, profileController.changePassword)
 
+
+
 //=============  address management  ===============//
 
 router.get('/add-address', userAuth, profileController.addAddress)
@@ -103,6 +105,11 @@ router.post('/return-order', checkoutController.returnOrder);
 //=========== product detail page ============//
 
 router.get('/product-detail/:id', productController.loadProductDetail)
+
+//================== wallet =====================//
+
+router.get('/wallet',productController.loadWallet)
+
 
 
 

@@ -56,6 +56,7 @@ router.get('/orders',orderController.loadOrders);
 router.get('/orders/:id',orderController.loadOrderDetail)
 router.patch('/orders/:orderId/status', orderController.updateOrderStatus);
 router.post('/orders/:orderId/return',  orderController.verifyReturnRequest);
+router.post('/orders/:orderId/:itemId/return',  orderController.verifyItemReturnRequest);
 
 
 

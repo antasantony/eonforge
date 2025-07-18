@@ -250,9 +250,13 @@
                         <% (cartItems || []).forEach((item, index)=> { %>
                             <div class="order-item-hover bg-warm-gray p-6 rounded-xl flex flex-col sm:flex-row sm:items-center gap-4"
                                 style="animation-delay: <%= index * 0.1 %>s">
+
+                                <!-- Product Image -->
                                 <img src="<%= item.productImage || '/placeholder-watch.jpg' %>"
                                     alt="<%= item.productName %>"
                                     class="w-20 h-20 object-cover rounded-lg border border-gray-100">
+
+                                <!-- Product Details -->
                                 <div class="flex-1">
                                     <h4 class="text-lg font-semibold text-primary">
                                         <%= item.productName %>
@@ -260,6 +264,8 @@
                                     <p class="text-text-secondary text-sm">
                                         <%= item.brandName || 'Eon Forge' %>
                                     </p>
+
+                                    <!-- Product Specifications -->
                                     <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-text-secondary">
                                         <p>Qty: <%= item.quantity %>
                                         </p>
@@ -267,38 +273,94 @@
                                             <p>Color: <%= item.color %>
                                             </p>
                                             <% } %>
-                                                <% if (item.size) { %>
-                                                    <p>Size: <%= item.size %>
-                                                    </p>
-                                                    <% } %>
+                                            
+                                    </div>
+
+                                
+                                    <div class="mt-3">
+                                        <%
+  const statusStyles = {
+    'Pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'Processing': 'bg-blue-100 text-blue-800 border-blue-200',
+    'Shipped': 'bg-purple-100 text-purple-800 border-purple-200',
+    'Delivered': 'bg-green-100 text-green-800 border-green-200',
+    'Cancelled': 'bg-red-100 text-red-800 border-red-200',
+    'Return Request': 'bg-orange-100 text-orange-800 border-orange-200',
+    'Returned': 'bg-gray-100 text-gray-800 border-gray-200',
+    'Rejected': 'bg-red-200 text-red-900 border-red-300'
+  };
+
+  const statusIcons = {
+    'Pending': 'fa-hourglass-start',
+    'Processing': 'fa-cog fa-spin',
+    'Shipped': 'fa-truck',
+    'Delivered': 'fa-check-circle',
+    'Cancelled': 'fa-times-circle',
+    'Return Request': 'fa-undo',
+    'Returned': 'fa-exchange-alt',
+    'Rejected': 'fa-ban'
+  };
+
+  const status = item.status || 'Processing';
+  const statusClass = statusStyles[status] || 'bg-gray-100 text-gray-800 border-gray-200';
+  const statusIcon = statusIcons[status] || 'fa-question-circle';
+%>
+
+<div class="flex items-center gap-2">
+  <span class="text-sm font-medium text-gray-600">Status:</span>
+  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border <%= statusClass %>">
+    <i class="fas <%= statusIcon %> mr-1"></i>
+    <%= status %>
+  </span>
+</div>
+
+
+                                        <!-- Status Timeline (Optional - shows for active orders) -->
+                                        
                                     </div>
                                 </div>
+
+                                <!-- Price and Actions -->
                                 <div class="flex items-center justify-between sm:justify-end gap-4">
-                                    <p class="text-lg font-semibold text-primary">₹<%= (item.total ||
-                                            0).toLocaleString() %>
-                                    </p>
-                                    <% if (item.discountedPrice) { %>
-                                        <p class="text-xs text-green-600 sm:hidden">Saved ₹<%= ((item.price -
-                                                item.discountedPrice) * item.quantity).toLocaleString() %>
+                                    <div class="text-right">
+                                        <p class="text-lg font-semibold text-primary">₹<%= (item.total ||
+                                                0).toLocaleString() %>
                                         </p>
-                                        <% } %>
-                                            <% if (item.status !=='Cancelled' && item.status !=='Returned' &&
-                                                item.status !=='Rejected' ) { %>
-                                                <% if (order.status==='Delivered' ) { %>
+                                        <% if (item.discountedPrice) { %>
+                                            <p class="text-xs text-green-600">Saved ₹<%= ((item.price -
+                                                    item.discountedPrice) * item.quantity).toLocaleString() %>
+                                            </p>
+                                            <% } %>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="flex flex-col gap-2">
+                                        <% if (item.status !=='Cancelled' && item.status !=='Return Request' && item.status !=='Returned' && item.status
+                                            !=='Rejected' ) { %>
+                                            <% if (order.status==='Delivered' ) { %>
+                                                <button onclick="openReturnModal('<%= orderId %>', '<%= item.id %>')"
+                                                    class="btn-return text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">
+                                                    <i class="fas fa-undo mr-1"></i> Return
+                                                </button>
+                                                <% } else { %>
                                                     <button
-                                                        onclick="openReturnModal('<%= order.orderId %>', '<%= item._id %>')"
-                                                        class="btn-return">
-                                                        <i class="fas fa-undo mr-1"></i> Return
+                                                        class="btn-cancel text-xs px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-md transition-colors"
+                                                        onclick="openCancelModal('<%= orderId %>', '<%= item.id %>', `<%- item.productName %>`)">
+                                                        <i class="fas fa-times mr-1"></i> Cancel
                                                     </button>
-                                                    <% } else { %>
-                                                        <button class="btn-cancel"
-                                                            onclick="openCancelModal('<%= orderId %>', '<%= item.id %>', '<%= item.productName %>')">
-                                                            <i class="fas fa-times"></i> Cancel
-                                                        </button>
+                                                    <% } %>
                                                         <% } %>
-                                                            <% } %>
 
-
+                                                            <!-- Track Order Button (for shipped items) -->
+                                                            <% if (['Shipped', 'In Transit' , 'Out for Delivery'
+                                                                ].includes(item.status)) { %>
+                                                                <button
+                                                                    onclick="trackOrder('<%= orderId %>', '<%= item.id %>')"
+                                                                    class="text-xs px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors">
+                                                                    <i class="fas fa-map-marker-alt mr-1"></i> Track
+                                                                </button>
+                                                                <% } %>
+                                    </div>
                                 </div>
                             </div>
                             <% }) %>
@@ -464,14 +526,18 @@
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            <p class="text-text-secondary mb-4">Please provide a reason for returning Order #<span id="returnOrderId"></span>.</p>
+            <p class="text-text-secondary mb-4">Please provide a reason for returning Order #<span
+                    id="returnOrderId"></span>.</p>
             <div class="mb-4">
-                <label for="returnReason" class="block text-sm font-medium text-primary mb-2">Reason for Return (Required)</label>
-                <textarea id="returnReason" class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent" placeholder="Provide a reason for return"></textarea>
+                <label for="returnReason" class="block text-sm font-medium text-primary mb-2">Reason for Return
+                    (Required)</label>
+                <textarea id="returnReason"
+                    class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
+                    placeholder="Provide a reason for return"></textarea>
             </div>
             <div class="flex justify-end space-x-3">
                 <button onclick="closeReturnModal()" class="btn-secondary">Close</button>
-                <button onclick="confirmReturnOrder()" id="returnConfirmBtn" class="btn-return" >
+                <button onclick="confirmReturnOrder()" id="returnConfirmBtn" class="btn-return">
                     <i class="fas fa-check mr-1"></i> Confirm
                 </button>
             </div>
@@ -547,19 +613,24 @@
 
         // return functionallity
 
-        function openReturnModal(orderId, itemId, productName) {
-    currentOrderId = orderId;
-    currentItemId = itemId;
+        function openReturnModal(orderId, itemId) {
 
-    document.getElementById('returnModal').classList.remove('hidden');
-    document.getElementById('returnModal').classList.add('show');
+            console.log('item return in order detals', itemId)
 
-    document.getElementById('returnReason').value = '';
-    document.getElementById('returnConfirmBtn').disabled = true;
 
-    // Optional: display product name in the modal
-    document.getElementById('returnProductName').textContent = productName || '';
-}
+            currentOrderId = orderId;
+            currentItemId = itemId;
+            document.getElementById('returnOrderId').textContent = itemId;
+
+            document.getElementById('returnModal').classList.remove('hidden');
+            document.getElementById('returnModal').classList.add('show');
+
+            document.getElementById('returnReason').value = '';
+            document.getElementById('returnConfirmBtn').disabled = true;
+
+            // Optional: display product name in the modal
+            document.getElementById('returnProductName').textContent = productName || '';
+        }
 
         function closeReturnModal() {
             const modal = document.getElementById('returnModal');
@@ -571,42 +642,42 @@
                 modalContent.classList.remove('closing');
             }, 300);
         }
-        
+
 
         async function confirmReturnOrder() {
-    const reason = document.getElementById('returnReason').value.trim();
+            const reason = document.getElementById('returnReason').value.trim();
 
-    if (!currentOrderId || !currentItemId || !reason) {
-        alert('Missing order/item ID or reason');
-        return;
-    }
+            if (!currentOrderId || !currentItemId || !reason) {
+                alert('Missing order/item ID or reason');
+                return;
+            }
 
-    try {
-        const response = await fetch('/return-order-item', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                orderId: currentOrderId,
-                itemId: currentItemId,
-                reason
-            })
-        });
+            try {
+                const response = await fetch('/return-order-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: currentOrderId,
+                        itemId: currentItemId,
+                        reason
+                    })
+                });
 
-        const data = await response.json();
+                const data = await response.json();
 
-        if (data.success) {
-            alert('Return request submitted successfully.');
-            location.reload();
-        } else {
-            alert(data.message || 'Failed to submit return request.');
+                if (data.success) {
+                    alert('Return request submitted successfully.');
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to submit return request.');
+                }
+
+                closeReturnModal();
+            } catch (err) {
+                console.error('Return error:', err);
+                alert('Server error');
+            }
         }
-
-        closeReturnModal();
-    } catch (err) {
-        console.error('Return error:', err);
-        alert('Server error');
-    }
-}
 
 
         // Enable return confirm button only if reason is provided

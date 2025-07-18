@@ -96,10 +96,50 @@ if (cart) {
     res.redirect('/pageNotFound');
   }
 }
+const loadWallet = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const isLoggedIn = !!userId;
+    const user = isLoggedIn ? await User.findOne({ _id: userId, isBlocked: false }) : null;
+
+    let walletBalance = 1;
+    let totalDeposits = 0;
+    let totalWithdrawals = 1000;
+    let transactionCount = 100;
+
+    const transactions = [
+      { amount: 500, description: 'Added to wallet' },
+      { amount: 200, description: 'Used for purchase' }
+    ];
+
+    const bonusAmount = 100;
+    const isKycVerified = user?.kycVerified || false;
+    const walletLocked = user?.walletLocked || false;
+const availableWithdrawal = walletBalance - totalWithdrawals + bonusAmount; 
+    res.render('wallet', {
+      user,
+      isLoggedIn,
+      walletBalance,
+      totalDeposits,
+      totalWithdrawals,
+      transactionCount,
+      transactions,
+   kycVerified: isKycVerified,
+      bonusAmount,
+      walletLocked,
+      availableWithdrawal
+    });
+  } catch (error) {
+    console.log('load wallet error', error);
+  }
+};
+
+
 
 
 
 
 module.exports = {
   loadProductDetail,
+  loadWallet
 };
