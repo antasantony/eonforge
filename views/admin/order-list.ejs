@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,34 +41,27 @@
     .stats-card {
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-
     .stats-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
-
     .item-row:hover {
       background: linear-gradient(to right, rgba(243, 244, 246, 0.8), rgba(249, 250, 251, 0.8));
     }
-
     .dropdown {
       display: none;
     }
-
     .dropdown-container:hover .dropdown {
       display: block;
     }
-
     .section-header {
       background: linear-gradient(to right, #f8fafc, #f1f5f9);
     }
-
     .container-shadow {
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
   </style>
 </head>
-
 <body class="font-sans bg-gray-50 text-gray-900">
   <!-- Header -->
   <header class="bg-white shadow-md sticky top-0 z-40 px-6 py-4">
@@ -91,7 +83,6 @@
       </div>
     </div>
   </header>
-
   <!-- Main Content -->
   <main class="max-w-7xl mx-auto p-6">
     <!-- Back Button -->
@@ -101,7 +92,6 @@
         <i class="fas fa-arrow-left mr-2"></i> Back to Orders
       </a>
     </div>
-
     <!-- Order ID -->
     <div class="mb-8">
       <h2 class="text-2xl font-semibold text-gray-800">Order ID: <%= order.orderId %>
@@ -109,7 +99,6 @@
       <p class="text-sm text-gray-600">Placed on <%= new Date(order.createdOn).toLocaleDateString() %>
       </p>
     </div>
-
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="stats-card bg-white rounded-xl p-6 container-shadow animate-slide-up">
@@ -150,315 +139,354 @@
           </div>
         </div>
       </div>
+      <!-- Payment Status Card -->
+      <%
+        let paymentStatusColor = 'yellow'; // Default for pending
+        if (order.paymentStatus === 'paid') paymentStatusColor = 'green';
+        else if (order.paymentStatus === 'failed' || order.paymentStatus === 'cancelled') paymentStatusColor = 'red';
+        else if (order.paymentStatus === 'processing') paymentStatusColor = 'blue';
+        else if (order.paymentStatus === 'refunded') paymentStatusColor = 'gray';
+      %>
       <div class="stats-card bg-white rounded-xl p-6 container-shadow animate-slide-up">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600">Payment Status</p>
-            <h3 class="text-2xl font-bold <%= order.paymentMethod === 'cod' ? 'text-yellow-600' : 'text-green-600' %>">
-              <%= order.paymentMethod==='cod' ? 'Cash on Delivery' : 'Paid' %>
+            <h3 class="text-2xl font-bold text-<%= paymentStatusColor %>-600">
+              <%= order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1) %>
             </h3>
           </div>
-          <div class="bg-<%= order.paymentMethod === 'cod' ? 'yellow' : 'green' %>-100 p-3 rounded-full">
-            <i
-              class="fas fa-credit-card text-<%= order.paymentMethod === 'cod' ? 'yellow' : 'green' %>-600 text-xl"></i>
+          <div class="bg-<%= paymentStatusColor %>-100 p-3 rounded-full">
+            <i class="fas fa-credit-card text-<%= paymentStatusColor %>-600 text-xl"></i>
           </div>
+        </div>
+        <% if (order.paymentMethod === 'cod') { %>
+          <div class="mt-4 text-center">
+            <button onclick="showChangePaymentStatusModal('<%= order.orderId %>', '<%= order.paymentStatus %>')"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary bg-primary/10 border border-primary/20 rounded-lg hover:bg-primary/20 transition-colors duration-200">
+              <i class="fas fa-edit mr-2"></i> Change Payment Status
+            </button>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    <!-- Return Reason Section -->
+    <% if (order.status === 'Return Request' || order.status === 'Returned') { %>
+      <div class="bg-white rounded-xl p-6 container-shadow mb-8 animate-slide-up">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 section-header p-4 rounded-t-lg bg-gray-50 -m-6 mb-4">
+          <i class="fas fa-undo mr-2 text-orange-500"></i>
+          Return Reason
+        </h3>
+        <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg">
+          <p class="text-sm text-gray-700 font-medium">
+            <%= order.cancelReason || 'No reason provided' %>
+          </p>
+        </div>
+      </div>
+    <% } %>
+    <!-- Ordered Items Section -->
+    <div class="bg-white rounded-xl container-shadow overflow-hidden mb-8">
+      <div class="section-header bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+          <i class="fas fa-box mr-2 text-blue-500"></i>
+          Ordered Items
+        </h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Image
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Product Details
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Color
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Quantity
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Price
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Status
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% order.orderItems.forEach((item, index) => { %>
+              <% const variant = item.product?.colorVariants?.find(v => v._id.toString() === item.variantId?.toString()); %>
+              <tr class="item-row hover:bg-gray-50 transition-colors duration-200">
+                <!-- Product Image -->
+                <td class="px-6 py-4">
+                  <div class="flex-shrink-0">
+                    <img src="<%= variant?.productImage?.[0] || '/placeholder.svg?height=64&width=64' %>"
+                      alt="<%= item.product?.productName || 'Product' %>"
+                      class="w-16 h-16 object-cover rounded-lg border border-gray-200 shadow-sm">
+                  </div>
+                </td>
+                <!-- Product Details -->
+                <td class="px-6 py-4">
+                  <div class="text-sm font-medium text-gray-900 mb-1">
+                    <%= item.product?.productName || 'N/A' %>
+                  </div>
+                  <% if (variant?.colorName) { %>
+                    <div class="text-xs text-gray-500">
+                      <i class="fas fa-palette mr-1"></i>
+                      Color: <%= variant.colorName %>
+                    </div>
+                  <% } %>
+                </td>
+                <!-- Color -->
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-700">
+                    <% if (variant?.colorName) { %>
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <%= variant.colorName %>
+                      </span>
+                    <% } else { %>
+                      <span class="text-gray-400">N/A</span>
+                    <% } %>
+                  </div>
+                </td>
+                <!-- Quantity -->
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-700 font-medium">
+                    <i class="fas fa-cubes mr-1 text-gray-400"></i>
+                    <%= item.stock %>
+                  </div>
+                </td>
+                <!-- Price -->
+                <td class="px-6 py-4">
+                  <div class="text-sm font-semibold text-gray-900">
+                    <i class="fas fa-rupee-sign mr-1 text-green-500"></i>
+                    <%= (item.stock * item.price).toFixed(2) %>
+                  </div>
+                </td>
+                <!-- Status -->
+                <td class="px-6 py-4">
+                  <%
+                    const statusStyles = {
+                      'Pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                      'Processing': 'bg-blue-100 text-blue-800 border-blue-200',
+                      'Shipped': 'bg-purple-100 text-purple-800 border-purple-200',
+                      'Delivered': 'bg-green-100 text-green-800 border-green-200',
+                      'Cancelled': 'bg-red-100 text-red-800 border-red-200',
+                      'Return Request': 'bg-orange-100 text-orange-800 border-orange-200',
+                      'Returned': 'bg-gray-100 text-gray-800 border-gray-200',
+                      'Rejected': 'bg-red-200 text-red-900 border-red-300'
+                    };
+                    const statusIcons = {
+                      'Pending': 'fa-hourglass-start',
+                      'Processing': 'fa-cog fa-spin',
+                      'Shipped': 'fa-truck',
+                      'Delivered': 'fa-check-circle',
+                      'Cancelled': 'fa-times-circle',
+                      'Return Request': 'fa-undo',
+                      'Returned': 'fa-exchange-alt',
+                      'Rejected': 'fa-ban',
+                    };
+                    const effectiveStatus = item.status;
+                  %>
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border <%= statusStyles[effectiveStatus] || 'bg-gray-100 text-gray-800 border-gray-200' %>">
+                      <i class="fas <%= statusIcons[effectiveStatus] || 'fa-info-circle' %> mr-1"></i>
+                      <%= effectiveStatus %>
+                    </span>
+                    <% if (effectiveStatus === 'Return Request') { %>
+                      <button onclick="verifyReturn('<%= order.orderId %>', '<%= item.variantId?.toString() %>', `<%- item.returnReason %>`)"
+                              class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 hover:border-orange-300 transition-colors duration-200">
+                        <i class="fas fa-check-double mr-1"></i>
+                        Verify Return
+                      </button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Customer Details Section -->
+    <div class="bg-white rounded-xl p-6 container-shadow animate-slide-up">
+      <div class="section-header bg-gray-50 -mx-6 -mt-6 mb-6 px-6 py-4 rounded-t-xl border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+          <i class="fas fa-user mr-2 text-green-500"></i>
+          Customer Details
+        </h3>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Customer Name -->
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-gray-600 flex items-center">
+            <i class="fas fa-user-circle mr-2 text-gray-400"></i>
+            Name
+          </p>
+          <p class="text-gray-900 font-medium">
+            <%= order.userId?.firstName || 'N/A' %>
+          </p>
+        </div>
+        <!-- Email -->
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-gray-600 flex items-center">
+            <i class="fas fa-envelope mr-2 text-gray-400"></i>
+            Email
+          </p>
+          <p class="text-gray-900 break-all">
+            <%= order.userId?.email || 'N/A' %>
+          </p>
+        </div>
+        <!-- Phone -->
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-gray-600 flex items-center">
+            <i class="fas fa-phone mr-2 text-gray-400"></i>
+            Phone
+          </p>
+          <p class="text-gray-900 font-medium">
+            <%= order.address?.phone || 'N/A' %>
+          </p>
+        </div>
+        <!-- Shipping Address -->
+        <div class="space-y-1 sm:col-span-2">
+          <p class="text-sm font-medium text-gray-600 flex items-center">
+            <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+            Shipping Address
+          </p>
+          <p class="text-gray-900 leading-relaxed">
+            <% if (order.address) { %>
+              <%= order.address.street %>,<br>
+              <%= order.address.city %>, <%= order.address.state %>,<br>
+              <%= order.address.pin %>, <%= order.address.country %>
+            <% } else { %>
+              N/A
+            <% } %>
+          </p>
+        </div>
+        <!-- Address Type -->
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-gray-600 flex items-center">
+            <i class="fas fa-home mr-2 text-gray-400"></i>
+            Address Type
+          </p>
+          <p class="text-gray-900">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <%= order.address?.addressType || 'N/A' %>
+            </span>
+          </p>
+        </div>
+        <!-- Payment Method -->
+        <div class="space-y-1">
+          <p class="text-sm font-medium text-gray-600 flex items-center">
+            <i class="fas fa-credit-card mr-2 text-gray-400"></i>
+            Payment Method
+          </p>
+          <p class="text-gray-900">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <%= order.paymentMethod ? (order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1)) : 'N/A' %>
+            </span>
+          </p>
         </div>
       </div>
     </div>
-
-   <!-- Return Reason Section -->
-<% if (order.status === 'Return Request' || order.status === 'Returned') { %>
-  <div class="bg-white rounded-xl p-6 container-shadow mb-8 animate-slide-up">
-    <h3 class="text-lg font-semibold text-gray-800 mb-4 section-header p-4 rounded-t-lg bg-gray-50 -m-6 mb-4">
-      <i class="fas fa-undo mr-2 text-orange-500"></i>
-      Return Reason
-    </h3>
-    <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg">
-      <p class="text-sm text-gray-700 font-medium">
-        <%= order.cancelReason || 'No reason provided' %>
-      </p>
-    </div>
-  </div>
-<% } %>
-
-<!-- Ordered Items Section -->
-<div class="bg-white rounded-xl container-shadow overflow-hidden mb-8">
-  <div class="section-header bg-gray-50 px-6 py-4 border-b border-gray-200">
-    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-      <i class="fas fa-box mr-2 text-blue-500"></i>
-      Ordered Items
-    </h3>
-  </div>
-  
-  <div class="overflow-x-auto">
-    <table class="w-full">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-            Image
-          </th>
-          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-            Product Details
-          </th>
-          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-            Color
-          </th>
-          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-            Quantity
-          </th>
-          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-            Price
-          </th>
-          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-            Status
-          </th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <% order.orderItems.forEach((item, index) => { %>
-          <% const variant = item.product?.colorVariants?.find(v => v._id.toString() === item.variantId?.toString()); %>
-          <tr class="item-row hover:bg-gray-50 transition-colors duration-200">
-            <!-- Product Image -->
-            <td class="px-6 py-4">
-              <div class="flex-shrink-0">
-                <img src="<%= variant?.productImage?.[0] || '/images/placeholder.jpg' %>"
-                     alt="<%= item.product?.productName || 'Product' %>"
-                     class="w-16 h-16 object-cover rounded-lg border border-gray-200 shadow-sm">
-              </div>
-            </td>
-            
-            <!-- Product Details -->
-            <td class="px-6 py-4">
-              <div class="text-sm font-medium text-gray-900 mb-1">
-                <%= item.product?.productName || 'N/A' %>
-              </div>
-              <% if (variant?.colorName) { %>
-                <div class="text-xs text-gray-500">
-                  <i class="fas fa-palette mr-1"></i>
-                  Color: <%= variant.colorName %>
-                </div>
-              <% } %>
-            </td>
-            
-            <!-- Color -->
-            <td class="px-6 py-4">
-              <div class="text-sm text-gray-700">
-                <% if (variant?.colorName) { %>
-                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    <%= variant.colorName %>
-                  </span>
-                <% } else { %>
-                  <span class="text-gray-400">N/A</span>
-                <% } %>
-              </div>
-            </td>
-            
-            <!-- Quantity -->
-            <td class="px-6 py-4">
-              <div class="text-sm text-gray-700 font-medium">
-                <i class="fas fa-cubes mr-1 text-gray-400"></i>
-                <%= item.stock %>
-              </div>
-            </td>
-            
-            <!-- Price -->
-            <td class="px-6 py-4">
-              <div class="text-sm font-semibold text-gray-900">
-                <i class="fas fa-rupee-sign mr-1 text-green-500"></i>
-                <%= (item.stock * item.price).toFixed(2) %>
-              </div>
-            </td>
-            
-            <!-- Status -->
-            <td class="px-6 py-4">
-              <%
-                const statusStyles = {
-                  'Pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                  'Processing': 'bg-blue-100 text-blue-800 border-blue-200',
-                  'Shipped': 'bg-purple-100 text-purple-800 border-purple-200',
-                  'Delivered': 'bg-green-100 text-green-800 border-green-200',
-                  'Cancelled': 'bg-red-100 text-red-800 border-red-200',
-                  'Return Request': 'bg-orange-100 text-orange-800 border-orange-200',
-                  'Returned': 'bg-gray-100 text-gray-800 border-gray-200',
-                  'Rejected': 'bg-red-200 text-red-900 border-red-300'
-                };
-                
-                const statusIcons = {
-                  'Pending': 'fa-hourglass-start',
-                  'Processing': 'fa-cog fa-spin',
-                  'Shipped': 'fa-truck',
-                  'Delivered': 'fa-check-circle',
-                  'Cancelled': 'fa-times-circle',
-                  'Return Request': 'fa-undo',
-                  'Returned': 'fa-exchange-alt',
-                  'Rejected': 'fa-ban',
-                  
-                };
-                
-                const effectiveStatus = item.status 
-              %>
-              
-              <div class="flex items-center gap-3">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border <%= statusStyles[effectiveStatus] || 'bg-gray-100 text-gray-800 border-gray-200' %>">
-                  <i class="fas <%= statusIcons[effectiveStatus] || 'fa-info-circle' %> mr-1"></i>
-                  <%= effectiveStatus %>
-                </span>
-                
-                <% if (effectiveStatus === 'Return Request') { %>
-                  <button onclick="verifyReturn('<%= order.orderId %>', '<%= item.variantId?.toString() %>', `<%- item.returnReason %>`)"
-                          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 hover:border-orange-300 transition-colors duration-200">
-                    <i class="fas fa-check-double mr-1"></i>
-                    Verify Return
-                  </button>
-                <% } %>
-              </div>
-            </td>
-          </tr>
-        <% }); %>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Customer Details Section -->
-<div class="bg-white rounded-xl p-6 container-shadow animate-slide-up">
-  <div class="section-header bg-gray-50 -mx-6 -mt-6 mb-6 px-6 py-4 rounded-t-xl border-b border-gray-200">
-    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-      <i class="fas fa-user mr-2 text-green-500"></i>
-      Customer Details
-    </h3>
-  </div>
-  
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Customer Name -->
-    <div class="space-y-1">
-      <p class="text-sm font-medium text-gray-600 flex items-center">
-        <i class="fas fa-user-circle mr-2 text-gray-400"></i>
-        Name
-      </p>
-      <p class="text-gray-900 font-medium">
-        <%= order.userId?.firstName || 'N/A' %>
-      </p>
-    </div>
-    
-    <!-- Email -->
-    <div class="space-y-1">
-      <p class="text-sm font-medium text-gray-600 flex items-center">
-        <i class="fas fa-envelope mr-2 text-gray-400"></i>
-        Email
-      </p>
-      <p class="text-gray-900 break-all">
-        <%= order.userId?.email || 'N/A' %>
-      </p>
-    </div>
-    
-    <!-- Phone -->
-    <div class="space-y-1">
-      <p class="text-sm font-medium text-gray-600 flex items-center">
-        <i class="fas fa-phone mr-2 text-gray-400"></i>
-        Phone
-      </p>
-      <p class="text-gray-900 font-medium">
-        <%= order.address?.phone || 'N/A' %>
-      </p>
-    </div>
-    
-    <!-- Shipping Address -->
-    <div class="space-y-1 sm:col-span-2">
-      <p class="text-sm font-medium text-gray-600 flex items-center">
-        <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
-        Shipping Address
-      </p>
-      <p class="text-gray-900 leading-relaxed">
-        <% if (order.address) { %>
-          <%= order.address.street %>,<br>
-          <%= order.address.city %>, <%= order.address.state %>,<br>
-          <%= order.address.pin %>, <%= order.address.country %>
-        <% } else { %>
-          N/A
-        <% } %>
-      </p>
-    </div>
-    
-    <!-- Address Type -->
-    <div class="space-y-1">
-      <p class="text-sm font-medium text-gray-600 flex items-center">
-        <i class="fas fa-home mr-2 text-gray-400"></i>
-        Address Type
-      </p>
-      <p class="text-gray-900">
-        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          <%= order.address?.addressType || 'N/A' %>
-        </span>
-      </p>
-    </div>
-    
-    <!-- Payment Method -->
-    <div class="space-y-1">
-      <p class="text-sm font-medium text-gray-600 flex items-center">
-        <i class="fas fa-credit-card mr-2 text-gray-400"></i>
-        Payment Method
-      </p>
-      <p class="text-gray-900">
-        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          <%= order.paymentMethod ? (order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1)) : 'N/A' %>
-        </span>
-      </p>
-    </div>
-  </div>
-</div>
   </main>
 </body>
 <script>
-   function verifyReturn(orderId, itemId, returnReason) {
-  Swal.fire({
-    title: 'Verify Return Request',
-    html: `<b>Reason:</b> ${returnReason}`,
-    icon: 'question',
-    showCancelButton: true,
-    showCloseButton: true,
-    confirmButtonText: 'Approve',
-    cancelButtonText: 'Reject',
-  }).then(async (result) => {
-
-   
-    if (result.isConfirmed) {
-      console.log('Approved clicked');
-      return sendVerify(orderId, itemId, true);
-    }
-
-
-    if (result.dismiss === Swal.DismissReason.cancel) {
-      console.log('Reject clicked');
-      return sendVerify(orderId, itemId, false);
-    }
-
-    // ❌ Dismissed other ways (click outside, press Esc)
-    console.log('Modal dismissed without action');
-  });
-}
-
-async function sendVerify(orderId, itemId, approved) {
-  try {
-    const res = await fetch(`/admin/orders/${orderId}/${itemId}/return`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ approved })
+  function verifyReturn(orderId, itemId, returnReason) {
+    Swal.fire({
+      title: 'Verify Return Request',
+      html: `<b>Reason:</b> ${returnReason}`,
+      icon: 'question',
+      showCancelButton: true,
+      showCloseButton: true,
+      confirmButtonText: 'Approve',
+      cancelButtonText: 'Reject',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        console.log('Approved clicked');
+        return sendVerify(orderId, itemId, true);
+      }
+      if (result.dismiss === Swal.DismissReason.cancel) {
+        console.log('Reject clicked');
+        return sendVerify(orderId, itemId, false);
+      }
+      console.log('Modal dismissed without action');
     });
-
-    const data = await res.json();
-    Swal.close();
-
-    if (data.success) {
-      Swal.fire('Success', approved ? 'Return approved and refunded!' : 'Return rejected!', 'success').then(() => location.reload());
-    } else {
-      Swal.fire('Error', data.message || 'Failed to process return', 'error');
-    }
-  } catch (err) {
-    Swal.fire('Error', 'Failed to process return', 'error');
   }
-}
 
+  async function sendVerify(orderId, itemId, approved) {
+    try {
+      const res = await fetch(`/admin/orders/${orderId}/${itemId}/return`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approved })
+      });
+      const data = await res.json();
+      Swal.close();
+      if (data.success) {
+        Swal.fire('Success', approved ? 'Return approved and refunded!' : 'Return rejected!', 'success').then(() => location.reload());
+      } else {
+        Swal.fire('Error', data.message || 'Failed to process return', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', 'Failed to process return', 'error');
+    }
+  }
+
+  function showChangePaymentStatusModal(orderId, currentStatus) {
+     console.log('Current Payment Status:', currentStatus); 
+    Swal.fire({
+      title: 'Change Payment Status',
+      html: `Current Status: <b>${currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)}</b>`,
+      icon: 'info',
+      showCancelButton: true,
+      showDenyButton: true, // For 'Mark as Failed'
+      confirmButtonText: 'Mark as Paid',
+      denyButtonText: 'Mark as Failed',
+      cancelButtonText: 'Keep Current',
+      customClass: {
+        confirmButton: 'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm',
+        denyButton: 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm',
+        cancelButton: 'bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md shadow-sm'
+      },
+      buttonsStyling: false // Disable default SweetAlert styling to use Tailwind classes
+    }).then(async (result) => {
+      let newStatus = '';
+      if (result.isConfirmed) {
+        newStatus = 'paid';
+      } else if (result.isDenied) {
+        newStatus = 'failed';
+      }
+
+      if (newStatus) {
+        console.log(`Changing payment status to: ${newStatus}`); 
+        await updatePaymentStatus(orderId, newStatus);
+          console.log(`Changing payment status to: ${newStatus}`);
+      } else {
+        console.log('Payment status change cancelled.');
+      }
+    });
+  }
+
+  async function updatePaymentStatus(orderId, newStatus) {
+    try {
+      const res = await fetch(`/admin/orders/${orderId}/payment-status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentStatus: newStatus })
+      });
+      const data = await res.json();
+      Swal.close();
+      if (data.success) {
+        Swal.fire('Success', `Payment status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}!`, 'success').then(() => location.reload());
+      } else {
+        Swal.fire('Error', data.message || 'Failed to update payment status', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', 'Failed to update payment status', 'error');
+    }
+  }
 </script>
-
 </html>

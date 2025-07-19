@@ -44,6 +44,8 @@ const loadCheckout = async (req, res) => {
                 console.error(`Product or variant not found for item: ${item._id}`);
                 return null;
             }
+const latestPrice = variant.offerPrice > 0 ? variant.offerPrice : variant.originalPrice;
+const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
 
             return {
                 id: item._id.toString(),
@@ -52,9 +54,9 @@ const loadCheckout = async (req, res) => {
                 productName: product.productName || 'N/A',
                 productImage: variant.productImage?.[0] || '/placeholder.svg?height=160&width=160',
                 color: variant.colorName || 'N/A',
-                price: item.price,
-                quantity: item.quantity !== undefined ? item.quantity : item.stock || 1,
-                total: item.totalPrice,
+                price: latestPrice,
+                quantity,
+                total: latestPrice*quantity,
                 brandName: product.brand?.brandName || 'N/A',
                 stock: variant.stock,
                 status: variant.stock > 0 ? 'Available' : 'Out of Stock'
@@ -78,14 +80,15 @@ const loadCheckout = async (req, res) => {
 
         console.log('checkout username', defaultAddress)
 
-        let subtotal = 0;
-        if (cartData && cartData.items.length > 0) {
-            subtotal = cartData.items.reduce((sum, item) => sum + item.totalPrice, 0);
-        }
+      let subtotal = 0;
+if (cartItems.length > 0) {
+  subtotal = cartItems.reduce((sum, item) => sum + (item.total || 0), 0);
+}
+console.log('subtotla needed', subtotal);
 
-        const deliveryFee = 50;
-        const totalAmount = subtotal + deliveryFee;
-
+const deliveryFee = 50;
+const totalAmount = subtotal + deliveryFee;
+console.log('checkout page total', totalAmount);
 
         res.render('checkout', {
             userName,
@@ -579,17 +582,17 @@ const cancelOrderItem = async (req, res) => {
       return res.json({ success: false, message: 'Item already cancelled' });
     }
 
-    // Update item status and reason
+    
     item.status = 'Cancelled';
     item.cancelReason = reason || null;
 
-    // ✅ Return stock to inventory
+    
     await Product.updateOne(
       { _id: item.product, 'colorVariants._id': item.variantId },
       { $inc: { 'colorVariants.$.stock': item.stock } }
     );
 
-    // ✅ Optional: If all items cancelled, update order status too
+    
     const allCancelled = order.orderItems.every(i => i.status === 'Cancelled');
     if (allCancelled) {
       order.status = 'Cancelled';
@@ -695,29 +698,32 @@ const cancelOrder = async (req, res) => {
 
 
 
-// Return Order
+  //     Return Order
 const returnOrder = async (req, res) => {
     try {
         const { orderId, reason } = req.body;
-
-        // Validate return reason
+  console.log('why it is not working',orderId,reason)
+       
         if (!reason || reason.trim() === '') {
             return res.status(400).json({ success: false, message: 'Return reason is required' });
         }
 
-        // Find the order
+
         const order = await Order.findOne({ orderId });
+        console.log('order upadating for return',order)
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
         // Allow return only if the order status is 'Delivered'
-        if (order.status !== 'Delivered') {
-            return res.status(400).json({ success: false, message: 'Only delivered orders can be returned' });
-        }
+        // if (order.status !== 'Delivered') {
+        //     return res.status(400).json({ success: false, message: 'Only delivered orders can be returned' });
+        // }
 
         // Update overall order status
         order.status = 'Return Request';
+        order.returnStatus="Requested"
+        order.returnReason=reason
 
         // Update each item's return status and reason
         order.orderItems.forEach(item => {
@@ -725,10 +731,9 @@ const returnOrder = async (req, res) => {
             item.returnReason = reason;
         });
 
-        // Save changes
+       
         await order.save();
-
-        // Send success response
+        
         res.json({ success: true, message: 'Return request submitted successfully' });
 
     } catch (err) {

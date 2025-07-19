@@ -4,6 +4,7 @@ const Category = require('../../models/categorySchema');
 const Brand = require('../../models/brandSchema');
 const Cart = require('../../models/cartSchema')
 const Wishlist = require('../../models/wishlistSchema')
+const Wallet= require('../../models/walletSchema')
 
 
 const loadProductDetail = async (req, res) => {
@@ -135,11 +136,21 @@ const availableWithdrawal = walletBalance - totalWithdrawals + bonusAmount;
 };
 
 
+const refundToWallet= async (req,res) => {
+  try {
+    const{wallet}=req.body
+
+  } catch (error) {
+    console.log('error from refund to wallet',error)
+  }
+}
+
 
 
 
 
 module.exports = {
   loadProductDetail,
-  loadWallet
+  loadWallet,
+  refundToWallet
 };

@@ -29,6 +29,7 @@ const addToCart = async (req, res) => {
     const quantity = 1; // Start with quantity 1
     const rawPrice = selectedVariant.offerPrice ?? selectedVariant.regularPrice;
     const price = Number(rawPrice);
+    
 
     if (!price || isNaN(price)) {
       return res.status(400).json({ message: 'Invalid price for selected variant' });
@@ -118,6 +119,7 @@ const loadCart = async (req, res) => {
         }
       });
 
+
     if (!cartData || !cartData.items.length) {
       console.log('No cart found or cart is empty for user:', userId);
       return res.render('cart', { cartItems: [] });
@@ -129,11 +131,13 @@ const loadCart = async (req, res) => {
         v => v._id.toString() === item.variantId.toString()
       );
 
+      const latestPrice = variant.offerPrice ?? variant.regularPrice;
+console.log('latest price is valid',latestPrice)
       if (!product || !variant) {
         console.error(`Product or variant not found for item: ${item._id}`);
         return null;
       }
-
+const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
       const cartItem = {
         id: item._id.toString(),
         productId: product._id.toString(),
@@ -141,9 +145,9 @@ const loadCart = async (req, res) => {
         productName: product.productName || 'N/A',
         productImage: variant.productImage?.[0] || '/placeholder.svg?height=160&width=160',
         color: variant.colorName || 'N/A',
-        price: item.price,
-        quantity: item.quantity !== undefined ? item.quantity : item.stock || 1,
-        total: item.totalPrice,
+        price: latestPrice,
+        quantity,
+       total: latestPrice * quantity,
         brandName: product.brand?.brandName || 'N/A',
         stock: variant.stock,
         status: variant.stock > 0 ? 'Available' : 'Out of Stock'
@@ -153,6 +157,7 @@ const loadCart = async (req, res) => {
       return cartItem;
     }).filter(Boolean);
 
+    
     console.log('Final cartItems:', JSON.stringify(cartItems, null, 2));
     res.render('cart', { cartItems });
   } catch (error) {

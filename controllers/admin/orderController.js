@@ -75,7 +75,7 @@ const loadOrderDetail = async (req, res) => {
     });
 
     // Determine final status based on priority
-    const priority = ["Processing", "Shipped", "Delivered", "Return Request", "Returned", "Cancelled", "Rejected"];
+    const priority = ["Pending","Processing", "Shipped", "Delivered", "Return Request", "Returned", "Cancelled", "Rejected"];
     const statusRank = {};
     priority.forEach((s, i) => statusRank[s] = i);
 
@@ -92,6 +92,7 @@ const loadOrderDetail = async (req, res) => {
       await Order.findByIdAndUpdate(order._id, { status: finalStatus });
       order.status = finalStatus; // Update local copy too for rendering
     }
+order.paymentStatus = order.paymentStatus || 'pending';
 
     console.log('Order after status check:', order);
 
@@ -211,12 +212,39 @@ console.log('After save:', item.status);
 };
 
 
+const updatePaymentStatus = async (req, res) => {
+  const { orderId } = req.params;
+  const { paymentStatus } = req.body;
+   console.log('paystatus is getting in this page',req.body)
+   console.log('Incoming payment status update:', orderId, paymentStatus); 
+  try {
+    const validStatuses = ['pending', 'processing', 'paid', 'failed', 'refunded', 'cancelled', 'partial'];
+    if (!validStatuses.includes(paymentStatus)) {
+      return res.status(400).json({ success: false, message: 'Invalid status' });
+    }
+
+
+    const order = await Order.findOne({orderId})
+    console.log('why not gettying order id',order)
+
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+       order.paymentStatus=paymentStatus;
+       await order.save()
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error updating payment status:', err);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+
 
 module.exports = {
     loadOrders,
     loadOrderDetail,
     updateOrderStatus,
     verifyReturnRequest,
-    verifyItemReturnRequest
+    verifyItemReturnRequest,
+    updatePaymentStatus
 
 }

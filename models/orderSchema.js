@@ -42,7 +42,7 @@ const orderSchema = new Schema({
         },
         returnStatus: {
             type: String,
-            enum: ['None', "Return Request", 'Approved', 'Rejected'],
+            enum: ['None', "Requested", 'Approved', 'Rejected'],
             default: 'None'
         },
         returnReason: {
@@ -99,6 +99,11 @@ const orderSchema = new Schema({
             default: false
         }
     },
+    paymentStatus: {
+    type: String,
+    enum: ['pending', 'processing', 'paid', 'failed', 'cancelled', 'refunded', 'partial'],
+    default: 'pending'
+  },
     paymentMethod: {
         type: String,
         enum: ['cod', 'upi', 'netbanking', 'card'],
