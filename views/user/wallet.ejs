@@ -101,74 +101,101 @@
             border-color: #d4af37;
             color: #d4af37;
         }
+        .btn-amount {
+            background: #f1f5f9;
+            color: #2d2d2d;
+            border: 1px solid #e2e8f0;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-amount:hover {
+            background: #d4af37;
+            color: #fff;
+            border-color: #d4af37;
+        }
+        .btn-amount.active {
+            background: #d4af37;
+            color: #fff;
+            border-color: #d4af37;
+        }
         .swal2-popup {
             border-radius: 0.75rem !important;
-            padding: 1.5rem !important;
+            padding: 2rem !important;
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
         .swal2-title {
             font-family: 'Poppins', sans-serif !important;
             color: #1a1a1a !important;
+            font-size: 1.5rem !important;
+        }
+        .swal2-html-container {
+            font-family: 'Inter', sans-serif !important;
         }
         .skeleton {
             animation: pulse 1.5s infinite;
             background: #e5e7eb;
             border-radius: 0.5rem;
         }
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
- <%- include("../../views/partials/user/header") %>
 <body class="gradient-bg min-h-screen font-inter text-text-primary">
-    <div class="py-12">
-        <div class="container mx-auto px-4">
+    <%- include("../../views/partials/user/header") %>
+    <div class="py-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center animate-fade-in">
-                <h1 class="text-3xl md:text-4xl font-poppins font-bold text-primary mb-2">My Wallet</h1>
-                <p class="text-lg text-text-secondary">Securely manage your funds and track transactions</p>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-poppins font-bold text-primary mb-3">My Wallet</h1>
+                <p class="text-lg text-text-secondary max-w-md mx-auto">Securely manage your funds and track your transactions with ease.</p>
             </div>
         </div>
     </div>
 
-    <div class="container mx-auto px-4 pb-16">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <!-- Wallet Summary -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl p-6 card-shadow animate-slide-up">
-                    <div class="flex items-center justify-center mb-4">
-                        <i class="fas fa-wallet text-accent text-3xl mr-2"></i>
-                        <h2 class="text-xl font-poppins font-semibold text-primary">Wallet Balance</h2>
+                <div class="bg-white rounded-2xl p-8 card-shadow animate-slide-up">
+                    <div class="flex items-center justify-center mb-6">
+                        <i class="fas fa-wallet text-accent text-4xl mr-3"></i>
+                        <h2 class="text-2xl font-poppins font-semibold text-primary">Wallet Balance</h2>
                     </div>
-                    <p class="text-4xl font-bold text-accent text-center mb-4" id="walletBalance">₹<%= walletBalance.toLocaleString() %></p>
-                    <p class="text-sm text-text-secondary text-center mb-6">Available for Withdrawal / Use</p>
-                    <div class="flex gap-4">
-                        <button onclick="showAddFunds()" class="flex-1 btn-primary"><i class="fas fa-plus-circle mr-2"></i>Add Money</button>
-                        <button onclick="showWithdraw()" class="flex-1 btn-secondary" <%= !kycVerified ? 'disabled' : '' %>><i class="fas fa-minus-circle mr-2"></i>Withdraw</button>
-                    </div>
+                    <p class="text-5xl font-bold text-accent text-center mb-6" id="walletBalance">₹<%= walletBalance.toLocaleString() %></p>
+                    <p class="text-sm text-text-secondary text-center mb-8">Available for Use</p>
+                    <button onclick="showAddFunds()" class="btn-primary w-full"><i class="fas fa-plus-circle mr-2"></i>Add Money</button>
                     <% if (!kycVerified) { %>
-                        <div class="mt-4 p-4 bg-red-50 rounded-lg text-center">
-                            <p class="text-sm text-red-600">Please verify your identity to withdraw money. <a href="/manage-accounts" class="underline">Manage Bank Accounts / UPI</a></p>
+                        <div class="mt-6 p-4 bg-red-50 rounded-lg text-center">
+                            <p class="text-sm text-red-600">Please verify your identity. <a href="/manage-accounts" class="underline font-medium">Manage Bank Accounts / UPI</a></p>
                         </div>
                     <% } %>
                 </div>
             </div>
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-xl p-6 card-shadow animate-slide-up" style="animation-delay: 0.1s;">
-                    <h3 class="text-xl font-poppins font-semibold text-primary mb-6 flex items-center">
-                        <i class="fas fa-chart-pie text-accent mr-2"></i>Wallet Summary
+                <div class="bg-white rounded-2xl p-8 card-shadow animate-slide-up" style="animation-delay: 0.1s;">
+                    <h3 class="text-2xl font-poppins font-semibold text-primary mb-6 flex items-center">
+                        <i class="fas fa-chart-pie text-accent mr-3"></i>Wallet Summary
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="bg-neutral rounded-lg p-4 text-center">
-                            <i class="fas fa-arrow-up text-accent text-lg mb-2"></i>
-                            <p class="text-2xl font-bold text-primary" id="totalDeposits">₹<%= totalDeposits.toLocaleString() %></p>
-                            <p class="text-sm text-text-secondary">Total Deposits</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div class="bg-neutral rounded-lg p-6 text-center glassmorphism">
+                            <i class="fas fa-arrow-up text-accent text-xl mb-3"></i>
+                            <p class="text-3xl font-bold text-primary" id="totalDeposits">₹<%= totalDeposits.toLocaleString() %></p>
+                            <p class="text-sm text-text-secondary mt-2">Total Deposits</p>
                         </div>
-                        <div class="bg-neutral rounded-lg p-4 text-center">
-                            <i class="fas fa-arrow-down text-accent text-lg mb-2"></i>
-                            <p class="text-2xl font-bold text-primary" id="totalWithdrawals">₹<%= totalWithdrawals.toLocaleString() %></p>
-                            <p class="text-sm text-text-secondary">Total Withdrawals</p>
+                        <div class="bg-neutral rounded-lg p-6 text-center glassmorphism">
+                            <i class="fas fa-arrow-down text-accent text-xl mb-3"></i>
+                            <p class="text-3xl font-bold text-primary" id="totalWithdrawals">₹<%= totalWithdrawals.toLocaleString() %></p>
+                            <p class="text-sm text-text-secondary mt-2">Total Withdrawals</p>
                         </div>
-                        <div class="bg-neutral rounded-lg p-4 text-center">
-                            <i class="fas fa-gift text-accent text-lg mb-2"></i>
-                            <p class="text-2xl font-bold text-primary" id="availableWithdrawal">₹<%= availableWithdrawal.toLocaleString() %></p>
-                            <p class="text-sm text-text-secondary">Available for Withdrawal</p>
+                        <div class="bg-neutral rounded-lg p-6 text-center glassmorphism">
+                            <i class="fas fa-gift text-accent text-xl mb-3"></i>
+                            <p class="text-3xl font-bold text-primary" id="availableWithdrawal">₹<%= availableWithdrawal.toLocaleString() %></p>
+                            <p class="text-sm text-text-secondary mt-2">Available for Withdrawal</p>
                         </div>
                     </div>
                 </div>
@@ -176,30 +203,28 @@
         </div>
 
         <!-- Transaction History and Actions -->
-        <div class="bg-white rounded-xl p-6 card-shadow animate-slide-up" style="animation-delay: 0.2s;">
+        <div class="bg-white rounded-2xl p-8 card-shadow animate-slide-up" style="animation-delay: 0.2s;">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-poppins font-semibold text-primary flex items-center">
-                    <i class="fas fa-history text-accent mr-2"></i>Recent Transactions
+                <h3 class="text-2xl font-poppins font-semibold text-primary flex items-center">
+                    <i class="fas fa-history text-accent mr-3"></i>Recent Transactions
                 </h3>
                 <button onclick="openTransactionHistoryModal()" class="btn-primary"><i class="fas fa-list mr-2"></i>View All</button>
             </div>
             <!-- Filters and Sorting -->
-            <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                <select id="typeFilter" class="border rounded-lg p-2 text-sm text-text-secondary">
+            <div class="flex flex-wrap gap-4 mb-8">
+                <select id="typeFilter" class="border rounded-lg p-3 text-sm text-text-secondary bg-neutral focus:ring-2 focus:ring-accent">
                     <option value="">All Types</option>
-                    <option value="deposit">Deposit</option>
-                    <option value="withdrawal">Withdrawal</option>
-                    <option value="refund">Refund</option>
-                    <option value="purchase">Purchase</option>
+                    <option value="credit">Credit</option>
+                    <option value="debit">Debit</option>
                 </select>
-                <select id="statusFilter" class="border rounded-lg p-2 text-sm text-text-secondary">
+                <select id="statusFilter" class="border rounded-lg p-3 text-sm text-text-secondary bg-neutral focus:ring-2 focus:ring-accent">
                     <option value="">All Status</option>
                     <option value="success">Success</option>
                     <option value="pending">Pending</option>
                     <option value="failed">Failed</option>
                 </select>
-                <input type="date" id="dateFilter" class="border rounded-lg p-2 text-sm text-text-secondary" placeholder="Select Date">
-                <select id="sortBy" class="border rounded-lg p-2 text-sm text-text-secondary">
+                <input type="date" id="dateFilter" class="border rounded-lg p-3 text-sm text-text-secondary bg-neutral focus:ring-2 focus:ring-accent" placeholder="Select Date">
+                <select id="sortBy" class="border rounded-lg p-3 text-sm text-text-secondary bg-neutral focus:ring-2 focus:ring-accent">
                     <option value="date-desc">Date (Newest)</option>
                     <option value="date-asc">Date (Oldest)</option>
                     <option value="amount-desc">Amount (High to Low)</option>
@@ -214,20 +239,41 @@
             </div>
             <!-- Transaction Preview -->
             <div id="transactionPreview" class="space-y-4">
-                <div class="text-center py-8">
-                    <i class="fas fa-history text-accent text-3xl mb-4"></i>
-                    <p class="text-lg font-poppins text-primary">No transactions yet</p>
-                    <p class="text-sm text-text-secondary">Add funds to get started</p>
-                </div>
+                <% if (transactions.length === 0) { %>
+                    <div class="text-center py-12">
+                        <i class="fas fa-history text-accent text-4xl mb-4"></i>
+                        <p class="text-xl font-poppins text-primary">No transactions yet</p>
+                        <p class="text-sm text-text-secondary">Add funds to get started</p>
+                    </div>
+                <% } else { %>
+                    <% transactions.slice(0, 3).forEach(tx => { %>
+                        <div class="transaction-card bg-neutral rounded-lg p-5 flex justify-between items-center glassmorphism">
+                            <div>
+                                <p class="font-semibold text-primary flex items-center">
+                                    <%= tx.type === 'credit' ? '<i class="fas fa-arrow-down text-green-600 mr-3"></i>' : '<i class="fas fa-arrow-up text-red-600 mr-3"></i>' %>
+                                    <%= tx.orderId ? `Order #${tx.orderId}` : `TXN${tx._id}` %>
+                                </p>
+                                <p class="text-sm text-text-secondary mt-1"><%= new Date(tx.date).toLocaleString() %></p>
+                                <p class="text-sm text-text-secondary mt-1"><%= tx.description %></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-semibold <%= tx.type === 'credit' ? 'text-green-600' : 'text-red-600' %>">
+                                    <%= tx.type === 'credit' ? '+' : '-' %>₹<%= Math.abs(tx.amount).toLocaleString() %>
+                                </p>
+                                <p class="text-sm text-text-secondary mt-1"><%= tx.status.charAt(0).toUpperCase() + tx.status.slice(1) %></p>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
             </div>
         </div>
 
         <!-- Account Management -->
-        <div class="bg-white rounded-xl p-6 card-shadow animate-slide-up mt-6" style="animation-delay: 0.3s;">
-            <h3 class="text-xl font-poppins font-semibold text-primary mb-4 flex items-center">
-                <i class="fas fa-shield-alt text-accent mr-2"></i>Account Management
+        <div class="bg-white rounded-2xl p-8 card-shadow animate-slide-up mt-8" style="animation-delay: 0.3s;">
+            <h3 class="text-2xl font-poppins font-semibold text-primary mb-6 flex items-center">
+                <i class="fas fa-shield-alt text-accent mr-3"></i>Account Management
             </h3>
-            <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex flex-wrap gap-4">
                 <a href="/manage-accounts" class="btn-secondary"><i class="fas fa-university mr-2"></i>Manage Bank Accounts / UPI</a>
                 <button onclick="exportTransactions()" class="btn-secondary"><i class="fas fa-download mr-2"></i>Export Transactions (CSV)</button>
                 <a href="/help" class="btn-secondary"><i class="fas fa-question-circle mr-2"></i>Help & FAQs</a>
@@ -236,29 +282,27 @@
     </div>
 
     <!-- Transaction History Modal -->
-    <div id="transactionHistoryModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl p-6 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto animate-slide-up">
+    <div id="transactionHistoryModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto animate-slide-up">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-poppins font-semibold text-primary">Transaction History</h3>
-                <button onclick="closeTransactionHistoryModal()" class="text-text-secondary hover:text-primary text-2xl">×</button>
+                <h3 class="text-2xl font-poppins font-semibold text-primary">Transaction History</h3>
+                <button onclick="closeTransactionHistoryModal()" class="text-text-secondary hover:text-primary text-3xl transition-colors">&times;</button>
             </div>
             <!-- Filters in Modal -->
-            <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                <select id="modalTypeFilter" class="border rounded-lg p-2 text-sm text-text-secondary">
+            <div class="flex flex-wrap gap-4 mb-8">
+                <select id="modalTypeFilter" class="border rounded-lg p-3 text-sm text-text-secondary bg-neutral focus:ring-2 focus:ring-accent">
                     <option value="">All Types</option>
-                    <option value="deposit">Deposit</option>
-                    <option value="withdrawal">Withdrawal</option>
-                    <option value="refund">Refund</option>
-                    <option value="purchase">Purchase</option>
+                    <option value="credit">Credit</option>
+                    <option value="debit">Debit</option>
                 </select>
-                <select id="modalStatusFilter" class="border rounded-lg p-2 text-sm text-text-secondary">
+                <select id="modalStatusFilter" class="border rounded-lg p-3 text-sm text-text-secondary bg-neutral focus:ring-2 focus:ring-accent">
                     <option value="">All Status</option>
                     <option value="success">Success</option>
                     <option value="pending">Pending</option>
                     <option value="failed">Failed</option>
                 </select>
-                <input type="date" id="modalDateFilter" class="border rounded-lg p-2 text-sm text-text-secondary" placeholder="Select Date">
-                <select id="modalSortBy" class="border rounded-lg p-2 text-sm text-text-secondary">
+                <input type="date" id="modalDateFilter" class="border rounded-lg p-3 text-sm text-text-secondary bg-neutral focus:ring-2 focus:ring-accent" placeholder="Select Date">
+                <select id="modalSortBy" class="border rounded-lg p-3 text-sm text-text-secondary bg-neutral focus:ring-2 focus:ring-accent">
                     <option value="date-desc">Date (Newest)</option>
                     <option value="date-asc">Date (Oldest)</option>
                     <option value="amount-desc">Amount (High to Low)</option>
@@ -267,24 +311,72 @@
             </div>
             <!-- Transaction List -->
             <div id="modalTransactionList" class="space-y-4">
-                <div class="text-center py-8">
-                    <i class="fas fa-history text-accent text-3xl mb-4"></i>
-                    <p class="text-lg font-poppins text-primary">No transactions yet</p>
-                    <p class="text-sm text-text-secondary">Add funds to get started</p>
-                </div>
+                <% if (transactions.length === 0) { %>
+                    <div class="text-center py-12">
+                        <i class="fas fa-history text-accent text-4xl mb-4"></i>
+                        <p class="text-xl font-poppins text-primary">No transactions yet</p>
+                        <p class="text-sm text-text-secondary">Add funds to get started</p>
+                    </div>
+                <% } else { %>
+                    <% transactions.forEach(tx => { %>
+                        <div class="transaction-card bg-neutral rounded-lg p-5 flex justify-between items-center glassmorphism">
+                            <div>
+                                <p class="font-semibold text-primary flex items-center">
+                                    <%= tx.type === 'credit' ? '<i class="fas fa-arrow-down text-green-600 mr-3"></i>' : '<i class="fas fa-arrow-up text-red-600 mr-3"></i>' %>
+                                    <%= tx.orderId ? `Order #${tx.orderId}` : `TXN${tx._id}` %>
+                                </p>
+                                <p class="text-sm text-text-secondary mt-1"><%= new Date(tx.date).toLocaleString() %></p>
+                                <p class="text-sm text-text-secondary mt-1"><%= tx.description %></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-semibold <%= tx.type === 'credit' ? 'text-green-600' : 'text-red-600' %>">
+                                    <%= tx.type === 'credit' ? '+' : '-' %>₹<%= Math.abs(tx.amount).toLocaleString() %>
+                                </p>
+                                <p class="text-sm text-text-secondary mt-1"><%= tx.status.charAt(0).toUpperCase() + tx.status.slice(1) %></p>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
             </div>
             <!-- Pagination -->
-            <div class="mt-4 flex justify-between">
+            <div class="mt-6 flex justify-between">
                 <button id="prevPage" class="btn-primary disabled:opacity-50" disabled>Previous</button>
                 <button id="nextPage" class="btn-primary disabled:opacity-50">Next</button>
             </div>
         </div>
     </div>
-<%- include("../../views/partials/user/footer") %>
+
+    <!-- Add Funds Modal -->
+    <div id="addFundsModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 w-11/12 max-w-md animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-poppins font-semibold text-primary">Add Money to Wallet</h3>
+                <button onclick="closeAddFundsModal()" class="text-text-secondary hover:text-primary text-3xl transition-colors">&times;</button>
+            </div>
+            <div class="space-y-6">
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button type="button" class="btn-amount" data-amount="100">₹100</button>
+                    <button type="button" class="btn-amount" data-amount="500">₹500</button>
+                    <button type="button" class="btn-amount" data-amount="1000">₹1000</button>
+                </div>
+                <input type="number" id="amount" class="w-full border rounded-lg p-3 text-sm text-text-primary focus:ring-2 focus:ring-accent" placeholder="Enter amount (₹)" min="1">
+                <select id="paymentMethod" class="w-full border rounded-lg p-3 text-sm text-text-secondary bg-neutral focus:ring-2 focus:ring-accent">
+                    <option value="razorpay">Razorpay</option>
+                    <option value="upi">UPI</option>
+                    <option value="card">Card</option>
+                </select>
+                <button onclick="submitAddFunds()" class="btn-primary w-full">Add Money</button>
+            </div>
+        </div>
+    </div>
+
+    <%- include("../../views/partials/user/footer") %>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <script>
         let currentPage = 1;
         const transactionsPerPage = 3;
-        let transactions = [];
+        let transactions = <%- JSON.stringify(transactions) %>;
         let walletData = {
             balance: <%= walletBalance %>,
             totalDeposits: <%= totalDeposits %>,
@@ -292,141 +384,125 @@
             availableWithdrawal: <%= availableWithdrawal %>
         };
 
-        // Simulated transaction data
-        const sampleTransactions = [
-            { id: 'TXN123', date: '2025-07-15T10:30:00', type: 'deposit', amount: 1000, status: 'success', method: 'Razorpay' },
-            { id: 'TXN124', date: '2025-07-14T14:20:00', type: 'withdrawal', amount: -500, status: 'pending', method: 'Bank' },
-            { id: 'TXN125', date: '2025-07-13T09:15:00', type: 'refund', amount: 200, status: 'success', method: 'COD' }
-        ];
-
         function showAddFunds() {
-            Swal.fire({
-                title: 'Add Money to Wallet',
-                html: `
-                    <div class="flex flex-wrap justify-center gap-3 mb-4">
-                        <button type="button" class="btn-secondary text-sm px-4 py-2" onclick="document.getElementById('amount').value = 100;">₹100</button>
-                        <button type="button" class="btn-secondary text-sm px-4 py-2" onclick="document.getElementById('amount').value = 500;">₹500</button>
-                        <button type="button" class="btn-secondary text-sm px-4 py-2" onclick="document.getElementById('amount').value = 1000;">₹1000</button>
-                    </div>
-                    <input type="number" id="amount" class="swal2-input" placeholder="Enter amount (₹)" min="1">
-                    <select id="paymentMethod" class="swal2-select mt-2" style="width: 100%;">
-                        <option value="razorpay">Razorpay</option>
-                        <option value="paypal">PayPal</option>
-                        <option value="upi">UPI</option>
-                    </select>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Add Money',
-                cancelButtonText: 'Cancel',
-                confirmButtonColor: '#d4af37',
-                cancelButtonColor: '#6b7280',
-                preConfirm: () => {
-                    const amount = parseFloat(document.getElementById('amount').value);
-                    const paymentMethod = document.getElementById('paymentMethod').value;
-                    if (isNaN(amount) || amount <= 0) {
-                        Swal.showValidationMessage('Please enter a valid amount');
-                        return false;
-                    }
-                    return { amount, paymentMethod };
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Processing...',
-                        text: `Adding ₹${result.value.amount} via ${result.value.paymentMethod}`,
-                        icon: 'info',
-                        showConfirmButton: false,
-                        allowOutsideClick: false
-                    });
-                    setTimeout(() => {
-                        walletData.balance += result.value.amount;
-                        walletData.totalDeposits += result.value.amount;
-                        walletData.availableWithdrawal += result.value.amount;
-                        document.getElementById('walletBalance').textContent = `₹${walletData.balance.toLocaleString()}`;
-                        document.getElementById('totalDeposits').textContent = `₹${walletData.totalDeposits.toLocaleString()}`;
-                        document.getElementById('availableWithdrawal').textContent = `₹${walletData.availableWithdrawal.toLocaleString()}`;
-                        transactions.unshift({
-                            id: `TXN${Math.floor(Math.random() * 10000)}`,
-                            date: new Date().toISOString(),
-                            type: 'deposit',
-                            amount: result.value.amount,
-                            status: 'success',
-                            method: result.value.paymentMethod
-                        });
-                        applyFilters();
-                        Swal.fire({
-                            title: 'Success!',
-                            text: `₹${result.value.amount} added successfully.`,
-                            icon: 'success',
-                            confirmButtonColor: '#d4af37'
-                        });
-                    }, 1500);
-                }
+            document.getElementById('addFundsModal').classList.remove('hidden');
+            const amountButtons = document.querySelectorAll('.btn-amount');
+            amountButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    amountButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    document.getElementById('amount').value = button.dataset.amount;
+                });
             });
         }
 
-        function showWithdraw() {
+        function closeAddFundsModal() {
+            document.getElementById('addFundsModal').classList.add('hidden');
+            document.getElementById('amount').value = '';
+            document.querySelectorAll('.btn-amount').forEach(btn => btn.classList.remove('active'));
+        }
+
+        async function submitAddFunds() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            if (isNaN(amount) || amount <= 0) {
+                Swal.fire({
+                    title: 'Invalid Amount',
+                    text: 'Please enter a valid amount',
+                    icon: 'error',
+                    confirmButtonColor: '#d4af37'
+                });
+                return;
+            }
+
+            closeAddFundsModal();
             Swal.fire({
-                title: 'Withdraw Money',
-                html: `
-                    <input type="number" id="withdrawAmount" class="swal2-input" placeholder="Enter amount (₹)" min="1">
-                    <select id="withdrawMethod" class="swal2-select mt-2" style="width: 100%;">
-                        <option value="bank">Bank Transfer</option>
-                        <option value="upi">UPI</option>
-                    </select>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Withdraw',
-                cancelButtonText: 'Cancel',
-                confirmButtonColor: '#d4af37',
-                cancelButtonColor: '#6b7280',
-                preConfirm: () => {
-                    const amount = parseFloat(document.getElementById('withdrawAmount').value);
-                    const withdrawMethod = document.getElementById('withdrawMethod').value;
-                    if (isNaN(amount) || amount <= 0) {
-                        Swal.showValidationMessage('Please enter a valid amount');
-                        return false;
-                    }
-                    if (amount > walletData.availableWithdrawal) {
-                        Swal.showValidationMessage('Insufficient balance');
-                        return false;
-                    }
-                    return { amount, withdrawMethod };
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Processing...',
-                        text: `Withdrawing ₹${result.value.amount} via ${result.value.withdrawMethod}`,
-                        icon: 'info',
-                        showConfirmButton: false,
-                        allowOutsideClick: false
-                    });
-                    setTimeout(() => {
-                        walletData.balance -= result.value.amount;
-                        walletData.totalWithdrawals += result.value.amount;
-                        walletData.availableWithdrawal -= result.value.amount;
-                        document.getElementById('walletBalance').textContent = `₹${walletData.balance.toLocaleString()}`;
-                        document.getElementById('totalWithdrawals').textContent = `₹${walletData.totalWithdrawals.toLocaleString()}`;
-                        document.getElementById('availableWithdrawal').textContent = `₹${walletData.availableWithdrawal.toLocaleString()}`;
-                        transactions.unshift({
-                            id: `TXN${Math.floor(Math.random() * 10000)}`,
-                            date: new Date().toISOString(),
-                            type: 'withdrawal',
-                            amount: -result.value.amount,
-                            status: 'pending',
-                            method: result.value.withdrawMethod
-                        });
-                        applyFilters();
-                        Swal.fire({
-                            title: 'Withdrawal Requested',
-                            text: `₹${result.value.amount} withdrawal request sent.`,
-                            icon: 'success',
-                            confirmButtonColor: '#d4af37'
-                        });
-                    }, 1500);
-                }
+                title: 'Processing...',
+                text: `Adding ₹${amount} via ${paymentMethod}`,
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false
             });
+
+            try {
+                const response = await fetch('/wallet/add-funds', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, paymentMethod })
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to create Razorpay order');
+                }
+
+                const options = {
+                    key: data.razorpayKeyId,
+                    amount: data.razorpayOrder.amount,
+                    currency: 'INR',
+                    name: 'EON FORGE',
+                    description: 'Wallet Top-up',
+                    order_id: data.razorpayOrder.id,
+                    handler: async function (paymentResponse) {
+                        await verifyPayment(paymentResponse);
+                    },
+                    prefill: {
+                        name: data.user.name,
+                        email: data.user.email
+                    },
+                    theme: { color: '#d4af37' }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: error.message || 'Failed to add funds',
+                    icon: 'error',
+                    confirmButtonColor: '#d4af37'
+                });
+            }
+        }
+
+        async function verifyPayment(paymentResponse) {
+            try {
+                const res = await fetch('/wallet/verify-add-funds', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentResponse)
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    walletData.balance = data.walletBalance;
+                    walletData.totalDeposits = data.totalDeposits;
+                    walletData.availableWithdrawal = data.availableWithdrawal;
+                    transactions = data.transactions;
+
+                    document.getElementById('walletBalance').textContent = `₹${walletData.balance.toLocaleString()}`;
+                    document.getElementById('totalDeposits').textContent = `₹${walletData.totalDeposits.toLocaleString()}`;
+                    document.getElementById('availableWithdrawal').textContent = `₹${walletData.availableWithdrawal.toLocaleString()}`;
+                    applyFilters();
+
+                    Swal.fire({
+                        title: 'Success!',
+                      text: `₹${data.amount} added successfully.`,
+                        icon: 'success',
+                        confirmButtonColor: '#d4af37'
+                    });
+                } else {
+                    throw new Error('Verification failed');
+                }
+            } catch (err) {
+                Swal.fire({
+                    title: 'Error',
+                    text: err.message,
+                    icon: 'error',
+                    confirmButtonColor: '#d4af37'
+                });
+            }
         }
 
         function openTransactionHistoryModal() {
@@ -455,9 +531,9 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     const csvContent = [
-                        'Transaction ID,Date,Type,Amount,Status,Payment Method',
+                        'Transaction ID,Date,Type,Amount,Status,Description,Order ID',
                         ...transactions.map(t => 
-                            `"${t.id}","${new Date(t.date).toLocaleString()}","${t.type}","${t.amount}","${t.status}","${t.method || 'N/A'}"`
+                            `"${t._id || 'N/A'}","${new Date(t.date).toLocaleString()}","${t.type}","${t.amount}","${t.status}","${t.description || 'N/A'}","${t.orderId || 'N/A'}"`
                         )
                     ].join('\n');
                     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -481,7 +557,7 @@
             document.getElementById('transactionPreview').classList.add('hidden');
 
             setTimeout(() => {
-                transactions = sampleTransactions.filter(tx => {
+                let filteredTransactions = transactions.filter(tx => {
                     let matches = true;
                     if (dateFilter) matches = matches && new Date(tx.date).toISOString().split('T')[0] === dateFilter;
                     if (typeFilter) matches = matches && tx.type === typeFilter;
@@ -489,21 +565,21 @@
                     return matches;
                 });
 
-                transactions.sort((a, b) => {
+                filteredTransactions.sort((a, b) => {
                     if (sortBy === 'date-desc') return new Date(b.date) - new Date(a.date);
                     if (sortBy === 'date-asc') return new Date(a.date) - new Date(b.date);
                     if (sortBy === 'amount-desc') return b.amount - a.amount;
                     if (sortBy === 'amount-asc') return a.amount - b.amount;
                 });
 
-                renderTransactions();
+                renderTransactions(filteredTransactions);
 
                 document.getElementById('skeletonLoader').classList.add('hidden');
                 document.getElementById('transactionPreview').classList.remove('hidden');
             }, 1000);
         }
 
-        function renderTransactions() {
+        function renderTransactions(filteredTransactions = transactions) {
             const transactionPreview = document.getElementById('transactionPreview');
             const modalTransactionList = document.getElementById('modalTransactionList');
             transactionPreview.innerHTML = '';
@@ -511,67 +587,60 @@
 
             const start = (currentPage - 1) * transactionsPerPage;
             const end = start + transactionsPerPage;
-            const paginatedTransactions = transactions.slice(start, end);
+            const paginatedTransactions = filteredTransactions.slice(start, end);
 
-            if (transactions.length === 0) {
+            if (filteredTransactions.length === 0) {
                 transactionPreview.innerHTML = `
-                    <div class="text-center py-8">
-                        <i class="fas fa-history text-accent text-3xl mb-4"></i>
-                        <p class="text-lg font-poppins text-primary">No transactions yet</p>
+                    <div class="text-center py-12">
+                        <i class="fas fa-history text-accent text-4xl mb-4"></i>
+                        <p class="text-xl font-poppins text-primary">No transactions yet</p>
                         <p class="text-sm text-text-secondary">Add funds to get started</p>
                     </div>
                 `;
                 modalTransactionList.innerHTML = transactionPreview.innerHTML;
+                document.getElementById('prevPage').disabled = true;
+                document.getElementById('nextPage').disabled = true;
                 return;
             }
 
             paginatedTransactions.slice(0, 3).forEach(tx => {
-                const amountColor = tx.amount > 0 ? 'text-green-600' : 'text-red-600';
-                const icon = {
-                    deposit: '<i class="fas fa-arrow-down text-green-600 mr-2"></i>',
-                    withdrawal: '<i class="fas fa-arrow-up text-red-600 mr-2"></i>',
-                    refund: '<i class="fas fa-undo text-blue-600 mr-2"></i>',
-                    purchase: '<i class="fas fa-shopping-cart text-yellow-600 mr-2"></i>'
-                }[tx.type] || '';
+                const amountColor = tx.type === 'credit' ? 'text-green-600' : 'text-red-600';
+                const icon = tx.type === 'credit' ? '<i class="fas fa-arrow-down text-green-600 mr-3"></i>' : '<i class="fas fa-arrow-up text-red-600 mr-3"></i>';
                 transactionPreview.innerHTML += `
-                    <div class="transaction-card bg-neutral rounded-lg p-4 flex justify-between items-center">
+                    <div class="transaction-card bg-neutral rounded-lg p-5 flex justify-between items-center glassmorphism">
                         <div>
-                            <p class="font-semibold text-primary">${icon}#${tx.id}</p>
-                            <p class="text-sm text-text-secondary">${new Date(tx.date).toLocaleString()}</p>
+                            <p class="font-semibold text-primary flex items-center">${icon}${tx.orderId ? `Order #${tx.orderId}` : `TXN${tx._id}`}</p>
+                            <p class="text-sm text-text-secondary mt-1">${new Date(tx.date).toLocaleString()}</p>
+                            <p class="text-sm text-text-secondary mt-1">${tx.description}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-lg font-semibold ${amountColor}">${tx.amount > 0 ? '+' : '-'}₹${Math.abs(tx.amount).toLocaleString()}</p>
-                            <p class="text-sm text-text-secondary">${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</p>
+                            <p class="text-lg font-semibold ${amountColor}">${tx.type === 'credit' ? '+' : '-'}₹${Math.abs(tx.amount).toLocaleString()}</p>
+                            <p class="text-sm text-text-secondary mt-1">${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</p>
                         </div>
                     </div>
                 `;
             });
 
             paginatedTransactions.forEach(tx => {
-                const amountColor = tx.amount > 0 ? 'text-green-600' : 'text-red-600';
-                const icon = {
-                    deposit: '<i class="fas fa-arrow-down text-green-600 mr-2"></i>',
-                    withdrawal: '<i class="fas fa-arrow-up text-red-600 mr-2"></i>',
-                    refund: '<i class="fas fa-undo text-blue-600 mr-2"></i>',
-                    purchase: '<i class="fas fa-shopping-cart text-yellow-600 mr-2"></i>'
-                }[tx.type] || '';
+                const amountColor = tx.type === 'credit' ? 'text-green-600' : 'text-red-600';
+                const icon = tx.type === 'credit' ? '<i class="fas fa-arrow-down text-green-600 mr-3"></i>' : '<i class="fas fa-arrow-up text-red-600 mr-3"></i>';
                 modalTransactionList.innerHTML += `
-                    <div class="transaction-card bg-neutral rounded-lg p-4 flex justify-between items-center">
+                    <div class="transaction-card bg-neutral rounded-lg p-5 flex justify-between items-center glassmorphism">
                         <div>
-                            <p class="font-semibold text-primary">${icon}#${tx.id}</p>
-                            <p class="text-sm text-text-secondary">${new Date(tx.date).toLocaleString()}</p>
-                            <p class="text-sm text-text-secondary">${tx.method || 'N/A'}</p>
+                            <p class="font-semibold text-primary flex items-center">${icon}${tx.orderId ? `Order #${tx.orderId}` : `TXN${tx._id}`}</p>
+                            <p class="text-sm text-text-secondary mt-1">${new Date(tx.date).toLocaleString()}</p>
+                            <p class="text-sm text-text-secondary mt-1">${tx.description}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-lg font-semibold ${amountColor}">${tx.amount > 0 ? '+' : '-'}₹${Math.abs(tx.amount).toLocaleString()}</p>
-                            <p class="text-sm text-text-secondary">${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</p>
+                            <p class="text-lg font-semibold ${amountColor}">${tx.type === 'credit' ? '+' : '-'}₹${Math.abs(tx.amount).toLocaleString()}</p>
+                            <p class="text-sm text-text-secondary mt-1">${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</p>
                         </div>
                     </div>
                 `;
             });
 
             document.getElementById('prevPage').disabled = currentPage === 1;
-            document.getElementById('nextPage').disabled = end >= transactions.length;
+            document.getElementById('nextPage').disabled = end >= filteredTransactions.length;
         }
 
         document.getElementById('prevPage').addEventListener('click', () => {
@@ -596,6 +665,8 @@
         document.getElementById('modalStatusFilter').addEventListener('change', applyFilters);
         document.getElementById('modalDateFilter').addEventListener('change', applyFilters);
         document.getElementById('modalSortBy').addEventListener('change', applyFilters);
+
+        applyFilters();
     </script>
 </body>
 </html>

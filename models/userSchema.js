@@ -68,10 +68,7 @@ const userSchema = new Schema({
     //     type : Schema.Types.ObjectId,
     //     default : 0,
     // },
-    wallet: [{
-        type: Schema.Types.ObjectId,
-        ref: "wishlist"
-    }],
+   
     orderHistory: [{
         type: Schema.Types.ObjectId,
         ref: 'Order'

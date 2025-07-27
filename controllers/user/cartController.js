@@ -4,12 +4,12 @@ const Product = require('../../models/productSchema');
 const Cart = require('../../models/cartSchema');
 const Wishlist = require('../../models/wishlistSchema')
 
-const addToCart = async (req, res) => { 
+const addToCart = async (req, res) => {
   try {
     const userId = req.session.userId;
     const { productId, variantId } = req.body;
-    
-    const user=await User.findById(userId)
+
+    const user = await User.findById(userId)
     if (!user || user.isBlocked) {
       return res.status(403).json({ success: false, message: 'You are blocked from making purchases' });
     }
@@ -29,7 +29,7 @@ const addToCart = async (req, res) => {
     const quantity = 1; // Start with quantity 1
     const rawPrice = selectedVariant.offerPrice ?? selectedVariant.regularPrice;
     const price = Number(rawPrice);
-    
+
 
     if (!price || isNaN(price)) {
       return res.status(400).json({ message: 'Invalid price for selected variant' });
@@ -131,13 +131,16 @@ const loadCart = async (req, res) => {
         v => v._id.toString() === item.variantId.toString()
       );
 
-      const latestPrice = variant.offerPrice ?? variant.regularPrice;
-console.log('latest price is valid',latestPrice)
+      
       if (!product || !variant) {
         console.error(`Product or variant not found for item: ${item._id}`);
         return null;
       }
-const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
+      const latestPrice = variant.offerPrice ?? variant.regularPrice;
+
+      console.log('latest price is valid', latestPrice)
+      
+      const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
       const cartItem = {
         id: item._id.toString(),
         productId: product._id.toString(),
@@ -147,7 +150,7 @@ const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
         color: variant.colorName || 'N/A',
         price: latestPrice,
         quantity,
-       total: latestPrice * quantity,
+        total: latestPrice * quantity,
         brandName: product.brand?.brandName || 'N/A',
         stock: variant.stock,
         status: variant.stock > 0 ? 'Available' : 'Out of Stock'
@@ -157,7 +160,7 @@ const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
       return cartItem;
     }).filter(Boolean);
 
-    
+
     console.log('Final cartItems:', JSON.stringify(cartItems, null, 2));
     res.render('cart', { cartItems });
   } catch (error) {
@@ -186,7 +189,7 @@ const updateCart = async (req, res) => {
     console.log('update cart in variant:', variant);
     console.log('update cart in real quantity:', quantity);
 
-    const stock = variant.stock; // Use variant.stock, not variant.quantity
+    const stock = variant.stock; 
     console.log('update cart in stock:', stock);
 
     if (quantity > stock) {
@@ -205,8 +208,8 @@ const updateCart = async (req, res) => {
     if (!item) return res.status(404).json({ success: false, message: 'Item not in cart' });
 
     // Update cart item quantity and totalPrice
-
-    item.stock = quantity;
+          // stock//
+    item.quantity = quantity;
     item.totalPrice = item.price * quantity;
     cart.cartTotal = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
 
@@ -215,7 +218,7 @@ const updateCart = async (req, res) => {
     res.json({
       success: true,
       message: 'Cart updated',
-      stock: variant.stock // Return variant.stock, not variant.quantity
+      stock: variant.stock 
     });
   } catch (error) {
     console.error('Error updating cart:', error);
@@ -326,7 +329,7 @@ const loadWishlist = async (req, res) => {
         },
       })
       .lean();
-   
+
 
     res.render('wishlist', {
       wishlistItems: wishlist ? wishlist.products : []
@@ -341,10 +344,10 @@ const loadWishlist = async (req, res) => {
 
 const removeFromWishlist = async (req, res) => {
   try {
-    const { productId,variantId } = req.body;
+    const { productId, variantId } = req.body;
     const userId = req.session.userId;
 
-    console.log('remove from wishlist',req.body)
+    console.log('remove from wishlist', req.body)
 
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Please login' });
@@ -372,7 +375,7 @@ const removeFromWishlist = async (req, res) => {
 
 const addToCartFromWishlist = async (req, res) => {
   try {
-    const { productId, variantId ,quantity} = req.body;
+    const { productId, variantId, quantity } = req.body;
     console.log('Received body:', req.body);
 
     const userId = req.session.userId;
@@ -422,7 +425,7 @@ const addToCartFromWishlist = async (req, res) => {
     // Remove from wishlist
     await Wishlist.updateOne(
       { userId },
-      { $pull: { products: {variantId } } }
+      { $pull: { products: { variantId } } }
     );
 
     return res.json({ success: true, message: 'Moved to cart and removed from wishlist' });

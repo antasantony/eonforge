@@ -6,6 +6,7 @@ const categoryController = require('../controllers/admin/categoryController');
 const brandController = require('../controllers/admin/brandController');
 const productController = require('../controllers/admin/productController');
 const orderController =require('../controllers/admin/orderController');
+const offerController =require('../controllers/admin/offerController');
 const { adminLogin, adminAuth } = require('../middlewares/auth');
 // const multer = require('multer')
 const uploads = require('../helpers/multer');
@@ -57,8 +58,9 @@ router.get('/orders/:id',orderController.loadOrderDetail)
 router.patch('/orders/:orderId/status', orderController.updateOrderStatus);
 router.post('/orders/:orderId/return',  orderController.verifyReturnRequest);
 router.post('/orders/:orderId/:itemId/return',  orderController.verifyItemReturnRequest);
-router.post('/orders/:orderId/payment-status',orderController.updatePaymentStatus);
 
-
+// offer Management
+router.get('/offer',offerController.loadOffer);
+router.post('/addOffer',offerController.addOffer);
 
 module.exports = router;

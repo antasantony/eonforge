@@ -349,7 +349,7 @@
 
             <!-- Pagination -->
             <div class="pagination flex justify-center items-center p-4 gap-2 bg-gray-50 border-t border-gray-200">
-              <a href="/filter?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search || '') %>&<% if (selectedBrands && selectedBrands.length > 0) { %>brand=<%= selectedBrands.join('&brand=') %>&<% } %><% if (selectedCategories && selectedCategories.length > 0) { %>category=<%= selectedCategories.join('&category=') %>&<% } %>minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
+              <a href="/shop?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search || '') %>&<% if (selectedBrands && selectedBrands.length > 0) { %>brand=<%= selectedBrands.join('&brand=') %>&<% } %><% if (selectedCategories && selectedCategories.length > 0) { %>category=<%= selectedCategories.join('&category=') %>&<% } %>minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
                 class="pagination-btn rounded-lg flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 <%= currentPage === 1 ? 'pointer-events-none opacity-50' : '' %>">
                 <i class="fas fa-chevron-left text-sm"></i>
               </a>
@@ -357,7 +357,7 @@
                 <% const maxPagesToShow=5; const startPage=Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
                   const endPage=Math.min(totalPages, startPage + maxPagesToShow - 1); for (let i=startPage; i <=endPage;
                   i++) { %>
-                  <a href="/filter?page=<%= i %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
+                  <a href="/shop?page=<%= i %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
                     class="page-link rounded-lg font-medium px-3 py-2 border border-gray-300 <%= i === currentPage ? 'bg-primary text-black shadow-lg' : 'bg-white text-gray-500 hover:bg-gray-100' %>">
                     <%= i %>
                   </a>
@@ -370,7 +370,7 @@
                       </a>
                       <% } %>
               </div>
-              <a href="/filter?page=<%= currentPage + 1 %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
+              <a href="/shop?page=<%= currentPage + 1 %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %><% if (selectedBrands?.length) { %>&brand=<%= selectedBrands.join('&brand=') %><% } %><% if (selectedCategories?.length) { %>&category=<%= selectedCategories.join('&category=') %><% } %><% if (minPrice && minPrice > 0) { %>&minPrice=<%= minPrice %><% } %><% if (maxPrice && maxPrice > 0) { %>&maxPrice=<%= maxPrice %><% } %>&sort=<%= encodeURIComponent(sort || 'featured') %>"
                 class="pagination-btn rounded-lg flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 <%= currentPage >= totalPages ? 'pointer-events-none opacity-50' : '' %>">
                 <i class="fas fa-chevron-right text-sm"></i>
               </a>

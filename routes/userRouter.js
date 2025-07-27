@@ -6,6 +6,7 @@ const profileController = require('../controllers/user/profileController');
 const productController = require('../controllers/user/productController');
 const cartController = require('../controllers/user/cartController');
 const checkoutController=require('../controllers/user/checkoutController');
+const paymentController =require('../controllers/user/paymentController')
 const passport = require('passport');
 const uploads = require('../helpers/multer');
 const { userAuth, isLogin} = require('../middlewares/auth');
@@ -90,6 +91,7 @@ router.get('/checkout',checkoutController.loadCheckout);
 router.post('/checkout-address', checkoutController.addAddress);
 router.put('/checkout-edit-address', checkoutController.editAddress);
 router.post('/checkout-delete-address', checkoutController.deleteAddress);
+// Online payment  //
 
 
 router.post('/place-order',checkoutController.placeOrder);
@@ -109,9 +111,13 @@ router.get('/product-detail/:id', productController.loadProductDetail)
 //================== wallet =====================//
 
 router.get('/wallet',productController.loadWallet)
-router.post('/wallet/refund',productController.refundToWallet)
+router.post('/wallet/add-funds', productController.addFunds);
+router.post('/wallet/verify-add-funds', productController.verifyAddFunds);
 
 
+// ============ payment  ============= //
 
+router.post('/payment/create-order',paymentController.createRazorpayOrder);
+router.post('/payment/verify', paymentController.verifyAndPlaceOrder);
 
 module.exports = router;

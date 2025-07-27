@@ -2,12 +2,17 @@ const User = require('../../models/userSchema');
 const Cart = require('../../models/cartSchema');
 const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
-const Product = require('../../models/productSchema')
+const Product = require('../../models/productSchema');
+const env = require("dotenv").config();
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+    
 
 
-
-
-
+const razorpayInstance = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 
 
@@ -44,8 +49,8 @@ const loadCheckout = async (req, res) => {
                 console.error(`Product or variant not found for item: ${item._id}`);
                 return null;
             }
-const latestPrice = variant.offerPrice > 0 ? variant.offerPrice : variant.originalPrice;
-const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
+            const latestPrice = variant.offerPrice > 0 ? variant.offerPrice : variant.originalPrice;
+            const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
 
             return {
                 id: item._id.toString(),
@@ -56,7 +61,7 @@ const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
                 color: variant.colorName || 'N/A',
                 price: latestPrice,
                 quantity,
-                total: latestPrice*quantity,
+                total: latestPrice * quantity,
                 brandName: product.brand?.brandName || 'N/A',
                 stock: variant.stock,
                 status: variant.stock > 0 ? 'Available' : 'Out of Stock'
@@ -80,17 +85,18 @@ const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
 
         console.log('checkout username', defaultAddress)
 
-      let subtotal = 0;
-if (cartItems.length > 0) {
-  subtotal = cartItems.reduce((sum, item) => sum + (item.total || 0), 0);
-}
-console.log('subtotla needed', subtotal);
+        let subtotal = 0;
+        if (cartItems.length > 0) {
+            subtotal = cartItems.reduce((sum, item) => sum + (item.total || 0), 0);
+        }
+        console.log('subtotla needed', subtotal);
 
-const deliveryFee = 50;
-const totalAmount = subtotal + deliveryFee;
-console.log('checkout page total', totalAmount);
-
+        const deliveryFee = 50;
+        const totalAmount = subtotal + deliveryFee;
+        console.log('checkout page total', totalAmount);
+const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
         res.render('checkout', {
+            razorpayKeyId,
             userName,
             cartItems,
             defaultAddress,
@@ -337,6 +343,7 @@ const placeOrder = async (req, res) => {
     }
 };
 
+
 const loadPlaceOrder = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -522,7 +529,7 @@ const orders = async (req, res) => {
             query.orderId = { $regex: search, $options: 'i' };
         }
 
-     
+
         const orders = await Order.find(query)
             .populate('orderItems.variantId')
             .sort({ createdOn: -1 })
@@ -530,14 +537,14 @@ const orders = async (req, res) => {
             .limit(limit)
             .lean();
 
-    
+
         const totalOrders = await Order.countDocuments(query);
 
         const totalPages = Math.ceil(totalOrders / limit);
-orders.forEach(order => {
-  console.log('for item Order ID:', order.orderId);
-  console.log('for item Items:', order.orderItems.status);
-});
+        orders.forEach(order => {
+            console.log('for item Order ID:', order.orderId);
+            console.log('for item Items:', order.orderItems.status);
+        });
         res.render('orders-list', {
             orders,
             search,
@@ -559,54 +566,54 @@ const ObjectId = mongoose.Types.ObjectId;
 
 
 const cancelOrderItem = async (req, res) => {
-  try {
-    const { orderId, itemId } = req.params;
-    const { reason } = req.body;
+    try {
+        const { orderId, itemId } = req.params;
+        const { reason } = req.body;
 
-    console.log('Cancel single item:', itemId);
-    console.log('Reason:', reason);
+        console.log('Cancel single item:', itemId);
+        console.log('Reason:', reason);
 
-    const order = await Order.findOne({ orderId });
+        const order = await Order.findOne({ orderId });
 
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        const item = order.orderItems.find(i => i._id.toString() === itemId);
+
+        if (!item) {
+            return res.status(404).json({ success: false, message: 'Item not found in order' });
+        }
+
+        if (item.status === 'Cancelled') {
+            return res.json({ success: false, message: 'Item already cancelled' });
+        }
+
+
+        item.status = 'Cancelled';
+        item.cancelReason = reason || null;
+
+
+        await Product.updateOne(
+            { _id: item.product, 'colorVariants._id': item.variantId },
+            { $inc: { 'colorVariants.$.stock': item.stock } }
+        );
+
+
+        const allCancelled = order.orderItems.every(i => i.status === 'Cancelled');
+        if (allCancelled) {
+            order.status = 'Cancelled';
+            order.cancelReason = 'All items cancelled';
+        }
+
+        await order.save();
+
+        return res.json({ success: true, message: 'Item cancelled and stock restored' });
+
+    } catch (err) {
+        console.error('Cancel item error:', err);
+        return res.status(500).json({ success: false, message: 'Server error' });
     }
-
-    const item = order.orderItems.find(i => i._id.toString() === itemId);
-
-    if (!item) {
-      return res.status(404).json({ success: false, message: 'Item not found in order' });
-    }
-
-    if (item.status === 'Cancelled') {
-      return res.json({ success: false, message: 'Item already cancelled' });
-    }
-
-    
-    item.status = 'Cancelled';
-    item.cancelReason = reason || null;
-
-    
-    await Product.updateOne(
-      { _id: item.product, 'colorVariants._id': item.variantId },
-      { $inc: { 'colorVariants.$.stock': item.stock } }
-    );
-
-    
-    const allCancelled = order.orderItems.every(i => i.status === 'Cancelled');
-    if (allCancelled) {
-      order.status = 'Cancelled';
-      order.cancelReason = 'All items cancelled';
-    }
-
-    await order.save();
-
-    return res.json({ success: true, message: 'Item cancelled and stock restored' });
-
-  } catch (err) {
-    console.error('Cancel item error:', err);
-    return res.status(500).json({ success: false, message: 'Server error' });
-  }
 };
 
 // return order item
@@ -658,59 +665,59 @@ const returnOrderItem = async (req, res) => {
 
 // Cancel Order
 const cancelOrder = async (req, res) => {
-  try {
-    const { orderId, reason } = req.body;
+    try {
+        const { orderId, reason } = req.body;
 
-    const order = await Order.findOne({ orderId });
+        const order = await Order.findOne({ orderId });
 
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        if (order.status === 'Cancelled') {
+            return res.json({ success: false, message: 'Order is already cancelled' });
+        }
+
+        for (const item of order.orderItems) {
+            item.status = 'Cancelled';
+            item.cancelReason = reason || null;
+
+            // Return stock to inventory
+            await Product.updateOne(
+                { _id: item.product, 'colorVariants._id': item.variantId },
+                { $inc: { 'colorVariants.$.stock': item.stock } }
+            );
+        }
+
+        // Update order-level status
+        order.status = 'Cancelled';
+        order.cancelReason = reason || null;
+
+        await order.save();
+
+        return res.json({ success: true, message: 'Order cancelled and stock restored' });
+
+    } catch (error) {
+        console.error('Cancel order error:', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
     }
-
-    if (order.status === 'Cancelled') {
-      return res.json({ success: false, message: 'Order is already cancelled' });
-    }
-
-    for (const item of order.orderItems) {
-      item.status = 'Cancelled';
-      item.cancelReason = reason || null;
-
-      // Return stock to inventory
-      await Product.updateOne(
-        { _id: item.product, 'colorVariants._id': item.variantId },
-        { $inc: { 'colorVariants.$.stock': item.stock } }
-      );
-    }
-
-    // Update order-level status
-    order.status = 'Cancelled';
-    order.cancelReason = reason || null;
-
-    await order.save();
-
-    return res.json({ success: true, message: 'Order cancelled and stock restored' });
-
-  } catch (error) {
-    console.error('Cancel order error:', error);
-    return res.status(500).json({ success: false, message: 'Server error' });
-  }
 };
 
 
 
-  //     Return Order
+//     Return Order
 const returnOrder = async (req, res) => {
     try {
         const { orderId, reason } = req.body;
-  console.log('why it is not working',orderId,reason)
-       
+        console.log('why it is not working', orderId, reason)
+
         if (!reason || reason.trim() === '') {
             return res.status(400).json({ success: false, message: 'Return reason is required' });
         }
 
 
         const order = await Order.findOne({ orderId });
-        console.log('order upadating for return',order)
+        console.log('order upadating for return', order)
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
@@ -722,8 +729,8 @@ const returnOrder = async (req, res) => {
 
         // Update overall order status
         order.status = 'Return Request';
-        order.returnStatus="Requested"
-        order.returnReason=reason
+        order.returnStatus = "Requested"
+        order.returnReason = reason
 
         // Update each item's return status and reason
         order.orderItems.forEach(item => {
@@ -731,9 +738,9 @@ const returnOrder = async (req, res) => {
             item.returnReason = reason;
         });
 
-       
+
         await order.save();
-        
+
         res.json({ success: true, message: 'Return request submitted successfully' });
 
     } catch (err) {

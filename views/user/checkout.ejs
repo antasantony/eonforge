@@ -656,14 +656,15 @@
             </form>
         </div>
     </div>
-
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</body>
     <script>
     // Data from controller
     const cartItems = <%- JSON.stringify(cartItems || []) %>;
     const userName = <%- JSON.stringify(userName || '') %>;
     const defaultAddress = <%- JSON.stringify(defaultAddress || null) %>;
     const otherAddresses = <%- JSON.stringify(otherAddresses || []) %>;
-
+    const razorpayKeyId = "<%= razorpayKeyId %>";
     // Global variables
     let selectedPaymentMethod = 'card';
     let selectedAddressId = null;
@@ -1098,72 +1099,90 @@
     }
 
     async function submitCheckout() {
-        const checkoutBtn = document.getElementById('checkoutBtn');
-        
-        if (!selectedAddressId) {
-            Swal.fire({
-                title: 'No Address Selected',
-                text: 'Please select a delivery address to proceed.',
-                icon: 'warning',
-                confirmButtonColor: '#d4af37'
-            });
-            return;
-        }
-        
-        if (!cartItems.length) {
-            Swal.fire({
-                title: 'Empty Cart',
-                text: 'Your cart is empty. Add items to proceed.',
-                icon: 'warning',
-                confirmButtonColor: '#d4af37'
-            });
-            return;
-        }
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    
+    if (!selectedAddressId) {
+        Swal.fire({
+            title: 'No Address Selected',
+            text: 'Please select a delivery address to proceed.',
+            icon: 'warning',
+            confirmButtonColor: '#d4af37'
+        });
+        return;
+    }
+    
+    if (!cartItems.length) {
+        Swal.fire({
+            title: 'Empty Cart',
+            text: 'Your cart is empty. Add items to proceed.',
+            icon: 'warning',
+            confirmButtonColor: '#d4af37'
+        });
+        return;
+    }
 
-        const result = await Swal.fire({
-            title: 'Confirm Your Order',
-            html: `
-                <div class="text-left space-y-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h4 class="font-semibold text-primary mb-2">Payment Method</h4>
-                        <p class="text-sm text-text-secondary capitalize">${selectedPaymentMethod.replace(/([A-Z])/g, ' $1').trim()}</p>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h4 class="font-semibold text-primary mb-2">Order Total</h4>
-                        <p class="text-xl font-bold text-accent">₹${(<%= subtotal || 0 %> + <%= deliveryFee || 0 %> + (selectedPaymentMethod === 'cod' ? 50 : 0)).toLocaleString()}</p>
-                    </div>
+    const subtotal = Number(<%= subtotal || 0 %>);
+    const deliveryFee = Number(<%= deliveryFee || 0 %>);
+    const codFee = selectedPaymentMethod === 'cod' ? 50 : 0;
+    const totalAmount = subtotal + deliveryFee + codFee;
+
+    if (!totalAmount || totalAmount <= 0) {
+        Swal.fire({
+            title: 'Invalid Amount',
+            text: 'The order total is invalid. Please check your cart and try again.',
+            icon: 'error',
+            confirmButtonColor: '#d4af37'
+        });
+        return;
+    }
+
+    console.log('Calculated totalAmount:', totalAmount);
+
+    const result = await Swal.fire({
+        title: 'Confirm Your Order',
+        html: `
+            <div class="text-left space-y-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-primary mb-2">Payment Method</h4>
+                    <p class="text-sm text-text-secondary capitalize">${selectedPaymentMethod.replace(/([A-Z])/g, ' $1').trim()}</p>
                 </div>
-            `,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-credit-card mr-2"></i>Place Order',
-            cancelButtonText: 'Review Again',
-            confirmButtonColor: '#d4af37',
-            cancelButtonColor: '#6b7280',
-            customClass: {
-                popup: 'rounded-2xl',
-                confirmButton: 'rounded-lg px-6 py-2',
-                cancelButton: 'rounded-lg px-6 py-2'
-            }
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-primary mb-2">Order Total</h4>
+                    <p class="text-xl font-bold text-accent">₹${totalAmount.toLocaleString()}</p>
+                </div>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-credit-card mr-2"></i>Place Order',
+        cancelButtonText: 'Review Again',
+        confirmButtonColor: '#d4af37',
+        cancelButtonColor: '#6b7280',
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'rounded-lg px-6 py-2',
+            cancelButton: 'rounded-lg px-6 py-2'
+        }
+    });
+
+    if (result.isConfirmed) {
+        checkoutBtn.disabled = true;
+        checkoutBtn.innerHTML = '<div class="loading-spinner mr-2"></div>Processing...';
+        
+        Swal.fire({
+            title: 'Processing Order...',
+            html: 'Please wait while we process your order.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => Swal.showLoading()
         });
 
-        if (result.isConfirmed) {
-            checkoutBtn.disabled = true;
-            checkoutBtn.innerHTML = '<div class="loading-spinner mr-2"></div>Processing...';
+        try {
+            const allAddresses = [defaultAddress, ...otherAddresses].filter(Boolean);
+            const selectedAddress = allAddresses.find(addr => addr._id === selectedAddressId);
             
-            Swal.fire({
-                title: 'Processing Order...',
-                html: 'Please wait while we process your order.',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false,
-                didOpen: () => Swal.showLoading()
-            });
-
-            try {
-                const allAddresses = [defaultAddress, ...otherAddresses].filter(Boolean);
-                const selectedAddress = allAddresses.find(addr => addr._id === selectedAddressId);
-                
+            if (selectedPaymentMethod === 'cod') {
                 const response = await fetch('/place-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1171,16 +1190,18 @@
                         cartItems,
                         address: selectedAddress,
                         paymentMethod: selectedPaymentMethod,
-                        subtotal: <%= subtotal || 0 %>,
-                        deliveryFee: <%= deliveryFee || 0 %>,
-                        totalAmount: <%= subtotal || 0 %> + <%= deliveryFee || 0 %> + (selectedPaymentMethod === 'cod' ? 50 : 0)
+                        subtotal,
+                        deliveryFee,
+                        totalAmount
                     })
                 });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to create order');
+                }
                 
-                if (!response.ok) throw new Error('Failed to create order');
-                
-                const { orderId } = await response.json();
-                
+                Swal.close();
                 Swal.fire({
                     title: 'Order Placed Successfully!',
                     text: 'Thank you for your purchase. You will receive a confirmation email shortly.',
@@ -1189,22 +1210,128 @@
                     confirmButtonText: 'View Order Details',
                     timer: 3000
                 }).then(() => {
+                    window.location.href = '/place-order';
+                });
+            } else {
+    console.log('Sending to /payment/create-order:', { totalAmount });
+    const res = await fetch('/payment/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ totalAmount })
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to create Razorpay order');
+    }
+
+    const razorpayData = await res.json();
+    console.log('Razorpay Order Response:', razorpayData);
+
+    if (!razorpayData.success || !razorpayData.order || !razorpayData.order.amount) {
+        throw new Error('Invalid Razorpay order response');
+    }
+
+    if (razorpayData.order.amount !== Math.round(totalAmount * 100)) {
+        throw new Error('Razorpay order amount does not match cart total');
+    }
+
+    const options = {
+        key: razorpayKeyId,
+        amount: razorpayData.order.amount,
+        currency: 'INR',
+        name: 'Eon Forge',
+        description: 'Checkout Payment for Order',
+        order_id: razorpayData.order.id,
+        prefill: {
+            name: userName || 'Customer',
+            email: 'customer@example.com',
+            contact: selectedAddress?.phone || ''
+        },
+        handler: async function (response) {
+            console.log('Razorpay Payment Response:', response);
+            try {
+                const confirmRes = await fetch('/payment/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        cartItems,
+                        address: selectedAddress,
+                        paymentMethod: selectedPaymentMethod,
+                        subtotal,
+                        deliveryFee,
+                        totalAmount
+                    })
+                });
+
+                const confirmData = await confirmRes.json();
+                if (!confirmRes.ok || !confirmData.success) {
+                    throw new Error(confirmData.message || 'Payment verification failed');
+                }
+
+                Swal.close();
+                Swal.fire({
+                    title: 'Payment Successful!',
+                    text: 'Order placed successfully.',
+                    icon: 'success',
+                    confirmButtonColor: '#d4af37',
+                    timer: 3000
+                }).then(() => {
                     window.location.href = `/place-order`;
                 });
             } catch (error) {
-                console.error('Error submitting order:', error);
+                console.error('Error in payment verification:', error);
+                Swal.close();
                 Swal.fire({
                     title: 'Order Failed',
-                    text: 'There was an error processing your order. Please try again.',
+                    text: error.message || 'There was an error processing your order. Please try again.',
                     icon: 'error',
                     confirmButtonColor: '#d4af37'
                 });
-                
                 checkoutBtn.disabled = false;
                 checkoutBtn.innerHTML = '<span>Place Order</span><i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-300"></i>';
             }
+        },
+        theme: { color: '#d4af37' },
+        method: {
+            upi: selectedPaymentMethod === 'upi',
+            netbanking: selectedPaymentMethod === 'netbanking',
+            card: selectedPaymentMethod === 'card'
+        }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function (response) {
+        console.error('Payment Failure:', response.error);
+        Swal.close();
+        Swal.fire({
+            title: 'Payment Failed',
+            text: response.error.description || 'Something went wrong. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#d4af37'
+        });
+        checkoutBtn.disabled = false;
+        checkoutBtn.innerHTML = '<span>Place Order</span><i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-300"></i>';
+    });
+    rzp.open();
+}
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            Swal.close();
+            Swal.fire({
+                title: 'Order Failed',
+                text: error.message || 'There was an error processing your order. Please try again.',
+                icon: 'error',
+                confirmButtonColor: '#d4af37'
+            });
+            checkoutBtn.disabled = false;
+            checkoutBtn.innerHTML = '<span>Place Order</span><i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-300"></i>';
         }
     }
+}
 
     function showEmptyCart() {
         document.getElementById('checkoutContent').classList.add('hidden');
@@ -1226,5 +1353,5 @@
         });
     });
     </script>
-</body>
+
 </html>

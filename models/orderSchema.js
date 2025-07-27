@@ -33,7 +33,7 @@ const orderSchema = new Schema({
         },
         status: {
             type: String,
-             enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned","Rejected"],
+            enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned", "Rejected"],
             default: 'Pending'
         },
         cancelReason: {
@@ -100,14 +100,22 @@ const orderSchema = new Schema({
         }
     },
     paymentStatus: {
-    type: String,
-    enum: ['pending', 'processing', 'paid', 'failed', 'cancelled', 'refunded', 'partial'],
-    default: 'pending'
-  },
+        type: String,
+        enum: ['pending', 'processing', 'paid', 'failed', 'cancelled', 'refunded', 'partial'],
+        default: 'pending'
+    },
     paymentMethod: {
         type: String,
         enum: ['cod', 'upi', 'netbanking', 'card'],
         required: true
+    },
+    razorpayOrderId: {
+        type: String,
+        default: null
+    },
+    razorpayPaymentId: {
+        type: String,
+        default: null
     },
     invoiceDate: {
         type: Date,
@@ -116,7 +124,7 @@ const orderSchema = new Schema({
     status: {
         type: String,
         required: true,
-        enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned","Rejected"],
+        enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Return Request", "Returned", "Rejected"],
         default: "Pending"
     },
     returnStatus: {
@@ -125,9 +133,9 @@ const orderSchema = new Schema({
         default: 'None'
     },
     returnReason: {
-            type: String,
-            default: null
-        },
+        type: String,
+        default: null
+    },
     cancelReason: {
         type: String,
         default: null,

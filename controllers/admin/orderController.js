@@ -1,6 +1,13 @@
 const Order = require('../../models/orderSchema');
 const User = require('../../models/userSchema');
+const Wallet=require('../../models/walletSchema')
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 
+const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 const loadOrders = async (req, res) => {
   try {
@@ -132,7 +139,12 @@ const updateOrderStatus = async (req, res) => {
         }
       });
     }
-
+if (order.paymentMethod.toLowerCase() === 'cod' && order.status=== 'Delivered') {
+    order.paymentStatus = 'paid';
+    
+}
+console.log('when after checking',order.status)
+console.log('when after checking', order.paymentStatus)
     await order.save(); 
 
     res.json({ success: true, message: 'Order status updated successfully' });
@@ -143,33 +155,84 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-
 const verifyReturnRequest = async (req, res) => {
   const { orderId } = req.params;
   const { approved } = req.body;
 
-  console.log('verify return',req.body)
-  console.log('verify return',req.params)
+  console.log('verify return', req.body);
+  console.log('verify return', req.params);
 
   try {
     const order = await Order.findOne({ orderId });
-console.log('order getting',order)
+    console.log('order getting', order);
+
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
     if (approved) {
+      // Check if order is eligible for refund
+      if (order.refunded) {
+        return res.status(400).json({ success: false, message: 'Order already refunded' });
+      }
+
+      if (order.paymentStatus !== 'paid') {
+        return res.status(400).json({ success: false, message: 'Order payment not completed' });
+      }
+
+      // Update order status
       order.status = 'Returned';
+      order.returnStatus = 'Approved';
       order.refunded = true;
-      // Optionally: trigger refund logic here
+
+      // Find or create user wallet
+      let wallet = await Wallet.findOne({ userId: order.userId });
+      if (!wallet) {
+        wallet = new Wallet({ userId: order.userId, balance: 0, transactions: [] });
+      }
+
+      // Refund logic
+      const refundAmount = order.finalAmount; // Amount to refund
+      let refundStatus = 'success';
+
+      if (order.paymentMethod !== 'cod' && order.razorpayPaymentId) {
+        // Process Razorpay refund
+        try {
+          const refund = await razorpayInstance.payments.refund(order.razorpayPaymentId, {
+            amount: Math.round(refundAmount * 100), // Convert to paise
+            speed: 'normal', // or 'optimum' for faster refunds
+            receipt: `refund_${order.orderId}_${Date.now()}`
+          });
+          console.log('Razorpay refund processed:', refund);
+        } catch (refundError) {
+          console.error('Razorpay refund error:', refundError);
+          refundStatus = 'failed';
+          return res.status(500).json({ success: false, message: 'Failed to process Razorpay refund' });
+        }
+      }
+
+      // Update wallet balance and add transaction
+      wallet.balance += refundAmount;
+      wallet.transactions.push({
+        type: 'credit',
+        amount: refundAmount,
+        reason: `Refund for order ${order.orderId}`,
+        status: refundStatus,
+        orderId: order._id,
+        date: new Date()
+      });
+
+      await wallet.save();
+      await order.save();
+
+      res.json({ success: true, message: 'Return approved and refund processed' });
     } else {
-      order.returnRejected = true;
-      order.status='Rejected'
+      order.returnStatus = 'Rejected';
+      order.status = 'Rejected';
+      order.returnReason = req.body.returnReason || 'Return request rejected by admin';
+      await order.save();
+      res.json({ success: true, message: 'Return rejected' });
     }
-
-    await order.save();
-
-    res.json({ success: true, message: approved ? 'Return approved' : 'Return rejected' });
   } catch (err) {
     console.error('Return verification error:', err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -212,30 +275,6 @@ console.log('After save:', item.status);
 };
 
 
-const updatePaymentStatus = async (req, res) => {
-  const { orderId } = req.params;
-  const { paymentStatus } = req.body;
-   console.log('paystatus is getting in this page',req.body)
-   console.log('Incoming payment status update:', orderId, paymentStatus); 
-  try {
-    const validStatuses = ['pending', 'processing', 'paid', 'failed', 'refunded', 'cancelled', 'partial'];
-    if (!validStatuses.includes(paymentStatus)) {
-      return res.status(400).json({ success: false, message: 'Invalid status' });
-    }
-
-
-    const order = await Order.findOne({orderId})
-    console.log('why not gettying order id',order)
-
-    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
-       order.paymentStatus=paymentStatus;
-       await order.save()
-    res.json({ success: true });
-  } catch (err) {
-    console.error('Error updating payment status:', err);
-    res.status(500).json({ success: false, message: 'Server Error' });
-  }
-};
 
 
 
@@ -245,6 +284,6 @@ module.exports = {
     updateOrderStatus,
     verifyReturnRequest,
     verifyItemReturnRequest,
-    updatePaymentStatus
+   
 
 }

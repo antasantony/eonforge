@@ -30,10 +30,10 @@ const productSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  isBlocked:{
-        type:Boolean,
-        default:false
-    },
+  isBlocked: {
+    type: Boolean,
+    default: false
+  },
   colorVariants: [
     {
       colorName: {
@@ -50,7 +50,8 @@ const productSchema = new Schema({
       },
       offerPrice: {
         type: Number,
-        required: true,
+        required: false,
+        default: null,
       },
       hasOffer: {
         type: Boolean,
@@ -70,18 +71,18 @@ const productSchema = new Schema({
         enum: ['Available', 'Out of Stock'],
         default: 'Available',
       },
-     
+
       _id: {
         type: Schema.Types.ObjectId,
         auto: true,
       },
-      isBlocked:{
-        type:Boolean,
-        default:false
-    },
+      isBlocked: {
+        type: Boolean,
+        default: false
+      },
     },
   ],
-  
+
 }, { timestamps: true });
 
 
