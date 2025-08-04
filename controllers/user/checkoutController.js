@@ -3,6 +3,7 @@ const Cart = require('../../models/cartSchema');
 const Address = require('../../models/addressSchema');
 const Order = require('../../models/orderSchema');
 const Product = require('../../models/productSchema');
+const Coupon=require('../../models/couponSchema')
 const env = require("dotenv").config();
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
@@ -85,6 +86,9 @@ const loadCheckout = async (req, res) => {
 
         console.log('checkout username', defaultAddress)
 
+        const coupons=await Coupon.find()
+        console.log('coupon arrangement',coupons)
+
         let subtotal = 0;
         if (cartItems.length > 0) {
             subtotal = cartItems.reduce((sum, item) => sum + (item.total || 0), 0);
@@ -103,7 +107,8 @@ const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
             otherAddresses,
             subtotal,
             deliveryFee,
-            totalAmount
+            totalAmount,
+            coupons
         });
 
     } catch (error) {
@@ -246,9 +251,13 @@ const deleteAddress = async (req, res) => {
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.userId;
-        const { cartItems, address, paymentMethod, subtotal, deliveryFee, totalAmount } = req.body;
-
+        const { cartItems, address, paymentMethod, subtotal, deliveryFee, totalAmount,coupon } = req.body;
+       let couponApplied=false;
         console.log('request body from place order:', req.body);
+        console.log('coupon status chsangeing',req.body.coupon)
+        if(coupon){
+              couponApplied=true
+        }
 
         if (!userId || !cartItems || !address || !paymentMethod) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
@@ -309,7 +318,7 @@ const placeOrder = async (req, res) => {
             address: addressFields,
             status: "Pending",
             invoiceDate: new Date(),
-            couponApplied: false
+            couponApplied
         });
 
         console.log('new order to save:', newOrder);

@@ -307,17 +307,15 @@
                         <img src="<%= product.colorVariants[0].productImage[0] %>" alt="<%= product.productName %>"
                           class="w-full h-48 object-contain p-4">
                       </a>
-                      <span
-                    <button 
-  onclick="toggleWishlist('<%= product._id %>','<%= product.selectedVariant._id %>', this)"
-  class="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 wishlist-btn"
-  data-product-id="<%= product._id %>" 
-  data-variant-id="<%= product.selectedVariant._id %>">
-  
-  <i class="<%= wishlistProductIds.includes(product._id.toString()) ? 'fas text-red-600' : 'far' %> fa-heart"></i>
-</button>
 
+                      <span <button
+                        onclick="toggleWishlist('<%= product._id %>','<%= product.selectedVariant._id %>', this)"
+                        class="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 wishlist-btn"
+                        data-product-id="<%= product._id %>" data-variant-id="<%= product.selectedVariant._id %>">
 
+                        <i
+                          class="<%= wishlistProductIds.includes(product._id.toString()) ? 'fas text-red-600' : 'far' %> fa-heart"></i>
+                        </button>
                     </div>
                     <div class="p-4">
                       <h3 class="font-semibold text-sm mb-1">
@@ -329,12 +327,36 @@
                       <p class="text-xs text-gray-400 mb-2">
                         <%= product.colorVariants[0].colorName %>
                       </p>
-                      <div class="flex items-center">
-                        <span class="font-bold">₹<%= product.colorVariants[0].offerPrice %></span>
-                        <span class="text-gray-500 line-through text-sm ml-2">₹<%= product.colorVariants[0].regularPrice
-                            %></span>
-                      </div>
+
+                      <% const regularPrice=product.colorVariants[0].regularPrice; 
+                      const  hasProductOffer=product.colorVariants[0].hasOffer;
+                        const  hasCategoryOffer=product.category.hasOffer;
+                        const productDiscount=hasProductOffer ? product.colorVariants[0].discountPercentage : 0; // in % 
+                       const categoryDiscount=hasCategoryOffer ? product.category.offerPrice : 0; // in % 
+                       const productOfferPrice=hasProductOffer ? product.colorVariants[0].offerPrice : regularPrice;
+                        const categoryOfferPrice=regularPrice - (regularPrice * categoryDiscount / 100);
+                        const finalOfferPrice=Math.min(productOfferPrice, categoryOfferPrice); 
+                        const bestDiscount=Math.max(productDiscount, categoryDiscount); %>
+
+                       
+                        <% if (bestDiscount> 0) { %>
+                          <p class="text-xs text-red-600 font-semibold mb-1">
+                            <%= bestDiscount %>% OFF
+                          </p>
+                          <% } %>
+
+                            <div class="flex items-center">
+                              <% if (hasProductOffer || hasCategoryOffer) { %>
+                                <span class="font-bold text-primary">₹<%= finalOfferPrice.toFixed(2) %></span>
+                                <span class="text-gray-500 line-through text-sm ml-2">₹<%= regularPrice.toLocaleString()
+                                    %></span>
+                                <% } else { %>
+                                  <span class="font-bold text-primary">₹<%= regularPrice.toLocaleString() %></span>
+                                  <% } %>
+                            </div>
                     </div>
+
+
                   </div>
                   <% }) %>
                     <% } else { %>
@@ -487,8 +509,8 @@
         });
 
         // Wishlist functionality
-        
-                document.addEventListener('DOMContentLoaded', function () {
+
+        document.addEventListener('DOMContentLoaded', function () {
           const wishlistButtons = document.querySelectorAll('.wishlist-btn');
 
           // Function to show toast notifications
@@ -508,7 +530,7 @@
           }
 
           // Toggle wishlist status
-          async function toggleWishlist(productId,variantId, button) {
+          async function toggleWishlist(productId, variantId, button) {
             console.log("wishlist productId:", productId);
 
             try {
@@ -517,7 +539,7 @@
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ productId,variantId }),
+                body: JSON.stringify({ productId, variantId }),
                 credentials: 'include'
               });
 
@@ -551,7 +573,7 @@
               e.preventDefault();
               const productId = this.getAttribute('data-product-id');
               const variantId = this.getAttribute('data-variant-id');
-              await toggleWishlist(productId,variantId, this);
+              await toggleWishlist(productId, variantId, this);
             });
           });
         });

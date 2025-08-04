@@ -84,13 +84,12 @@ const addProduct = async (req, res) => {
   try {
     const { productName, description, brand, category, colorVariants, hasOffer } = req.body;
 
-    // console.log('addProduct - Request body:', req.body);
-    // console.log('addProduct - Request files:', req.files);
-
+    // Validate required fields
     if (!productName?.trim() || !description?.trim() || !brand || !category || !colorVariants) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
+    // Validate brand and category IDs
     if (!mongoose.Types.ObjectId.isValid(brand) || !mongoose.Types.ObjectId.isValid(category)) {
       return res.status(400).json({ success: false, message: 'Invalid brand or category ID' });
     }
@@ -106,9 +105,7 @@ const addProduct = async (req, res) => {
 
     let variants;
     try {
-
-      variants = colorVariants
-
+      variants = colorVariants;
     } catch (err) {
       return res.status(400).json({ success: false, message: 'Invalid JSON in colorVariants' });
     }
@@ -117,12 +114,17 @@ const addProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: 'At least one color variant is required' });
     }
 
+    // Validate variant fields
     for (const variant of variants) {
       if (!variant.colorName?.trim() || !variant.colorValue?.trim()) {
         return res.status(400).json({ success: false, message: 'Each variant must have a colorName and colorValue' });
       }
-      if (isNaN(parseFloat(variant.regularPrice)) || isNaN(parseFloat(variant.offerPrice))) {
-        return res.status(400).json({ success: false, message: `Invalid price for variant ${variant.colorName}` });
+      if (isNaN(parseFloat(variant.regularPrice)) || parseFloat(variant.regularPrice) <= 0) {
+        return res.status(400).json({ success: false, message: `Invalid regular price for variant ${variant.colorName}` });
+      }
+      // Validate discountPercentage instead of offerPrice
+      if (isNaN(parseFloat(variant.discountPercentage)) || parseFloat(variant.discountPercentage) < 0 || parseFloat(variant.discountPercentage) > 100) {
+        return res.status(400).json({ success: false, message: `Invalid discount percentage for variant ${variant.colorName} (must be 0–100)` });
       }
       if (isNaN(parseInt(variant.stock)) || parseInt(variant.stock) < 0) {
         return res.status(400).json({ success: false, message: `Invalid stock for variant ${variant.colorName}` });
@@ -134,11 +136,9 @@ const addProduct = async (req, res) => {
       (fileMap[f.fieldname] ||= []).push(f);
     });
 
-    console.log(colorVariants)
     const variantErrors = [];
     for (let idx = 0; idx < variants.length; idx++) {
       const images = fileMap[`colorVariants[${idx}][productImage][]`] || [];
-      console.log(fileMap)
       if (images.length < 3) {
         variantErrors.push(`Color variant "${variants[idx].colorName}" must have at least 3 images.`);
       }
@@ -190,11 +190,17 @@ const addProduct = async (req, res) => {
         });
       }
 
+      // Calculate offerPrice based on regularPrice and discountPercentage
+      const regularPrice = parseFloat(variant.regularPrice);
+      const discountPercentage = parseFloat(variant.discountPercentage);
+      const offerPrice = regularPrice * (1 - discountPercentage / 100);
+
       variants[idx] = {
         colorName: variant.colorName.trim(),
         colorValue: variant.colorValue.trim(),
-        regularPrice: parseFloat(variant.regularPrice),
-        offerPrice: parseFloat(variant.offerPrice),
+        regularPrice: regularPrice,
+        discountPercentage: discountPercentage, // Store discountPercentage
+        offerPrice: offerPrice.toFixed(2), // Store calculated offerPrice
         stock: parseInt(variant.stock),
         productImage: fileNames,
         hasOffer: !!variant.hasOffer,
@@ -231,15 +237,26 @@ const updateProduct = async (req, res) => {
     const productId = req.params.id;
     const { productName, description, brand, category, colorVariants, hasOffer } = req.body;
 
-    // console.log('updateProduct - Request body:', req.body);
-    console.log('updateProduct also variant- Request files:', req.files);
+    console.log('updateProduct - Request body:', req.body);
+    console.log('updateProduct - Request files:', req.files);
 
+    // Validate required fields
     if (!productName?.trim() || !description?.trim() || !brand || !category || !colorVariants) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
+    // Validate brand and category IDs
     if (!mongoose.Types.ObjectId.isValid(brand) || !mongoose.Types.ObjectId.isValid(category)) {
       return res.status(400).json({ success: false, message: 'Invalid brand or category ID' });
+    }
+
+    const brandExists = await Brand.findById(brand);
+    const categoryExists = await Category.findById(category);
+    if (!brandExists || brandExists.isBlocked) {
+      return res.status(400).json({ success: false, message: 'Invalid or blocked brand' });
+    }
+    if (!categoryExists || !categoryExists.isListed) {
+      return res.status(400).json({ success: false, message: 'Invalid or unlisted category' });
     }
 
     let variants;
@@ -247,6 +264,26 @@ const updateProduct = async (req, res) => {
       variants = colorVariants;
     } catch {
       return res.status(400).json({ success: false, message: 'Invalid JSON in colorVariants' });
+    }
+
+    if (!Array.isArray(variants) || variants.length === 0) {
+      return res.status(400).json({ success: false, message: 'At least one color variant is required' });
+    }
+
+    // Validate variant fields
+    for (const variant of variants) {
+      if (!variant.colorName?.trim() || !variant.colorValue?.trim()) {
+        return res.status(400).json({ success: false, message: 'Each variant must have a colorName and colorValue' });
+      }
+      if (isNaN(parseFloat(variant.regularPrice)) || parseFloat(variant.regularPrice) <= 0) {
+        return res.status(400).json({ success: false, message: `Invalid regular price for variant ${variant.colorName}` });
+      }
+      if (isNaN(parseFloat(variant.discountPercentage)) || parseFloat(variant.discountPercentage) < 0 || parseFloat(variant.discountPercentage) > 100) {
+        return res.status(400).json({ success: false, message: `Invalid discount percentage for variant ${variant.colorName} (must be 0–100)` });
+      }
+      if (isNaN(parseInt(variant.stock)) || parseInt(variant.stock) < 0) {
+        return res.status(400).json({ success: false, message: `Invalid stock for variant ${variant.colorName}` });
+      }
     }
 
     const fileMap = {};
@@ -272,7 +309,6 @@ const updateProduct = async (req, res) => {
       const imagesInField = fileMap[`colorVariants[${idx}][productImage][]`] || [];
       const removeImage = req.body[`colorVariants[${idx}][removeImage]`] === 'on';
       let existingImages = req.body[`colorVariants[${idx}][existingImage]`] || [];
-      console.log('exist or not iamge=====', existingImages)
       existingImages = Array.isArray(existingImages) ? existingImages : existingImages ? [existingImages] : [];
 
       const existingVariant = existingProduct.colorVariants.find(v => v._id.toString() === variant._id);
@@ -330,15 +366,21 @@ const updateProduct = async (req, res) => {
         });
       }
 
+      // Calculate offerPrice based on regularPrice and discountPercentage
+      const regularPrice = parseFloat(variant.regularPrice);
+      const discountPercentage = parseFloat(variant.discountPercentage);
+      const offerPrice = regularPrice * (1 - discountPercentage / 100);
+
       updatedVariants.push({
         _id: variant._id || undefined,
         colorName: variant.colorName?.trim(),
         colorValue: variant.colorValue?.trim(),
-        regularPrice: parseFloat(variant.regularPrice) || 0,
-        offerPrice: parseFloat(variant.offerPrice) || 0,
+        regularPrice: regularPrice,
+        discountPercentage: discountPercentage, // Store discountPercentage
+        offerPrice: offerPrice.toFixed(2), // Store calculated offerPrice
         stock: parseInt(variant.stock) || 0,
         productImage: imagePaths,
-        hasOffer: !!variant.hasOffer,
+        hasOffer: variant.hasOffer,
         isActive: parseInt(variant.stock) > 0 ? 'Available' : 'Out of Stock',
       });
     }
@@ -349,10 +391,11 @@ const updateProduct = async (req, res) => {
       brand,
       category,
       colorVariants: updatedVariants,
-      hasOffer: !!hasOffer,
+      hasOffer: hasOffer,
       status: updatedVariants.some(v => v.stock > 0 && v.isActive === 'Available') ? 'Available' : 'Out of Stock'
     };
-
+  console.log('offer is working active',updateDoc)
+  
     await Product.findByIdAndUpdate(productId, updateDoc, { new: true });
     console.log('Product updated successfully:', productId);
     res.json({ success: true, message: 'Product updated successfully' });
@@ -434,11 +477,7 @@ const updateVariant = async (req, res) => {
     console.log('updateVariant - Request body:', req.body);
     console.log('updateVariant - Request files:', req.files);
 
-    const fileMap = {};
-    (req.files || []).forEach((f) => {
-      (fileMap[f.fieldname] ||= []).push(f);
-    });
-
+    // Validate colorVariants presence
     if (!colorVariants) return res.status(400).json({ success: false, message: 'Missing colorVariants data' });
 
     let variants;
@@ -448,11 +487,32 @@ const updateVariant = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid JSON in colorVariants' });
     }
 
+    // Ensure exactly one variant is provided
     if (variants.length !== 1) {
       return res.status(400).json({ success: false, message: 'Exactly one variant should be provided' });
     }
 
     const variant = variants[0];
+
+    // Validate variant fields
+    if (!variant.colorName?.trim() || !variant.colorValue?.trim()) {
+      return res.status(400).json({ success: false, message: 'Variant must have a colorName and colorValue' });
+    }
+    if (isNaN(parseFloat(variant.regularPrice)) || parseFloat(variant.regularPrice) <= 0) {
+      return res.status(400).json({ success: false, message: `Invalid regular price for variant ${variant.colorName}` });
+    }
+    if (isNaN(parseFloat(variant.discountPercentage)) || parseFloat(variant.discountPercentage) < 0 || parseFloat(variant.discountPercentage) > 100) {
+      return res.status(400).json({ success: false, message: `Invalid discount percentage for variant ${variant.colorName} (must be 0–100)` });
+    }
+    if (isNaN(parseInt(variant.stock)) || parseInt(variant.stock) < 0) {
+      return res.status(400).json({ success: false, message: `Invalid stock for variant ${variant.colorName}` });
+    }
+
+    const fileMap = {};
+    (req.files || []).forEach((f) => {
+      (fileMap[f.fieldname] ||= []).push(f);
+    });
+
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
 
@@ -472,7 +532,6 @@ const updateVariant = async (req, res) => {
     const imagesInField = fileMap[`colorVariants[0][productImage][]`] || [];
     const removeImage = req.body[`colorVariants[0][removeImage]`] === 'on';
     let existingImages = req.body[`colorVariants[0][existingImage]`] || [];
-
     existingImages = Array.isArray(existingImages) ? existingImages : existingImages ? [existingImages] : [];
 
     if (!existingImages.length) {
@@ -499,7 +558,6 @@ const updateVariant = async (req, res) => {
     } else if (imagesInField.length === 0) {
       imagePaths = existingImages;
     }
-
 
     for (const file of imagesInField) {
       const newName = `${Date.now()}-${file.originalname}`;
@@ -530,15 +588,23 @@ const updateVariant = async (req, res) => {
       });
     }
 
+    // Calculate offerPrice based on regularPrice and discountPercentage
+    const regularPrice = parseFloat(variant.regularPrice);
+    const discountPercentage = parseFloat(variant.discountPercentage);
+    const offerPrice = regularPrice * (1 - discountPercentage / 100);
+
+    // Update variant fields
     existingVariant.colorName = variant.colorName?.trim();
     existingVariant.colorValue = variant.colorValue?.trim();
-    existingVariant.regularPrice = parseFloat(variant.regularPrice) || 0;
-    existingVariant.offerPrice = parseFloat(variant.offerPrice) || 0;
+    existingVariant.regularPrice = regularPrice;
+    existingVariant.discountPercentage = discountPercentage; // Store discountPercentage
+    existingVariant.offerPrice = offerPrice.toFixed(2); // Store calculated offerPrice
     existingVariant.stock = parseInt(variant.stock) || 0;
     existingVariant.hasOffer = !!variant.hasOffer;
     existingVariant.productImage = imagePaths;
     existingVariant.isActive = parseInt(variant.stock) > 0 ? 'Available' : 'Out of Stock';
 
+    // Update product status
     product.status = product.colorVariants.some(v => v.stock > 0 && v.isActive === 'Available') ? 'Available' : 'Out of Stock';
 
     await product.save();

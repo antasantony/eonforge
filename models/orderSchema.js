@@ -148,6 +148,9 @@ const orderSchema = new Schema({
     couponApplied: {
         type: Boolean,
         default: false
+    },
+    couponId:{
+        
     }
 });
 

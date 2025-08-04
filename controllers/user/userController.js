@@ -445,7 +445,7 @@ const loadShopPage = async (req, res) => {
   product.selectedVariant = product.colorVariants[0]; // first variant as default
   return product;
 });
-
+   console.log('the category is get in this page are you sure',filteredProducts)
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
  

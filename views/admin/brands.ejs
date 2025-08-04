@@ -130,13 +130,14 @@
                   <%data.forEach((brand,index)=>{%>
                     <tr class="hover:bg-gray-50">
                       <td class="px-4 py-3"><%=(currentPage-1)*limit+index+1%></td>
-                      <td name="name" class="px-4 py-3 font-medium" style="text-transform: uppercase;">
-                        <%=brand.brandName%>
-                      </td>
                       <td class="px-4 py-3">
                         <img name="image" src="/Uploads/re-image/<%=brand.brandImage[0]%>" alt="<%=brand.brandName%>"
                           class="h-10 w-10 object-contain">
                       </td>
+                      <td name="name" class="px-4 py-3 font-medium" style="text-transform: uppercase;">
+                        <%=brand.brandName%>
+                      </td>
+                      
                       <td class="px-4 py-3">
                         <span
                           class="px-2 py-1 rounded-full text-xs font-medium <%=brand.isBlocked?'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' %>">

@@ -81,12 +81,18 @@ const loadProductDetail = async (req, res) => {
         isInCart = true;
       }
     }
+console.log('product detail page offer  setting',product)
+
     const sameBrandProducts = await Product.find({
       brand: product.brand._id,
       _id: { $ne: product._id },
       isBlocked: false
     })
+    .populate('category')
       .limit(5);
+
+      console.log('brand detail page offer  setting',sameBrandProducts)
+
     res.render('product-detail', {
       user,
       isLoggedIn,

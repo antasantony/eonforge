@@ -306,14 +306,35 @@
                     <div class="glass-effect rounded-2xl p-6 premium-shadow border border-white/20">
                         <div class="space-y-4">
                             <div class="flex flex-wrap items-center gap-4">
-                                <span class="text-text-secondary line-through text-xl">₹<%=
-                                        selectedVariant.regularPrice.toLocaleString() %></span>
-                                <span class="text-3xl md:text-4xl font-bold text-primary">₹<%=
-                                        selectedVariant.offerPrice.toLocaleString() %></span>
-                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-                                    Save ₹<%= (selectedVariant.regularPrice -
-                                        selectedVariant.offerPrice).toLocaleString() %>
-                                </span>
+                                <% const regularPrice=selectedVariant.regularPrice; 
+                                   const hasBrandOffer=selectedVariant.hasOffer;
+                                const hasCategoryOffer=product.category.hasOffer; 
+                                 const brandOfferPrice=hasBrandOffer ?   selectedVariant.offerPrice : regularPrice;
+                                  const brandDiscount=hasBrandOffer ?   selectedVariant.discountPercentage : 0; 
+                                  const categoryDiscount=hasCategoryOffer ?  product.category.offerPrice : 0; // in % 
+                                    const categoryOfferPrice=regularPrice -(regularPrice * categoryDiscount / 100);
+                                    const finalOfferPrice=Math.min(brandOfferPrice, categoryOfferPrice); 
+                                   const bestDiscount=Math.max(brandDiscount, categoryDiscount); 
+                                   const savedAmount=regularPrice - finalOfferPrice; %>
+
+                                    <% if (bestDiscount> 0) { %>
+                                        <span class="text-text-secondary line-through text-xl">
+                                            ₹<%= regularPrice.toLocaleString() %>
+                                        </span>
+
+                                        <span class="text-3xl md:text-4xl font-bold text-primary">
+                                            ₹<%= finalOfferPrice.toFixed(2) %>
+                                        </span>
+
+                                        <span
+                                            class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                            Save ₹<%= savedAmount.toFixed(2) %>
+                                        </span>
+                                        <% } else { %>
+                                            <span class="text-3xl md:text-4xl font-bold text-primary">
+                                                ₹<%= regularPrice.toLocaleString() %>
+                                            </span>
+                                            <% } %>
                             </div>
 
                             <div class="space-y-2 text-sm text-text-secondary">
@@ -533,19 +554,38 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    <% sameBrandProducts.forEach(product=> { %>
+                    <% sameBrandProducts.forEach(product=> {
+                        if (product.colorVariants.length > 0) {
+                        const variant = product.colorVariants[0];
+                        %>
                         <div
                             class="product-card glass-effect rounded-2xl overflow-hidden premium-shadow border border-white/20 group">
                             <a href="/product-detail/<%= product._id %>" class="block">
                                 <div class="relative overflow-hidden">
-                                    <img src="<%= product.colorVariants[0].productImage[0] %>"
+                                    <img src="<%= variant.productImage?.[0] || '/images/placeholder.jpg' %>"
                                         alt="<%= product.productName %>"
                                         class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500">
-                                    <% if(product.hasOffer) { %>
-                                        <span
-                                            class="absolute top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">Sale</span>
-                                        <% } %>
+                       
+                                       <%
+  const regularPrice = variant.regularPrice;
+  const hasBrandOffer = variant.hasOffer;
+  const brandDiscount = hasBrandOffer ? variant.discountPercentage : 0;
+
+  const hasCategoryOffer = product.category?.hasOffer;
+  const categoryDiscount = hasCategoryOffer ? product.category.offerPrice : 0;
+
+  const betterDiscount = Math.max(brandDiscount, categoryDiscount);
+%>
+
+<% if (betterDiscount > 0) { %>
+  <span class="absolute top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+    <%= betterDiscount %>% OFF
+  </span>
+<% } %>
+                                        
+                                        
                                 </div>
+
                                 <div class="p-4 space-y-2">
                                     <h3
                                         class="font-semibold text-primary text-sm line-clamp-2 group-hover:text-accent transition-colors">
@@ -554,21 +594,39 @@
                                     <p class="text-xs text-text-secondary">
                                         <%= product.brand.brandName %>
                                     </p>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-text-secondary line-through text-sm">₹<%=
-                                                product.colorVariants[0].regularPrice.toLocaleString() %></span>
-                                        <span class="font-bold text-primary">₹<%=
-                                                product.colorVariants[0].offerPrice.toLocaleString() %></span>
-                                    </div>
-                                    <p class="text-xs text-green-600 font-medium">
-                                        Save ₹<%= (product.colorVariants[0].regularPrice -
-                                            product.colorVariants[0].offerPrice).toLocaleString() %>
-                                    </p>
+                                    <%
+
+  const brandOfferPrice = hasBrandOffer ? variant.offerPrice : regularPrice;
+  const categoryOfferPrice = regularPrice - (regularPrice * categoryDiscount / 100);
+  const finalPrice = Math.min(brandOfferPrice, categoryOfferPrice);
+  const isOfferApplied = finalPrice < regularPrice;
+%>
+
+<div class="flex items-center gap-2">
+  <% if (isOfferApplied) { %>
+    <span class="text-text-secondary line-through text-sm">
+      ₹<%= regularPrice.toLocaleString() %>
+    </span>
+    <span class="font-bold text-primary">
+      ₹<%= finalPrice.toLocaleString() %>
+    </span>
+  <% } else { %>
+    <span class="font-bold text-primary">
+      ₹<%= regularPrice.toLocaleString() %>
+    </span>
+  <% } %>
+</div>
+<% if (isOfferApplied) { %>
+  <p class="text-xs text-green-600 font-medium">
+    Save ₹<%= (regularPrice - finalPrice).toLocaleString() %>
+  </p>
+<% } %>
                                 </div>
                             </a>
                         </div>
-                        <% }) %>
+                        <% } }); %>
                 </div>
+
             </div>
         </div>
 

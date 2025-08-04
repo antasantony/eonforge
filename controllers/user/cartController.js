@@ -92,7 +92,7 @@ const addToCart = async (req, res) => {
         $pull: {
 
           products: {
-            productId: productId,         // Ensure these are ObjectId types if needed
+            productId: productId,         
             variantId: variantId
           }
         }
@@ -131,7 +131,11 @@ const loadCart = async (req, res) => {
         v => v._id.toString() === item.variantId.toString()
       );
 
-      
+      if (!product || product.isBlocked === true || variant.isBlocked===true) {
+    console.warn(`Blocked or missing product: ${item._id}`);
+    return null;
+  }
+
       if (!product || !variant) {
         console.error(`Product or variant not found for item: ${item._id}`);
         return null;

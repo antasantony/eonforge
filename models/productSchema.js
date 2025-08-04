@@ -48,6 +48,10 @@ const productSchema = new Schema({
         type: Number,
         required: true,
       },
+      discountPercentage:{
+         type: Number,
+         default: 0 
+      },
       offerPrice: {
         type: Number,
         required: false,
