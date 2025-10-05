@@ -71,7 +71,7 @@ const loadOrderDetail = async (req, res) => {
       .populate('orderItems.product')
       .lean();
 
-    if (!order) return res.status(404).send('Order not found');
+    if (!order) return res.render('pageError');
 
     // Convert variantId and colorVariants._id to strings for EJS matching
     order.orderItems.forEach(item => {
@@ -99,7 +99,7 @@ const loadOrderDetail = async (req, res) => {
       await Order.findByIdAndUpdate(order._id, { status: finalStatus });
       order.status = finalStatus; // Update local copy too for rendering
     }
-order.paymentStatus = order.paymentStatus || 'pending';
+order.paymentStatus = order.paymentStatus || 'Pending';
 
     console.log('Order after status check:', order);
 
@@ -140,7 +140,7 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 if (order.paymentMethod.toLowerCase() === 'cod' && order.status=== 'Delivered') {
-    order.paymentStatus = 'paid';
+    order.paymentStatus = 'Paid';
     
 }
 console.log('when after checking',order.status)
@@ -171,62 +171,79 @@ const verifyReturnRequest = async (req, res) => {
     }
 
     if (approved) {
-      // Check if order is eligible for refund
-      if (order.refunded) {
-        return res.status(400).json({ success: false, message: 'Order already refunded' });
+  // Check if order is eligible for refund
+  if (order.refunded) {
+    return res.status(400).json({ success: false, message: 'Order already refunded' });
+  }
+
+  if (order.paymentStatus !== 'Paid') {
+    return res.status(400).json({ success: false, message: 'Order payment not completed' });
+  }
+
+  // Update order status
+  order.status = 'Returned';
+  order.returnStatus = 'Approved';
+  order.refunded = true;
+
+  // Find or create user wallet
+  let wallet = await Wallet.findOne({ userId: order.userId });
+  if (!wallet) {
+    wallet = new Wallet({ userId: order.userId, balance: 0, transactions: [] });
+  }
+
+  // Refund logic
+  const refundAmount = order.finalAmount; // Amount to refund
+  let refundStatus = 'success';
+
+  if (order.paymentMethod !== 'cod' && order.razorpayPaymentId) {
+    // Check Razorpay refund status before attempting refund
+    try {
+      const payment = await razorpayInstance.payments.fetch(order.razorpayPaymentId);
+      if (payment.status === 'refunded' || payment.amount_refunded >= payment.amount) {
+        // Update database to reflect Razorpay's state
+        order.refunded = true;
+        order.paymentStatus = 'Refunded';
+        await order.save();
+        return res.status(400).json({ success: false, message: 'Payment already fully refunded according to Razorpay' });
       }
 
-      if (order.paymentStatus !== 'paid') {
-        return res.status(400).json({ success: false, message: 'Order payment not completed' });
-      }
-
-      // Update order status
-      order.status = 'Returned';
-      order.returnStatus = 'Approved';
-      order.refunded = true;
-
-      // Find or create user wallet
-      let wallet = await Wallet.findOne({ userId: order.userId });
-      if (!wallet) {
-        wallet = new Wallet({ userId: order.userId, balance: 0, transactions: [] });
-      }
-
-      // Refund logic
-      const refundAmount = order.finalAmount; // Amount to refund
-      let refundStatus = 'success';
-
-      if (order.paymentMethod !== 'cod' && order.razorpayPaymentId) {
-        // Process Razorpay refund
-        try {
-          const refund = await razorpayInstance.payments.refund(order.razorpayPaymentId, {
-            amount: Math.round(refundAmount * 100), // Convert to paise
-            speed: 'normal', // or 'optimum' for faster refunds
-            receipt: `refund_${order.orderId}_${Date.now()}`
-          });
-          console.log('Razorpay refund processed:', refund);
-        } catch (refundError) {
-          console.error('Razorpay refund error:', refundError);
-          refundStatus = 'failed';
-          return res.status(500).json({ success: false, message: 'Failed to process Razorpay refund' });
-        }
-      }
-
-      // Update wallet balance and add transaction
-      wallet.balance += refundAmount;
-      wallet.transactions.push({
-        type: 'credit',
-        amount: refundAmount,
-        reason: `Refund for order ${order.orderId}`,
-        status: refundStatus,
-        orderId: order._id,
-        date: new Date()
+      // Process Razorpay refund
+      const refund = await razorpayInstance.payments.refund(order.razorpayPaymentId, {
+        amount: Math.round(refundAmount * 100), // Convert to paise
+        speed: 'normal',
+        receipt: `refund_${order.orderId}_${Date.now()}`
       });
+      console.log('Razorpay refund processed:', refund);
+    } catch (refundError) {
+      console.error('Razorpay refund error:', refundError);
+      if (refundError.statusCode === 400 && refundError.error.description.includes('fully refunded already')) {
+        // Handle case where Razorpay indicates the payment is already refunded
+        order.refunded = true;
+        await order.save();
+        return res.status(400).json({ success: false, message: 'Payment already fully refunded' });
+      }
+      refundStatus = 'failed';
+      return res.status(500).json({ success: false, message: 'Failed to process Razorpay refund', error: refundError });
+    }
+  }
 
-      await wallet.save();
-      await order.save();
+  // Update wallet balance and add transaction
+  wallet.balance += refundAmount;
+  wallet.transactions.push({
+    type: 'credit',
+    amount: refundAmount,
+    reason: `Refund for order ${order.orderId}`,
+    status: refundStatus,
+    orderId: order._id,
+    date: new Date()
+  });
 
-      res.json({ success: true, message: 'Return approved and refund processed' });
-    } else {
+  await wallet.save();
+  order.paymentStatus = 'Refunded';
+  await order.save();
+
+  res.json({ success: true, message: 'Return approved and refund processed' });
+} else {
       order.returnStatus = 'Rejected';
       order.status = 'Rejected';
       order.returnReason = req.body.returnReason || 'Return request rejected by admin';
@@ -238,41 +255,65 @@ const verifyReturnRequest = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
-const verifyItemReturnRequest = async (req, res) => {
-  const {orderId,itemId } = req.params;
-  const { approved } = req.body;
-console.log('approved:', approved, typeof approved);
 
-  console.log('verify return',req.body)
-  console.log('verify return',req.params)
+
+const verifyItemReturnRequest = async (req, res) => {
+  const { orderId, itemId } = req.params;
+  const { approved } = req.body;
 
   try {
     const order = await Order.findOne({ orderId });
-    const item=order.orderItems.find(i=>i.variantId.toString()==itemId.toString())
-console.log('order getting',item)
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    const item = order.orderItems.find(i => i.variantId.toString() === itemId.toString());
+    if (!item) return res.status(404).json({ success: false, message: 'Item not found in order' });
 
     if (approved) {
       item.status = 'Returned';
       item.refunded = true;
-      // Optionally: trigger refund logic here
+
+      const refundAmount = item.price * item.stock;
+
+      // Always refund to wallet
+      let wallet = await Wallet.findOne({ userId: order.userId });
+      if (!wallet) {
+        wallet = new Wallet({ userId: order.userId, balance: 0, transactions: [] });
+      }
+
+      wallet.balance += refundAmount;
+      wallet.transactions.push({
+        type: 'credit',
+        amount: refundAmount,
+        reason: `Refund for returned item ${item._id} in order ${order.orderId}`,
+        status: 'success',
+        orderId: order._id,
+        itemId: item._id,
+        date: new Date()
+      });
+      await wallet.save();
+
+      order.finalAmount -= refundAmount;
+      if (order.finalAmount <= 0) {
+        order.paymentStatus = 'Refunded';
+      }
+
     } else {
-     console.log('Setting item to Rejected');
-      item.status='Rejected'
+      item.status = 'Rejected';
     }
-console.log('Before save:', item.status);
-await order.save();
-console.log('After save:', item.status);
 
+    await order.save();
 
-    res.json({ success: true, message: approved ? 'Return approved' : 'Return rejected' });
+    res.json({
+      success: true,
+      message: approved ? 'Item return approved & refund credited to wallet' : 'Item return rejected'
+    });
+
   } catch (err) {
     console.error('Return verification error:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
 
 
 

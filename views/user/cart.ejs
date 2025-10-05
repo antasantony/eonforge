@@ -214,94 +214,120 @@
                 <!-- Cart Items -->
                 <div class="xl:col-span-3">
                     <div class="space-y-6">
-                        <% if (cartItems && cartItems.length > 0) { %>
-                            <% cartItems.forEach((item, index) => { %>
-                                <div class="cart-item glass-effect rounded-2xl p-6 premium-shadow border border-white/20 animate-slide-up" 
-                                     style="animation-delay: <%= index * 0.1 %>s;" data-item-id="<%= item.id %>">
-                                    <div class="flex flex-col lg:flex-row gap-6">
-                                        <!-- Product Image -->
-                                        <div class="relative group flex-shrink-0">
-                                            <div class="w-32 h-32 lg:w-40 lg:h-40 rounded-xl overflow-hidden bg-gray-100">
-                                                <img src="<%= item.productImage || '/placeholder.svg?height=160&width=160' %>"
-                                                     alt="<%= item.productName %>"
-                                                     class="product-image w-full h-full object-cover">
-                                            </div>
-                                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onclick="removeFromCart('<%= item.id %>')" 
-                                                        class="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors">
-                                                    <i class="fas fa-times text-sm"></i>
-                                                </button>
-                                            </div>
-                                        </div>
+                       <% if (cartItems && cartItems.length > 0) { %>
+  <% cartItems.forEach((item, index) => { %>
+    <div class="cart-item glass-effect rounded-2xl p-6 premium-shadow border border-white/20 animate-slide-up" 
+         style="animation-delay: <%= index * 0.1 %>s;" data-item-id="<%= item.id %>">
+      <div class="flex flex-col lg:flex-row gap-6">
+        
+        <!-- Product Image -->
+        <div class="relative group flex-shrink-0">
+          <div class="w-32 h-32 lg:w-40 lg:h-40 rounded-xl overflow-hidden bg-gray-100">
+            <img src="<%= item.productImage || '/placeholder.svg?height=160&width=160' %>"
+                 alt="<%= item.productName %>"
+                 class="product-image w-full h-full object-cover">
+          </div>
+          <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="removeFromCart('<%= item.id %>')" 
+                    class="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors">
+              <i class="fas fa-times text-sm"></i>
+            </button>
+          </div>
+        </div>
 
-                                        <!-- Product Details -->
-                                        <div class="flex-1 space-y-4">
-                                            <div>
-                                                <h3 class="text-xl font-semibold text-primary mb-1"><%= item.productName %></h3>
-                                                <p class="text-text-secondary font-medium"><%= item.brandName %></p>
-                                            </div>
+        <!-- Product Details -->
+        <div class="flex-1 space-y-4">
+          <div>
+            <h3 class="text-xl font-semibold text-primary mb-1"><%= item.productName %></h3>
+            <p class="text-text-secondary font-medium"><%= item.brandName %></p>
+          </div>
 
-                                            <!-- Product Attributes -->
-                                            <div class="flex flex-wrap gap-2">
-                                                <span class="status-badge px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium">
-                                                    <i class="fas fa-palette mr-1"></i><%= item.color %>
-                                                </span>
-                                                <span id="status-<%= item.id %>" 
-                                                      class="status-badge px-3 py-1 <%= item.status && item.status === 'Available' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %> rounded-full text-sm font-medium">
-                                                    <i class="fas fa-circle mr-1 text-xs"></i><%= item.status || 'N/A' %>
-                                                </span>
-                                                <span id="stock-<%= item.id %>" 
-                                                      class="status-badge px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                                                    <i class="fas fa-box mr-1"></i><%= item.stock !== undefined ? item.stock + ' left' : 'Stock: N/A' %>
-                                                </span>
-                                            </div>
+          <!-- Product Attributes -->
+          <div class="flex flex-wrap gap-2">
+            <span class="status-badge px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium">
+              <i class="fas fa-palette mr-1"></i><%= item.color %>
+            </span>
+            <span id="status-<%= item.id %>" 
+                  class="status-badge px-3 py-1 
+                  <%= item.status === 'Available' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>
+                  rounded-full text-sm font-medium">
+              <i class="fas fa-circle mr-1 text-xs"></i><%= item.status || 'N/A' %>
+            </span>
+            <span id="stock-<%= item.id %>" 
+                  class="status-badge px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+              <i class="fas fa-box mr-1"></i>
+              <%= item.stock !== undefined ? item.stock + ' left' : 'Stock: N/A' %>
+            </span>
+          </div>
 
-                                            <!-- Quantity and Price Row -->
-                                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                                <!-- Quantity Controls -->
-                                                <div class="flex items-center space-x-4">
-                                                    <span class="text-sm font-medium text-text-secondary">Quantity:</span>
-                                                    <div class="flex items-center bg-gray-50 rounded-xl p-1">
-                                                        <button class="quantity-btn bg-white border border-gray-200 text-primary w-10 h-10 rounded-lg hover:border-accent hover:bg-accent hover:text-white transition-all duration-300 flex items-center justify-center font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
-                                                                onclick="updateCartQuantity('<%= item.productId %>', '<%= item.variantId %>', 'decrement')"
-                                                                <%= item.quantity <= 1 ? 'disabled' : '' %>>
-                                                            <i class="fas fa-minus text-sm"></i>
-                                                        </button>
-                                                        <div class="flex items-center justify-center min-w-[3rem] px-2">
-                                                            <span id="qty-<%= item.id %>" class="text-lg font-semibold text-primary"><%= item.quantity %></span>
-                                                        </div>
-                                                        <button class="quantity-btn bg-white border border-gray-200 text-primary w-10 h-10 rounded-lg hover:border-accent hover:bg-accent hover:text-white transition-all duration-300 flex items-center justify-center font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
-                                                                onclick="updateCartQuantity('<%= item.productId %>', '<%= item.variantId %>', 'increment')"
-                                                                <%= item.stock !== undefined && item.quantity >= item.stock ? 'disabled' : '' %>>
-                                                            <i class="fas fa-plus text-sm"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
+          <!-- 🚨 Show Blocked Warning -->
+          <% if (item.status === 'Blocked') { %>
+            <p class="text-red-600 font-semibold mt-2">⚠ This product is blocked and cannot be purchased.</p>
+          <% } %>
 
-                                                <!-- Price and Actions -->
-                                                <div class="flex items-center justify-between sm:justify-end gap-4">
-                                                    <div class="text-right">
-                                                        <div class="text-2xl font-bold text-primary">₹<%= item.price.toLocaleString() %></div>
-                                                        <div class="text-sm text-text-secondary">per item</div>
-                                                    </div>
-                                                    <div class="flex flex-col gap-2">
-                                                        <button class="text-text-secondary hover:text-accent transition-colors text-sm font-medium flex items-center space-x-1 group">
-                                                            <i class="fas fa-heart group-hover:text-red-500 transition-colors"></i>
-                                                            <span>Save</span>
-                                                        </button>
-                                                        <button onclick="removeFromCart('<%= item.id %>')" 
-                                                                class="text-red-500 hover:text-red-600 transition-colors text-sm font-medium flex items-center space-x-1">
-                                                            <i class="fas fa-trash"></i>
-                                                            <span>Remove</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        <% } %>
+          <!-- Quantity and Price Row -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            
+            <!-- Quantity Controls -->
+            <div class="flex items-center space-x-4">
+              <span class="text-sm font-medium text-text-secondary">Quantity:</span>
+              <div class="flex items-center bg-gray-50 rounded-xl p-1">
+                <button class="quantity-btn bg-white border border-gray-200 text-primary w-10 h-10 rounded-lg 
+                               hover:border-accent hover:bg-accent hover:text-white transition-all duration-300 
+                               flex items-center justify-center font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                        onclick="updateCartQuantity('<%= item.productId %>', '<%= item.variantId %>', 'decrement')"
+                        <%= item.quantity <= 1 || item.status === 'Blocked' ? 'disabled' : '' %>>
+                  <i class="fas fa-minus text-sm"></i>
+                </button>
+
+                <div class="flex items-center justify-center min-w-[3rem] px-2">
+                  <span id="qty-<%= item.id %>" class="text-lg font-semibold text-primary"><%= item.quantity %></span>
+                </div>
+
+                <button class="quantity-btn bg-white border border-gray-200 text-primary w-10 h-10 rounded-lg 
+                               hover:border-accent hover:bg-accent hover:text-white transition-all duration-300 
+                               flex items-center justify-center font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                        onclick="updateCartQuantity('<%= item.productId %>', '<%= item.variantId %>', 'increment')"
+                        <%= (item.stock !== undefined && item.quantity >= item.stock) || item.status === 'Blocked' ? 'disabled' : '' %>>
+                  <i class="fas fa-plus text-sm"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Price and Actions -->
+            <div class="flex items-center justify-between sm:justify-end gap-4">
+              <div class="text-right">
+                <div class="text-2xl font-bold 
+                            <%= item.status === 'Blocked' ? 'text-gray-400 line-through' : 'text-primary' %>">
+                  ₹<%= item.price.toLocaleString() %>
+                </div>
+                <% if (item.status === 'Blocked') { %>
+                  <div class="text-sm text-red-600">Blocked product</div>
+                <% } else { %>
+                  <div class="text-sm text-text-secondary">per item</div>
+                <% } %>
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <button class="text-text-secondary hover:text-accent transition-colors text-sm font-medium flex items-center space-x-1 group"
+                        <%= item.status === 'Blocked' ? 'disabled opacity-40 cursor-not-allowed' : '' %>>
+                  <i class="fas fa-heart group-hover:text-red-500 transition-colors"></i>
+                  <span>Save</span>
+                </button>
+                <button onclick="removeFromCart('<%= item.id %>')" 
+                        class="text-red-500 hover:text-red-600 transition-colors text-sm font-medium flex items-center space-x-1">
+                  <i class="fas fa-trash"></i>
+                  <span>Remove</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% }) %>
+<% } %>
+
                     </div>
 
                     <!-- Continue Shopping -->
@@ -327,34 +353,48 @@
 
                             <!-- Summary Details -->
                             <div class="space-y-4 mb-6">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-text-secondary">Subtotal (<span id="cartCount"><%= cartItems.reduce((sum, item) => sum + item.quantity, 0) %></span> items)</span>
-                                    <span id="subtotal" class="font-semibold text-primary">₹<%= cartItems.reduce((sum, item) => sum + item.total, 0).toLocaleString() %></span>
-                                </div>
-                                
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-text-secondary">Shipping</span>
-                                        <i class="fas fa-info-circle text-gray-400 text-xs" title="Free shipping on all orders"></i>
-                                    </div>
-                                    <span class="text-green-600 font-semibold flex items-center space-x-1">
-                                        <i class="fas fa-check text-sm"></i>
-                                        <span>Free</span>
-                                    </span>
-                                </div>
-                                
-                              
-                                
-                            
-                            </div>
+  <!-- Subtotal -->
+  <div class="flex justify-between items-center">
+    <span class="text-text-secondary">
+      Subtotal (
+      <span id="cartCount">
+        <%= cartItems.filter(item => item.status !== 'Blocked')
+                     .reduce((sum, item) => sum + item.quantity, 0) %>
+      </span> items)
+    </span>
 
-                            <!-- Total -->
-                            <div class="border-t border-gray-100 pt-4 mb-6">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xl font-bold text-primary">Total</span>
-                                   <span id="total" class="text-xl font-bold text-primary">₹<%= cartItems.reduce((sum, item) => sum + item.total, 0).toLocaleString() %></span>
-                                </div>
-                            </div>
+    <span id="subtotal" class="font-semibold text-primary">
+      ₹<%= cartItems.filter(item => item.status !== 'Blocked')
+                    .reduce((sum, item) => sum + item.total, 0)
+                    .toLocaleString() %>
+    </span>
+  </div>
+
+  <!-- Shipping -->
+  <div class="flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <span class="text-text-secondary">Shipping</span>
+      <i class="fas fa-info-circle text-gray-400 text-xs" title="Free shipping on all orders"></i>
+    </div>
+    <span class="text-green-600 font-semibold flex items-center space-x-1">
+      <i class="fas fa-check text-sm"></i>
+      <span><%=50%></span>
+    </span>
+  </div>
+</div>
+
+<!-- Total -->
+<div class="border-t border-gray-100 pt-4 mb-6">
+  <div class="flex justify-between items-center">
+    <span class="text-xl font-bold text-primary">Total</span>
+    <span id="total" class="text-xl font-bold text-primary">
+      ₹<%= cartItems.filter(item => item.status !== 'Blocked')
+                    .reduce((sum, item) => sum + item.total, 0)
+                    .toLocaleString() %>
+    </span>
+  </div>
+</div>
+
 
                             <!-- Checkout Button -->
                             <button id="checkoutBtn" class="w-full bg-gradient-to-r from-primary to-gray-800 text-white py-4 px-6 rounded-xl font-bold text-lg hover:from-gray-800 hover:to-primary transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl flex items-center justify-center space-x-3 group">
@@ -413,6 +453,7 @@
     <script>
         // Existing JavaScript code preserved from your original file
         let cartItems = <%- JSON.stringify(cartItems) %>;
+  
 
         toastr.options = {
             positionClass: 'toast-top-right',
@@ -429,13 +470,12 @@
             }
 
             const subtotal = cartItems.reduce((sum, item) => sum + item.total, 0);
-            const insurance = 5000;
-            const tax = Math.round(subtotal * 0.12);
-            const total = subtotal + insurance + tax;
+   
+            const total = subtotal;
             const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
             document.getElementById('subtotal').textContent = `₹${subtotal.toLocaleString()}`;
-            document.getElementById('tax').textContent = `₹${tax.toLocaleString()}`;
+           
             document.getElementById('total').textContent = `₹${total.toLocaleString()}`;
             document.getElementById('cartCount').textContent = totalItems;
             document.getElementById('cartItemCount').textContent = totalItems;

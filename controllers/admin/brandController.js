@@ -43,7 +43,8 @@ const addBrand = async (req,res) => {
         if(findBrand){
             return res.json({success:false,message:'Brand already exists'}) 
         }
-           const image = req.file ? req.file.filename : null;
+           const image = req.file ? req.file.path : null;
+           console.log('image brand',image)
 
     if (!brandName || !image) {
       return res.json({ success: false, message: 'Brand name and image are required.' });
@@ -101,7 +102,7 @@ const editBrand = async (req, res) => {
       updateData.brandName = name.toUpperCase();
     }
     if (image) {
-      updateData.brandImage = [image.filename];
+      updateData.brandImage = [image.path];
     }
 
     const updatedBrand = await Brand.findByIdAndUpdate(

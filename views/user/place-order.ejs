@@ -253,6 +253,12 @@
                                 <span class="font-semibold">-₹<%= discount.toLocaleString() %></span>
                             </div>
                         <% } %>
+                        <% if (order.couponApplied && order.couponDiscount > 0) { %>
+                            <div class="flex justify-between text-sm text-green-600">
+                                <span class="text-text-secondary">Coupon Discount</span>
+                                <span class="font-semibold">-₹<%= (order.couponDiscount).toLocaleString() %></span>
+                            </div>
+                        <% } %>
                         <div class="flex justify-between text-sm">
                             <span class="text-text-secondary">Delivery Fee</span>
                             <span class="font-semibold text-primary"><%= deliveryFee === 0 ? 'Free' : '₹' + deliveryFee.toLocaleString() %></span>
@@ -263,12 +269,7 @@
                                 <span class="font-semibold text-primary">₹50</span>
                             </div>
                         <% } %>
-                        <% if (tax > 0) { %>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-text-secondary">Tax</span>
-                                <span class="font-semibold text-primary">₹<%= tax.toLocaleString() %></span>
-                            </div>
-                        <% } %>
+                        
                         <div class="flex justify-between text-lg font-bold pt-4 border-t border-gray-100">
                             <span class="text-primary">Total</span>
                             <span class="text-primary">₹<%= order.finalAmount.toLocaleString() %></span>

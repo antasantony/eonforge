@@ -53,7 +53,7 @@ brandForm.addEventListener('submit', async (e) => {
 
   const formData = new FormData(brandForm);
   const brandId = brandIdInput.value;
-  const url = brandId ? `/admin/brand/${brandId}` : '/admin/addBrand';
+  const url = brandId ? `/admin/brand/${brandId}` : '/admin/brand';
   const method = brandId ? 'PUT' : 'POST';
 
   try {
@@ -87,6 +87,7 @@ brandImage.addEventListener('change', (e) => {
     reader.onload = function () {
       brandImagePreview.style.display = 'block';
       brandImagePreview.src = reader.result;
+      
     };
     reader.readAsDataURL(file);
   }

@@ -143,4 +143,5 @@ document.addEventListener('DOMContentLoaded', function() {
     const productCount = Math.floor(Math.random() * 500) + 800;
     document.getElementById('total-products').textContent = productCount.toLocaleString();
   }, 500);
+  
 });

@@ -41,8 +41,12 @@
     }
   </script>
   <style>
-    .dropdown { display: none; }
-    .dropdown-container:hover .dropdown { display: block; }
+     .account-dropdown {
+      display: none;
+    }
+    .account-wrapper:hover .account-dropdown {
+      display: block;
+    }
     
     .table-row:hover { 
       background: linear-gradient(to right, rgba(243, 244, 246, 0.8), rgba(249, 250, 251, 0.8));
@@ -70,13 +74,12 @@
 
     <div class="flex-1 ml-64">
       <!-- Header -->
-      <header class="bg-white shadow-md sticky top-0 z-40 px-6 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <button class="md:hidden text-gray-600 hover:text-primary">
-              <i class="fas fa-bars text-xl"></i>
-            </button>
-            <form action="/admin/orders" method="get" class="search-container flex items-center bg-gray-100 rounded-full px-4 py-2">
+      <header class="bg-white py-4 px-6 flex items-center shadow sticky top-0 z-40">
+        <button class="menu-toggle mr-4 text-xl md:hidden">
+          <i class="fas fa-bars"></i>
+        </button>
+        
+        <form action="/admin/orders" method="get" class="search-container flex items-center bg-gray-100 rounded-full px-4 py-2">
               <input type="text" name="search" placeholder="Search orders..." 
                      class="bg-transparent border-none focus:outline-none text-sm w-64" 
                      value="<%= typeof search !== 'undefined' ? search : '' %>">
@@ -89,20 +92,17 @@
                 </a>
               <% } %>
             </form>
-          </div>
-          <div class="dropdown-container relative">
-            <button class="flex items-center gap-2 text-gray-700 hover:text-primary p-2 rounded-lg hover:bg-gray-100">
-              <i class="fas fa-user"></i>
-              <span class="text-sm font-medium">Admin</span>
-            </button>
-            <div class="dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100">
-              <a href="/profile" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                <i class="fas fa-user text-primary"></i> Profile
-              </a>
-              <a href="/admin/logout" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                <i class="fas fa-sign-out-alt text-danger"></i> Logout
-              </a>
-            </div>
+        <div class="account-wrapper relative ml-auto">
+          <button class="icon-btn text-xl text-gray-700" title="Account">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="account-dropdown absolute right-0 top-full bg-white min-w-40 shadow-lg rounded-md overflow-hidden">
+            <a href="/profile" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
+              <i class="fas fa-user mr-2"></i> Profile
+            </a>
+            <a href="/admin/logout" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
+              <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </a>
           </div>
         </div>
       </header>
@@ -258,7 +258,7 @@
   <% } %>
 
   <% if (order.status === 'Return Request') { %>
-    <button onclick="verifyReturn('<%= order.orderId %>','<%= order.returnReason %>')" 
+    <button onclick="verifyReturn('<%= order.orderId %>',`<%= order.returnReason %>`)" 
             class="text-warning hover:text-warning-dark text-sm font-medium px-3 py-1 rounded-lg hover:bg-warning/10">
       <i class="fas fa-check-double mr-1"></i>Verify
     </button>
@@ -327,13 +327,22 @@
 
   <script>
 
-
+    const statusOrder = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
 
     // Open Status Modal
     function openStatusModal(orderId, currentStatus) {
       document.getElementById('status-modal').classList.remove('hidden');
       document.getElementById('order-id').value = orderId;
-      document.getElementById('new-status').value = currentStatus;
+      const select=document.getElementById('new-status')  
+      select.value=currentStatus;
+      const currentIndex=statusOrder.indexOf(currentStatus);
+      console.log('currentindex',currentIndex)
+      for(let i=0;i<select.options.length;i++){
+        const optionValue=select.options[i].value;
+        const optionIndex=statusOrder.indexOf(optionValue)
+        select.options[i].disabled= optionIndex !==currentIndex+1 && optionValue!=='Cancelled'
+      }
+      
     }
 
     // Close Status Modal
@@ -371,7 +380,7 @@
       }
     });
 
-    function verifyReturn(orderId, returnReason) {
+   function verifyReturn(orderId, returnReason) {
   Swal.fire({
     title: 'Verify Return Request',
     html: `<b>Reason:</b> ${returnReason}`,
@@ -381,7 +390,14 @@
     showCancelButton: true,
     confirmButtonText: 'Approve',
     denyButtonText: 'Reject',
-    cancelButtonText: 'Cancel'
+    cancelButtonText: 'Cancel',
+    preConfirm: () => {
+      // Disable buttons to prevent multiple clicks
+      Swal.showLoading();
+      Swal.getConfirmButton().disabled = true;
+      Swal.getDenyButton().disabled = true;
+      Swal.getCancelButton().disabled = true;
+    }
   }).then(async (result) => {
     if (result.isConfirmed || result.isDenied) {
       try {

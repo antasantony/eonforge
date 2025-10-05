@@ -5,6 +5,7 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
+const cloudinary=require('cloudinary')
 
 const getProductPage = async (req, res) => {
   try {
@@ -161,27 +162,25 @@ const addProduct = async (req, res) => {
       const images = fileMap[`colorVariants[${idx}][productImage][]`] || [];
       const fileNames = [];
 
-      for (const file of images) {
-        const newName = `${Date.now()}-${file.originalname}`;
-        const output = path.join(resizedDir, newName);
-        try {
-          await sharp(file.path).resize(800, 800, { fit: 'cover' }).toFile(output);
-          console.log(`Successfully processed image: ${newName}`);
-          fileNames.push(`/uploads/product-resized/${newName}`);
-        } catch (sharpErr) {
-          console.error(`Sharp error for file ${file.originalname}:`, sharpErr);
-          return res.status(400).json({ success: false, message: `Failed to process image ${file.originalname}` });
-        } finally {
-          if (fs.existsSync(file.path)) {
-            try {
-              fs.unlinkSync(file.path);
-              console.log(`Deleted temporary file: ${file.path}`);
-            } catch (unlinkErr) {
-              console.error(`Failed to delete temp file ${file.path}:`, unlinkErr);
-            }
-          }
-        }
-      }
+     for (const file of images) {
+  try {
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: "products",
+      transformation: [{ width: 800, height: 800, crop: "fill" }]
+    });
+
+    fileNames.push(result.secure_url);
+
+    // delete temp
+    if (fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    return res.status(400).json({ success: false, message: "Image upload failed" });
+  }
+}
+
 
       if (fileNames.length < 3) {
         return res.status(400).json({
@@ -338,26 +337,23 @@ const updateProduct = async (req, res) => {
       }
 
       for (const file of imagesInField) {
-        const newName = `${Date.now()}-${file.originalname}`;
-        const output = path.join(resizedDir, newName);
-        try {
-          await sharp(file.path).resize(800, 800, { fit: 'cover' }).toFile(output);
-          console.log(`Successfully processed image: ${newName}`);
-          imagePaths.push(`/uploads/product-resized/${newName}`);
-        } catch (sharpErr) {
-          console.error(`Sharp error for file ${file.originalname}:`, sharpErr);
-          return res.status(400).json({ success: false, message: `Failed to process image ${file.originalname}` });
-        } finally {
-          if (fs.existsSync(file.path)) {
-            try {
-              fs.unlinkSync(file.path);
-              console.log(`Deleted temporary file: ${file.path}`);
-            } catch (unlinkErr) {
-              console.error(`Failed to delete temp file ${file.path}:`, unlinkErr);
-            }
-          }
-        }
-      }
+  try {
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: "products",
+      transformation: [{ width: 800, height: 800, crop: "fill" }]
+    });
+
+    imagePaths.push(result.secure_url);
+
+    if (fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    return res.status(400).json({ success: false, message: "Image upload failed" });
+  }
+}
+
 
       if (imagePaths.length < 3) {
         return res.status(400).json({

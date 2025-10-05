@@ -17,27 +17,7 @@ if (accountToggle && accountDropdown) {
   })
 }
 
-
-
-
-    // Search Clear Button
-    const searchInput = document.querySelector(".search-input")
-    const searchClearBtn = document.querySelector(".search-clear-btn")
-  
-    if (searchInput && searchClearBtn) {
-      // Initially hide the clear button if input is empty
-      searchClearBtn.style.display = searchInput.value ? "block" : "none"
-  
-      searchInput.addEventListener("input", function () {
-        searchClearBtn.style.display = this.value ? "block" : "none"
-      })
-  
-      searchClearBtn.addEventListener("click", function () {
-        searchInput.value = ""
-        searchInput.focus()
-        this.style.display = "none"
-      })
-    }
+ 
   
     // Mobile Menu Toggle
     const mobileMenuBtn = document.querySelector(".mobile-menu-btn")
@@ -120,20 +100,7 @@ if (accountToggle && accountDropdown) {
        
  
 
-        // Search Bar Toggle
-        const searchToggle = document.getElementById('search-toggle');
-        const searchBar = document.getElementById('search-bar');
-        const searchClose = document.getElementById('search-close');
-
-        searchToggle.addEventListener('click', () => {
-            searchBar.classList.toggle('opacity-0');
-            searchBar.classList.toggle('invisible');
-        });
-
-        searchClose.addEventListener('click', () => {
-            searchBar.classList.add('opacity-0');
-            searchBar.classList.add('invisible');
-        });
+       
 
 
   

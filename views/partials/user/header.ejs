@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
- <!-- Load jQuery first -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Load jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Toastr CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
@@ -66,30 +66,31 @@
                         <i class="fas fa-search text-lg mb-1"></i>
                         <span class="text-xs">Search</span>
                     </div>
-                    <div id="search-bar"
-                        class="absolute right-0 top-full bg-white border border-medium-gray rounded shadow-lg opacity-0 invisible transition-all duration-300 z-50 min-w-[300px]">
-                        <div class="flex items-center">
-                            <i class="fas fa-search text-dark-gray px-4"></i>
-                            <input type="text" value='' placeholder="Search analog slim"
-                                class="flex-1 py-2.5 pr-0 border-none outline-none font-montserrat text-sm">
-                            <button class="text-dark-gray px-4 opacity-70 hover:opacity-100 transition-opacity"
-                                id="search-close">
-                                <i class="fas fa-times text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <div id="search-bar" class="absolute right-0 top-full bg-white border border-medium-gray rounded shadow-lg transition-all duration-300 z-50 min-w-[300px] hidden">
+                <form id="search-form" action="/search" method="GET" class="flex items-center">
+                    <i class="fas fa-search text-dark-gray px-4"></i>
+                    <input id="search-input" name="query" type="text" placeholder="Search analog slim" class="flex-1 py-2.5 pr-0 border-none outline-none font-montserrat text-sm">
+                    <button type="submit" class="text-dark-gray px-4 opacity-70 hover:opacity-100 transition-opacity">
+                        <i class="fas fa-search text-sm"></i>
+                    </button>
+                    <button type="button" class="text-dark-gray px-4 opacity-70 hover:opacity-100 transition-opacity" id="search-close">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </form>
+             </div>
                 </div>
 
                 <!-- Account -->
                 <div class="relative group">
                     <% if (user) { %>
-                        <div
+                        <div id="accountBtn"
                             class="flex flex-col items-center text-black transition-colors hover:text-accent cursor-pointer">
                             <i class="fas fa-user text-lg mb-1"></i>
                             <span class="text-xs">Account</span>
                         </div>
-                        <div
-                            class="absolute right-0 top-full bg-white border border-gray-200 min-w-40 z-50 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                        <div id="accountDropdown"
+                            class="absolute right-0 top-full bg-white border border-gray-200 min-w-40 z-50 rounded shadow-lg hidden transition-all duration-300">
+
                             <a href="/profile" class="block px-4 py-2.5 text-gray-700 hover:bg-gray-100"><i
                                     class="fas fa-user mr-2"></i>
                                 <%= user.firstName %>'s Profile
@@ -123,45 +124,61 @@
 
 </header>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const searchToggle = document.getElementById('search-toggle');
-        const searchBar = document.getElementById('search-bar');
-        const searchClose = document.getElementById('search-close');
-        const searchInput = document.getElementById('search-input');
+document.addEventListener('DOMContentLoaded', () => {
+    const searchToggle = document.getElementById('search-toggle');
+    const searchBar = document.getElementById('search-bar');
+    const searchClose = document.getElementById('search-close');
+    const searchInput = document.getElementById('search-input');
+    const searchForm = document.getElementById('search-form');
 
-        // Toggle search bar visibility
-        searchToggle.addEventListener('click', () => {
-            const isVisible = !searchBar.classList.contains('invisible');
-            if (isVisible) {
-                searchBar.classList.add('opacity-0', 'invisible');
-            } else {
-                searchBar.classList.remove('opacity-0', 'invisible');
-                searchInput.focus(); // Focus input when opening
-            }
-        });
-
-        // Close search bar when close button is clicked
-        searchClose.addEventListener('click', () => {
-            searchBar.classList.add('opacity-0', 'invisible');
-            searchInput.value = ''; // Clear input on close
-        });
-
-        // Optional: Close search bar when clicking outside
-        document.addEventListener('click', (event) => {
-            if (!searchBar.contains(event.target) && !searchToggle.contains(event.target)) {
-                searchBar.classList.add('opacity-0', 'invisible');
-                searchInput.value = ''; // Clear input
-            }
-        });
-
-        // Optional: Handle Enter key for search
-        searchInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter' && searchInput.value.trim()) {
-                console.log('Search query:', searchInput.value); // Replace with actual search logic
-                // Example: window.location.href = `/search?q=${encodeURIComponent(searchInput.value)}`;
-                searchBar.classList.add('opacity-0', 'invisible');
-                searchInput.value = ''; // Clear input after search
-            }
-        });
+    // Toggle search bar visibility
+    searchToggle.addEventListener('click', () => {
+        searchBar.classList.toggle('hidden');
+        if (!searchBar.classList.contains('hidden')) searchInput.focus();
     });
+
+    // Close search bar and clear input
+    searchClose.addEventListener('click', () => {
+        searchInput.value = '';
+        searchBar.classList.add('hidden');
+    });
+
+    // Handle form submission
+    searchForm.addEventListener('submit', (event) => {
+        event.preventDefault(); // Prevent default form submission for now
+        const query = searchInput.value.trim();
+        if (query) {
+            console.log('Search query:', query);
+            // Example: Redirect to search results page
+            window.location.href = `/filter?page=1&minPrice=&maxPrice=680000&search=${encodeURIComponent(query)}`;
+            searchBar.classList.add('hidden');
+            searchInput.value = '';
+        } else {
+            // Notify user if search is empty
+            toastr.warning('Please enter a search term.');
+        }
+    });
+
+    // Close search bar when clicking outside
+    document.addEventListener('click', (event) => {
+        if (!searchBar.contains(event.target) && !searchToggle.contains(event.target)) {
+            searchBar.classList.add('hidden');
+            searchInput.value = '';
+        }
+    });
+
+    // Account dropdown toggle (unchanged)
+    const accountBtn = document.getElementById('accountBtn');
+    const accountDropdown = document.getElementById('accountDropdown');
+    if (accountBtn && accountDropdown) {
+        accountBtn.addEventListener('click', () => {
+            accountDropdown.classList.toggle('hidden');
+        });
+        document.addEventListener('click', (event) => {
+            if (!accountDropdown.contains(event.target) && !accountBtn.contains(event.target)) {
+                accountDropdown.classList.add('hidden');
+            }
+        });
+    }
+});
 </script>

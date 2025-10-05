@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eon Forge - Sales Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4361ee',
+            'primary-dark': '#3a56d4',
+            secondary: '#3f37c9',
+            success: '#4cc9f0',
+            danger: '#f72585',
+            warning: '#f8961e',
+            info: '#4895ef',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    .account-dropdown {
+      display: none;
+    }
+    .account-wrapper:hover .account-dropdown {
+      display: block;
+    }
+    .sidebar-menu a.active {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900 overflow-x-hidden">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <%- include("../../views/partials/admin/sidebar") %>
+    <!-- Main Content -->
+    <div class="flex-1 ml-64 min-h-screen">
+      <header class="bg-white py-4 px-6 flex justify-end items-center shadow sticky top-0 z-40">
+        <div class="account-wrapper relative">
+          <button class="bg-transparent border-none cursor-pointer text-xl text-gray-700" title="Account">
+            <i class="fas fa-user"></i>
+          </button>
+          <div class="account-dropdown absolute right-0 top-full bg-white min-w-40 shadow-lg rounded-md overflow-hidden">
+            <a href="/profile" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
+              <i class="fas fa-user mr-2"></i> Profile
+            </a>
+            <a href="/admin/logout" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
+              <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </a>
+          </div>
+        </div>
+      </header>
+      
+      <main class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-semibold text-gray-800">Sales Report</h1>
+          <div class="flex items-center space-x-4">
+            <select id="report-period" class="px-4 py-2 rounded border border-gray-300 bg-white">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="yearly">Yearly</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            <div id="custom-date-range" class="hidden flex space-x-2">
+              <input type="date" id="start-date" class="px-4 py-2 rounded border border-gray-300" value="<%= new Date().toISOString().split('T')[0] %>">
+              <input type="date" id="end-date" class="px-4 py-2 rounded border border-gray-300" value="<%= new Date().toISOString().split('T')[0] %>">
+            </div>
+            <button id="generate-report" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark">
+              Generate Report
+            </button>
+          </div>
+        </div>
+        
+       <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 mb-6">
+          
+          <!-- Total Sales Count -->
+          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
+            <div class="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center mr-4 text-white text-xl">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">Total Sales Count</h3>
+              <p class="text-2xl font-semibold text-gray-800">
+                <span id="total-sales-count"><%= salesData.totalSalesCount || '0' %></span>
+              </p>
+            </div>
+          </div>
+        
+          <!-- Total Items Sold -->
+          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
+            <div class="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center mr-4 text-white text-xl">
+              <i class="fas fa-cubes"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">Total Items Sold</h3>
+              <p class="text-2xl font-semibold text-gray-800">
+                <span id="total-items-sold"><%= salesData.totalItemsSold || '0' %></span>
+              </p>
+            </div>
+          </div>
+        
+          <!-- Total Order Amount -->
+          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
+            <div class="w-14 h-14 rounded-xl bg-green-600 flex items-center justify-center mr-4 text-white text-xl">
+              <i class="fas fa-indian-rupee-sign"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">Total Order Amount</h3>
+              <p class="text-2xl font-semibold text-gray-800">
+                ₹<span id="total-order-amount"><%= salesData.totalOrderAmount || '0.00' %></span>
+              </p>
+            </div>
+          </div>
+        
+          <!-- Total Discount -->
+          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
+            <div class="w-14 h-14 rounded-xl bg-orange-500 flex items-center justify-center mr-4 text-white text-xl">
+              <i class="fas fa-tags"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">Total Discount</h3>
+              <p class="text-2xl font-semibold text-gray-800">
+                ₹<span id="total-discount"><%= salesData.totalDiscount || '0.00' %></span>
+              </p>
+            </div>
+          </div>
+        
+        </div>
+        <!-- Sales Report Table -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="p-5 flex justify-between items-center">
+            <h2 class="text-lg font-semibold">Sales Details</h2>
+            <div class="space-x-2">
+              <button id="download-pdf" class="px-4 py-2 bg-success text-white rounded hover:bg-blue-400">
+                <i class="fas fa-file-pdf mr-2"></i> Download PDF
+              </button>
+              <button id="download-excel" class="px-4 py-2 bg-info text-white rounded hover:bg-blue-600">
+                <i class="fas fa-file-excel mr-2"></i> Download Excel
+              </button>
+            </div>
+          </div>
+          <div class="max-h-[400px] overflow-y-auto">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr class="sticky top-0 bg-white shadow-sm">
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Order ID</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Date</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Customer</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Order Amount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Discount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Coupon Discount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Final Amount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Payment Method</th>
+                </tr>
+              </thead>
+              <tbody>
+  <% if (salesData.orders && salesData.orders.length > 0) { %>
+    <% salesData.orders.forEach(sale => { %>
+      <tr>
+        <td class="px-4 py-3 text-gray-700">ORD<%= sale.orderId %></td>
+        <td class="px-4 py-3 text-gray-700"><%= sale.date %></td>
+        <td class="px-4 py-3 text-gray-700"><%= sale.customer %></td>
+        <td class="px-4 py-3 text-gray-700">₹<%= sale.orderAmount.toFixed(2) %></td>
+        <td class="px-4 py-3 text-gray-700">₹<%= sale.discount.toFixed(2) %></td>
+        <td class="px-4 py-3 text-gray-700">₹<%= sale.couponDiscount || 'N/A' %></td>
+        <td class="px-4 py-3 text-gray-700">₹<%= sale.finalAmount || 'N/A' %></td>
+        <td class="px-4 py-3 text-gray-700"><%= sale.paymentMethod || 'N/A' %></td>
+      </tr>
+    <% }) %>
+  <% } else { %>
+    <tr>
+      <td colspan="6" class="px-4 py-3 text-center text-gray-500">No sales data available for the selected period.</td>
+    </tr>
+  <% } %>
+</tbody>
+
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="/assets/js/admin/salesReport.js"></script>
+</body>
+</html>

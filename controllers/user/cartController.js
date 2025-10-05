@@ -3,17 +3,18 @@ const User = require('../../models/userSchema');
 const Product = require('../../models/productSchema');
 const Cart = require('../../models/cartSchema');
 const Wishlist = require('../../models/wishlistSchema')
+const Category=require('../../models/categorySchema')
 
 const addToCart = async (req, res) => {
   try {
     const userId = req.session.userId;
     const { productId, variantId } = req.body;
+    if (!userId) return res.status(401).json({ message: 'Login required' });
 
     const user = await User.findById(userId)
     if (!user || user.isBlocked) {
       return res.status(403).json({ success: false, message: 'You are blocked from making purchases' });
     }
-    if (!userId) return res.status(401).json({ message: 'Login required' });
 
     const product = await Product.findById(productId).populate('brand');
     if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -110,15 +111,15 @@ const loadCart = async (req, res) => {
     const userId = req.session.userId;
     if (!userId) return res.redirect('/login');
 
+
     const cartData = await Cart.findOne({ userId })
       .populate({
         path: 'items.productId',
-        populate: {
-          path: 'brand',
-          select: 'brandName'
-        }
+        populate: [
+          { path: 'brand', select: 'brandName' },
+          { path: 'category', select: 'name offerPrice hasOffer isListed' }
+        ]
       });
-
 
     if (!cartData || !cartData.items.length) {
       console.log('No cart found or cart is empty for user:', userId);
@@ -126,52 +127,72 @@ const loadCart = async (req, res) => {
     }
 
     const cartItems = cartData.items.map(item => {
-      const product = item.productId;
-      const variant = product?.colorVariants.find(
-        v => v._id.toString() === item.variantId.toString()
-      );
+  const product = item.productId;
+  const variant = product?.colorVariants.find(
+    v => v._id.toString() === item.variantId.toString()
+  );
 
-      if (!product || product.isBlocked === true || variant.isBlocked===true) {
-    console.warn(`Blocked or missing product: ${item._id}`);
+  if (!product || !variant) {
+    console.error(`Invalid product or variant for item: ${item._id}`);
     return null;
   }
 
-      if (!product || !variant) {
-        console.error(`Product or variant not found for item: ${item._id}`);
-        return null;
-      }
-      const latestPrice = variant.offerPrice ?? variant.regularPrice;
+  
+  const isBlocked = product.isBlocked || variant.isBlocked;
 
-      console.log('latest price is valid', latestPrice)
-      
-      const quantity = item.quantity !== undefined ? item.quantity : item.stock || 1;
-      const cartItem = {
-        id: item._id.toString(),
-        productId: product._id.toString(),
-        variantId: item.variantId.toString(),
-        productName: product.productName || 'N/A',
-        productImage: variant.productImage?.[0] || '/placeholder.svg?height=160&width=160',
-        color: variant.colorName || 'N/A',
-        price: latestPrice,
-        quantity,
-        total: latestPrice * quantity,
-        brandName: product.brand?.brandName || 'N/A',
-        stock: variant.stock,
-        status: variant.stock > 0 ? 'Available' : 'Out of Stock'
-      };
+ 
+  let variantPrice = variant.regularPrice;
 
-      console.log('Cart item:', cartItem);
-      return cartItem;
-    }).filter(Boolean);
+  if (variant.hasOffer && !isBlocked) {
+    if (variant.offerPrice !== null) {
+      variantPrice = variant.offerPrice;
+    }
+  }
 
+  let categoryDiscountPrice = null;
+  if (product.category?.hasOffer && product.category?.isListed && !isBlocked) {
+    const discountPercent = product.category.offerPrice;
+    categoryDiscountPrice = variant.regularPrice - (variant.regularPrice * discountPercent / 100);
+  }
+
+  const latestPrice = categoryDiscountPrice
+    ? Math.min(categoryDiscountPrice, variantPrice)
+    : variantPrice;
+
+  const quantity = item.quantity ?? item.stock ?? 1;
+
+        
+  return {
+    id: item._id.toString(),
+    productId: product._id.toString(),
+    variantId: item.variantId.toString(),
+    productName: product.productName || 'N/A',
+    productImage: variant.productImage?.[0] || '/placeholder.svg',
+    color: variant.colorName || 'N/A',
+    price: latestPrice,
+    quantity,
+    total: (product.isBlocked || variant.isBlocked) ? 0 : latestPrice * quantity, 
+    brandName: product.brand?.brandName || 'N/A',
+    categoryName: product.category?.name || 'N/A',
+    stock: variant.stock,
+    status: isBlocked
+      ? 'Blocked'
+      : variant.stock > 0
+        ? 'Available'
+        : 'Out of Stock'
+  };
+}).filter(Boolean);
+const deliveryFee = 50;
 
     console.log('Final cartItems:', JSON.stringify(cartItems, null, 2));
-    res.render('cart', { cartItems });
+    res.render('cart', { cartItems,deliveryFee });
+
   } catch (error) {
     console.error('Cart page error:', error);
     res.status(500).send('Internal Server Error');
   }
 };
+
 
 const updateCart = async (req, res) => {
   try {
@@ -213,7 +234,7 @@ const updateCart = async (req, res) => {
 
     // Update cart item quantity and totalPrice
           // stock//
-    item.quantity = quantity;
+    item.stock = quantity;
     item.totalPrice = item.price * quantity;
     cart.cartTotal = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
 
@@ -280,7 +301,7 @@ const addWishlist = async (req, res) => {
     let action = '';
 
     if (!wishlist) {
-      // New wishlist
+   
       wishlist = await Wishlist.create({
         userId,
         products: [{ productId, variantId }],
@@ -328,15 +349,23 @@ const loadWishlist = async (req, res) => {
     const wishlist = await Wishlist.findOne({ userId })
       .populate({
         path: 'products.productId',
-        populate: {
+        populate: [{
           path: 'brand',
-        },
+        },{path:'category',select:'name hasOffer offerPrice isListed'}]
       })
       .lean();
+      if(wishlist&&wishlist.products&&wishlist.products.length>0){
+   wishlist.products.forEach(items=>{
+    console.log(items.productId.category?.hasOffer)
+    console.log(items.productId.category?.offerPrice)
+    console.log(items.productId.category?.name)
+   })
+  }
 
+const wishlistItems= wishlist ? wishlist.products : []
 
     res.render('wishlist', {
-      wishlistItems: wishlist ? wishlist.products : []
+      wishlistItems
     });
 
   } catch (error) {

@@ -40,10 +40,11 @@ const couponSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    userId: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user"
-    }]
+   usedBy: [{
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  count: { type: Number, default: 1 } // how many times this user has used it
+}]
+
 });
 
 const Coupon = mongoose.model("coupon", couponSchema);

@@ -8,6 +8,7 @@ const cartController = require('../controllers/user/cartController');
 const checkoutController=require('../controllers/user/checkoutController');
 const paymentController =require('../controllers/user/paymentController')
 const passport = require('passport');
+const cloudinary = require('../config/cloudinary');
 const uploads = require('../helpers/multer');
 const { userAuth, isLogin} = require('../middlewares/auth');
 
@@ -15,15 +16,15 @@ const { userAuth, isLogin} = require('../middlewares/auth');
 router.get('/pageNotFound', userController.pageNotFound);
 router.get('/signup', isLogin, userController.loadSignup);
 router.post('/signup', isLogin, userController.signup);
-router.post('/verify-otp', userController.verifyOtp)
+router.post('/verify-otp',isLogin, userController.verifyOtp)
 router.get('/login',nocache(), isLogin, userController.loadLogin);
 router.post('/login',nocache(), isLogin, userController.login)
-router.get('/verify-otp', userController.loadVerifyotp)
-router.post('/resend-otp', userController.resendOtp)
+router.get('/verify-otp',isLogin, userController.loadVerifyotp)
+router.post('/resend-otp',isLogin, userController.resendOtp)
 
 
 router.get('/auth/google',nocache(), isLogin, passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/auth/google/callback',passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
+router.get('/auth/google/callback',nocache(), isLogin,passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
   console.log('reached')
   req.session.userId = req.user._id;
 
@@ -74,9 +75,9 @@ router.delete('/delete-address', userAuth, profileController.deleteAddress)
 //========== cart management  ==================//
 
 router.get('/cart',userAuth, cartController.loadCart)
-router.post('/addCart', cartController.addToCart)
-router.post('/update-cart',cartController.updateCart)
-router.post('/remove-from-cart', cartController.removeFromCart);
+router.post('/addCart',userAuth, cartController.addToCart)
+router.post('/update-cart',userAuth,cartController.updateCart)
+router.post('/remove-from-cart', userAuth,cartController.removeFromCart);
 //================  wishlist ==================//
 router.get('/wishlist',userAuth,cartController.loadWishlist)
 router.post('/addWishlist',userAuth,cartController.addWishlist)
@@ -87,22 +88,26 @@ router.post('/wishlist-to-cart', cartController.addToCartFromWishlist);
 
 
 //============= checkout management  ==============//
-router.get('/checkout',checkoutController.loadCheckout);
-router.post('/checkout-address', checkoutController.addAddress);
+router.get('/checkout',userAuth,checkoutController.loadCheckout);
+router.post('/checkout-address',userAuth, checkoutController.addAddress);
 router.put('/checkout-edit-address', checkoutController.editAddress);
 router.post('/checkout-delete-address', checkoutController.deleteAddress);
 // Online payment  //
 
 
-router.post('/place-order',checkoutController.placeOrder);
-router.get('/place-order',checkoutController.loadPlaceOrder)
-router.get('/order-details',checkoutController.orderDetails)
-router.get('/orders',checkoutController.orders);
-router.patch('/cancel-order-item/:orderId/:itemId',checkoutController.cancelOrderItem)
-router.post('/return-order-item', checkoutController.returnOrderItem);
+router.post('/place-order',userAuth,checkoutController.placeOrder);
+router.get('/place-order',userAuth,checkoutController.loadPlaceOrder)
+router.get('/payment-failure',userAuth,checkoutController.paymentFailure)
+router.get('/order-details',userAuth,checkoutController.orderDetails)
+router.get('/orders',userAuth,checkoutController.orders);
+router.patch('/cancel-order-item/:orderId/:itemId',userAuth,checkoutController.cancelOrderItem)
+router.post('/return-order-item',userAuth, checkoutController.returnOrderItem);
 
 router.post('/cancel-order', checkoutController.cancelOrder)
 router.post('/return-order', checkoutController.returnOrder);
+
+router.get('/invoice',checkoutController.loadInvoice);
+router.get('/download-invoice',checkoutController.downloadInvoice)
 
 //=========== product detail page ============//
 
@@ -110,9 +115,9 @@ router.get('/product-detail/:id', productController.loadProductDetail)
 
 //================== wallet =====================//
 
-router.get('/wallet',productController.loadWallet)
-router.post('/wallet/add-funds', productController.addFunds);
-router.post('/wallet/verify-add-funds', productController.verifyAddFunds);
+router.get('/wallet',userAuth,productController.loadWallet)
+router.post('/wallet/add-funds', userAuth,productController.addFunds);
+router.post('/wallet/verify-add-funds',userAuth, productController.verifyAddFunds);
 
 
 // ============ payment  ============= //

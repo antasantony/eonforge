@@ -36,8 +36,12 @@
       display: none;
     }  
 
-    .account-dropdown { display: none; }
-    .account-wrapper:hover .account-dropdown { display: block; }
+    .account-dropdown {
+      display: none;
+    }
+    .account-wrapper:hover .account-dropdown {
+      display: block;
+    }
     .sidebar-menu a.active { background-color: rgba(255, 255, 255, 0.1); }
     
     @keyframes fadeIn {
@@ -236,12 +240,13 @@
     <%- include("../../views/partials/admin/sidebar") %>
     
     <div class="flex-1 ml-64 min-h-screen">
-      <header class="bg-white py-3 px-4 flex items-center shadow-lg sticky top-0 z-40 border-b border-gray-200">
-        <button class="menu-toggle mr-3 text-lg md:hidden hover:text-primary transition-colors">
+       <!-- Header -->
+      <header class="bg-white py-4 px-6 flex items-center shadow sticky top-0 z-40">
+        <button class="menu-toggle mr-4 text-xl md:hidden">
           <i class="fas fa-bars"></i>
         </button>
         
-        <form action="/admin/addProducts" method="get" class="search-container flex items-center bg-gray-50 rounded-full px-3 py-2 ml-3">
+       <form action="/admin/addProducts" method="get" class="search-container flex items-center bg-gray-50 rounded-full px-3 py-2 ml-3">
           <input type="text" name="search" placeholder="Search products..." 
                  class="search-input bg-transparent border-none w-full focus:outline-none text-sm" 
                  value="<%= typeof search !== 'undefined' ? search : '' %>">
@@ -254,17 +259,16 @@
             </a>
           <% } %>
         </form>
-        
         <div class="account-wrapper relative ml-auto">
-          <button class="icon-btn text-lg text-gray-700 hover:text-primary transition-colors p-2 rounded-full hover:bg-gray-100" title="Account">
+          <button class="icon-btn text-xl text-gray-700" title="Account">
             <i class="fas fa-user"></i>
           </button>
-          <div class="account-dropdown absolute right-0 top-full bg-white min-w-36 shadow-xl rounded-lg overflow-hidden border border-gray-200 mt-2">
-            <a href="/profile" class="block px-3 py-2 text-gray-700 no-underline hover:bg-gray-50 transition-colors text-sm">
-              <i class="fas fa-user mr-2 text-primary"></i> Profile
+          <div class="account-dropdown absolute right-0 top-full bg-white min-w-40 shadow-lg rounded-md overflow-hidden">
+            <a href="/profile" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
+              <i class="fas fa-user mr-2"></i> Profile
             </a>
-            <a href="/admin/logout" class="block px-3 py-2 text-gray-700 no-underline hover:bg-gray-50 transition-colors text-sm">
-              <i class="fas fa-sign-out-alt mr-2 text-danger"></i> Logout
+            <a href="/admin/logout" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
+              <i class="fas fa-sign-out-alt mr-2"></i> Logout
             </a>
           </div>
         </div>
@@ -332,7 +336,7 @@
                     </td>
                     <td>
                       <span class="font-semibold text-gray-900 text-sm">
-                        <%= firstVariant && firstVariant.regularPrice != null ? '$' + firstVariant.regularPrice.toFixed(2) : '—' %>
+                        <%= firstVariant && firstVariant.regularPrice != null ? '₹' + firstVariant.regularPrice.toFixed(2) : '—' %>
                       </span>
                     </td>
                     <td>
@@ -342,7 +346,7 @@
                     </td>
                     <td>
                       <span class="font-semibold text-green-600 text-sm">
-                        <%= firstVariant && firstVariant.offerPrice != null ? '$' + firstVariant.offerPrice.toFixed(2) : '—' %>
+                        <%= firstVariant && firstVariant.offerPrice != null ? '₹' + firstVariant.offerPrice.toFixed(2) : '—' %>
                       </span>
                     </td>
                     <td>
@@ -1225,8 +1229,8 @@
               icon: 'success',
               title: 'Success',
               text: result.message || "Product saved successfully.",
-              timer: 2000,
-              showConfirmButton: false
+              
+              showConfirmButton: true
             }).then(() => {
               productModal.classList.add("hidden");
               location.reload();

@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const emailid = document.getElementById("email");
     const passid = document.getElementById("password");
     const cpassid = document.getElementById("confirmPassword");
+    const submitBTn = document.getElementById("btn-submit");
+   
+    const text = document.getElementById("btn-text");
 
     const error1 = document.getElementById("error1");
     const error2 = document.getElementById("error2");
@@ -88,10 +91,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const isLNameValid = lnameValidate();
         const isEmailValid = emailValidate();
         const isPassValid = passValidate();
+        //Button disable
+       
+       
+
 
         if (!isNameValid || !isLNameValid || !isEmailValid || !isPassValid) {
             return;
         }
+        submitBTn.disabled=true;
+        submitBTn.textContent="...Creating";
 
         const formData = new URLSearchParams(new FormData(form));
 

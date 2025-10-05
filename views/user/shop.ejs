@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-  <script>
+  <!-- <script>
     tailwind.config = {
       theme: {
         extend: {
@@ -19,7 +19,7 @@
         }
       }
     }
-  </script>
+  </script> -->
   <style>
     /* Custom styles for dual range slider */
     .range-slider {
@@ -153,7 +153,7 @@
                               <i class="fas fa-search"></i>
                             </button>
                             <% if (search) { %>
-                              <a href="/filter?page=<%= currentPage || 1 %>&<% if (selectedBrands && selectedBrands.length > 0) { %>brand=<%= selectedBrands.join('&brand=') %>&<% } %><% if (selectedCategories && selectedCategories.length > 0) { %>category=<%= selectedCategories.join('&category=') %>&<% }%><% if (minPrice&&minPrice>0) { %> minPrice=<%= minPrice %>&<% } %><%if(maxPrice&&maxPrice>0){%>maxPrice=<%= maxPrice%>&<%}%>"
+                              <a href="filter?minPrice=1705&maxPrice=680000 %>"
                                 class="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-primary">
                                 <i class="fas fa-times"></i>
                               </a>
@@ -490,24 +490,55 @@
         });
 
         // View toggle (grid/list)
-        const gridViewBtn = document.getElementById('gridView');
-        const listViewBtn = document.getElementById('listView');
-        const productsContainer = document.getElementById('productsContainer');
+       document.addEventListener('DOMContentLoaded', () => {
+  const gridViewBtn = document.getElementById('gridView');
+  const listViewBtn = document.getElementById('listView');
+  const productsContainer = document.getElementById('productsContainer');
 
-        gridViewBtn.addEventListener('click', () => {
-          productsContainer.classList.remove('grid-cols-1');
-          productsContainer.classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
-          gridViewBtn.classList.add('active');
-          listViewBtn.classList.remove('active');
-        });
+  if (gridViewBtn && listViewBtn && productsContainer) {
+    // Restore view from localStorage
+    const savedView = localStorage.getItem('productView') || 'grid';
+    if (savedView === 'list') {
+      productsContainer.classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+      productsContainer.classList.add('grid-cols-1');
+      listViewBtn.classList.add('active');
+      gridViewBtn.classList.remove('active');
+    } else {
+      productsContainer.classList.remove('grid-cols-1');
+      productsContainer.classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+      gridViewBtn.classList.add('active');
+      listViewBtn.classList.remove('active');
+    }
 
-        listViewBtn.addEventListener('click', () => {
-          productsContainer.classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
-          productsContainer.classList.add('grid-cols-1');
-          listViewBtn.classList.add('active');
-          gridViewBtn.classList.remove('active');
-        });
+    gridViewBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      console.log('Grid view clicked');
+      productsContainer.classList.remove('grid-cols-1');
+      productsContainer.classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+      console.log('Products container classes:', productsContainer.classList.toString());
+      gridViewBtn.classList.add('active');
+      listViewBtn.classList.remove('active');
+      localStorage.setItem('productView', 'grid');
+    });
 
+    listViewBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      console.log('List view clicked');
+      productsContainer.classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+      productsContainer.classList.add('grid-cols-1');
+      console.log('Products container classes:', productsContainer.classList.toString());
+      listViewBtn.classList.add('active');
+      gridViewBtn.classList.remove('active');
+      localStorage.setItem('productView', 'list');
+    });
+  } else {
+    console.error('Grid/List view elements not found');
+  }
+
+  // Rest of your existing JavaScript (filter, sort, wishlist, etc.)
+});
         // Wishlist functionality
 
         document.addEventListener('DOMContentLoaded', function () {

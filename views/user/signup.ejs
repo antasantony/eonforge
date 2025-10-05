@@ -91,7 +91,15 @@
                         </button>
                     </div>
 
-
+               <!-- Referral Code Input -->
+    <div class="form-group">
+        <label for="referralCode">Referral Code (Optional)</label>
+        <div class="input-group">
+            <i class="fas fa-ticket-alt"></i>
+            <input type="text" id="referralCode" name="referralCode" placeholder="Enter referral code">
+        </div>
+        <span class="error-message" id="error6"></span>
+    </div>
                       
 
 
@@ -106,7 +114,7 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="btn-submit">Create Account</button>
+                <button id="btn-submit" type="submit" class="btn-submit">Create Account</button>
                 
                 <div class="social-login">
                     <p>Or sign up with</p>
@@ -115,10 +123,10 @@
                             <i class="fab fa-google"></i>
                             <span>Google</span>
                         </a>
-                        <button type="button" class="btn-social facebook">
+                        <!-- <button type="button" class="btn-social facebook">
                             <i class="fab fa-facebook-f"></i>
                             <span>Facebook</span>
-                        </button>
+                        </button> -->
                     </div>
                 </div>
             </form>

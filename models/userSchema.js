@@ -64,10 +64,10 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'cart',
     }],
-    // wallet : {
-    //     type : Schema.Types.ObjectId,
-    //     default : 0,
-    // },
+    walletBalance : {
+        type : Number,
+        default : 0,
+    },
    
     orderHistory: [{
         type: Schema.Types.ObjectId,
@@ -77,15 +77,18 @@ const userSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-    referalCode: {
+    referralCode: {
         type: String,
+        unique: true
     },
     redeemed: {
-        type: Boolean
+        type: Boolean,
+        default: false 
     },
     redeemedUsers: [{
         type: Schema.Types.ObjectId,
-        // ref :"user"
+         ref :"User",
+         default: []
     }],
     searchHistory: [{
         category: {

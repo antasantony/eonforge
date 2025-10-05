@@ -1,8 +1,9 @@
 const User = require("../../models/userSchema");
 const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
-const Brand = require('../../models/brandSchema')
-const Wishlist = require('../../models/wishlistSchema')
+const Brand = require('../../models/brandSchema');
+const Wishlist = require('../../models/wishlistSchema');
+const { generateReferralCode, applyReferral } =require('../../helpers/refferal')
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer")
 const bcrypt = require("bcrypt")
@@ -132,7 +133,7 @@ const loadVerifyotp = async (req, res) => {
 
 const signup = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, confirmPassword } = req.body;
+    const { firstName, lastName, email, password, confirmPassword, referralCode } = req.body;
 
 
     if (password != confirmPassword) {
@@ -147,6 +148,17 @@ const signup = async (req, res) => {
         return res.json({ success: false, message: "User with this email already exists" })
       }
 
+    };
+
+     //  Referral validation 
+    if (referralCode) {
+      const referrer = await User.findOne({ referralCode });
+      if (!referrer) {
+        return res.json({ success: false, message: "Invalid referral code" });
+      }
+      if (referrer.email === email) {
+        return res.json({ success: false, message: "You cannot use your own referral code" });
+      }
     }
 
     const otp = generateOtp()
@@ -157,7 +169,7 @@ const signup = async (req, res) => {
 
     req.session.userOtp = otp;
     req.session.otpExpiresAt = Date.now() + 60 * 1000;
-    req.session.userData = { lastName, firstName, email, password }
+    req.session.userData = { lastName, firstName, email, password,referralCode }
 
     console.log('OTP sent', otp)
 
@@ -197,9 +209,20 @@ const verifyOtp = async (req, res) => {
         lastName: user.lastName,
         email: user.email,
         password: passwordHash,
-
+        referralCode: generateReferralCode(user.firstName, user.lastName)
       })
-      await saveUserData.save()
+      await saveUserData.save();
+
+      if (user.referralCode) {
+  try {
+    await applyReferral(saveUserData._id, user.referralCode);
+  } catch (err) {
+    console.error("Referral error:", err.message);
+    // optional: show message but don't block signup
+  }
+}
+
+
       req.session.userId = saveUserData._id;
 
       req.session.save(() => {
@@ -373,7 +396,7 @@ const loadShopPage = async (req, res) => {
     const userId = req.session.userId;
     const isLoggedIn = !!userId;
     const user = isLoggedIn ? await User.findOne({_id:userId,isBlocked:false}) : null;
-
+   console.log('serach product why not coming',search)
     let wishlistProductIds = [];
     if (isLoggedIn) {
       const wishlist = await Wishlist.findOne({ userId }).lean();
@@ -498,7 +521,7 @@ const filterProducts = async (req, res) => {
     const limit = 6;
     const skip = (page - 1) * limit;
     console.log(selectedBrands)
-
+  console.log('serach product why  coming',search)
     console.log('sorting answer', req.query.sort)
     console.log('sorting answer', sort)
 

@@ -288,7 +288,7 @@ const editProfile = async (req, res) => {
 
     // Handle profile image
     if (req.file) {
-      editData.profileImage = req.file.filename;;
+      editData.profileImage = req.file.path;;
     }
 
 

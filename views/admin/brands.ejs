@@ -131,7 +131,7 @@
                     <tr class="hover:bg-gray-50">
                       <td class="px-4 py-3"><%=(currentPage-1)*limit+index+1%></td>
                       <td class="px-4 py-3">
-                        <img name="image" src="/Uploads/re-image/<%=brand.brandImage[0]%>" alt="<%=brand.brandName%>"
+                        <img name="image" src="<%=brand.brandImage[0]%>" alt="<%=brand.brandName%>"
                           class="h-10 w-10 object-contain">
                       </td>
                       <td name="name" class="px-4 py-3 font-medium" style="text-transform: uppercase;">
@@ -156,7 +156,7 @@
                             <i class="fas fa-ban"></i> Block
                           </button>
                         <% } %>
-                        <button onclick="openEditModal('<%=brand._id%>', '<%=brand.brandName%>', '/Uploads/re-image/<%=brand.brandImage[0]%>')"
+                        <button onclick="openEditModal('<%=brand._id%>', '<%=brand.brandName%>', '<%=brand.brandImage[0]%>')"
                           class="text-blue-600 hover:text-blue-800">
                           <i class="fas fa-edit"></i> Edit
                         </button>

@@ -20,10 +20,11 @@ const cartSchema = new Schema({
             type: Number,
             default: 1
         },
-        
+
         status: {
-            type: String,
-            default: "placed"
+            type: String,  
+            enum: ["Available", "Blocked", "Out of Stock"],
+            default: "Available"
         },
         cancellationReason: {
             type: String,

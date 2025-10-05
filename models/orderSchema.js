@@ -27,7 +27,11 @@ const orderSchema = new Schema({
             type: Number,
             required: true
         },
-        price: {
+        discount: {
+            type: Number,
+            default: 0
+        },
+         price: {
             type: Number,
             required: true
         },
@@ -55,7 +59,7 @@ const orderSchema = new Schema({
         type: Number,
         required: true
     },
-    discount: {
+    couponDiscount: {
         type: Number,
         default: 0
     },
@@ -101,8 +105,8 @@ const orderSchema = new Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ['pending', 'processing', 'paid', 'failed', 'cancelled', 'refunded', 'partial'],
-        default: 'pending'
+        enum: ['Pending', 'Pocessing', 'Paid', 'Failed', 'Cancelled', 'Refunded', 'Partial'],
+        default: 'Pending'
     },
     paymentMethod: {
         type: String,
@@ -149,8 +153,8 @@ const orderSchema = new Schema({
         type: Boolean,
         default: false
     },
-    couponId:{
-        
+    couponId: {
+
     }
 });
 
