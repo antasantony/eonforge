@@ -343,6 +343,7 @@ const addWishlist = async (req, res) => {
 
 const loadWishlist = async (req, res) => {
   try {
+    
     const userId = req.session.userId;
     if (!userId) return res.redirect('/login');
 

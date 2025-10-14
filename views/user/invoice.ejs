@@ -183,7 +183,7 @@
         <div class="text-center mb-12 animate-fade-in">
             <h1 class="text-4xl md:text-5xl font-playfair font-bold text-primary mb-4">Invoice</h1>
             <p class="text-text-secondary text-lg max-w-2xl mx-auto">
-                Order <span class="font-semibold text-accent">#<%= order.orderId || 'N/A' %></span>
+                Order <span class="font-semibold text-accent">#ORD-<%= order.orderId.slice(1,8) || 'N/A' %></span>
                 <br>
                 Issued on <span class="font-semibold">
                     <%= new Date(order.invoiceDate).toLocaleDateString('en-IN', { year: 'numeric' , month: 'long' ,
@@ -240,8 +240,10 @@
                             <tr class="animate-slide-up" style="animation-delay: <%= index * 0.1 %>s">
                                 <td>
                                     <p class="font-medium text-text-primary">
-                                        <%= item.productName || 'Product' %>
+                                        <%= item.product.productName || 'Product' %>
                                     </p>
+                                    
+                               
                                     <p class="text-xs text-text-secondary">
                                         <%= item.brandName || 'Eon Forge' %>
                                     </p>
@@ -253,12 +255,12 @@
                                 <td>
                                     <%= item.stock || 1 %>
                                 </td>
-                                <td>₹<%= (item.price || 0).toLocaleString() %>
+                                <td>₹<%= (item.regularPrice || 0).toLocaleString() %>
                                 </td>
                                 <td class="text-green-600">
-                                    <%= item.discount> 0 ? '-₹' + (item.discount).toLocaleString() : '–' %>
+                                    <%= item.discount> 0 ? '-₹'+(item.discount).toLocaleString() : '–' %>
                                 </td>
-                                <td>₹<%= ((item.price - (item.discount || 0)) * (item.stock || 1)).toLocaleString() %>
+                                <td>₹<%= (item.price  * (item.stock || 1)).toLocaleString() %>
                                 </td>
                             </tr>
                             <% }) %>

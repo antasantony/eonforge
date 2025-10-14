@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eon Forge - Contact Us</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind theme to match brand -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            playfair: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            ink: '#191919',       // primary text
+            gold: '#d4af37',      // accent
+            paper: '#ffffff',     // backgrounds
+            grayish: '#6b7280',   // secondary text
+          },
+          borderRadius: {
+            xl: '0.75rem',
+          },
+          keyframes: {
+            fadeIn: { from: { opacity: 0, transform: 'translateY(12px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
+          },
+          animation: {
+            'fade-in': 'fadeIn .45s ease-out both',
+          },
+        },
+      },
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- Font Awesome (icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- SweetAlert2 (vanilla JS) -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="bg-paper text-ink font-inter">
+  <!-- Static Header -->
+     <%- include("../../views/partials/user/header") %>
+
+  <!-- Hero -->
+  <header class="container mx-auto px-4 pt-10 pb-6 text-center animate-fade-in">
+    <h1 class="font-playfair text-4xl md:text-5xl font-semibold tracking-tight">
+      Contact <span class="text-gold">Eon Forge</span>
+    </h1>
+    <p class="mt-3 text-base md:text-lg text-grayish max-w-3xl mx-auto leading-relaxed">
+      We’re here to answer your questions and help you find the perfect watch. Reach out to us today!
+    </p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 pb-12">
+    <!-- Contact Form -->
+    <section class="bg-paper border border-neutral-200 rounded-xl p-6 md:p-8 animate-fade-in">
+      <h2 class="font-playfair text-2xl font-semibold mb-6 flex items-center">
+        <i class="fa-solid fa-envelope mr-3 text-gold"></i> Send Us a Message
+      </h2>
+      <div class="max-w-lg mx-auto">
+        <div class="space-y-4">
+          <div>
+            <label for="name" class="block text-sm font-medium text-grayish">Name</label>
+            <input
+              type="text"
+              id="name"
+              class="mt-1 w-full rounded-lg border border-neutral-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="Your Name"
+            />
+            <p class="text-red-500 text-sm mt-1 hidden" id="name-error">Name is required</p>
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium text-grayish">Email</label>
+            <input
+              type="email"
+              id="email"
+              class="mt-1 w-full rounded-lg border border-neutral-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="Your Email"
+            />
+            <p class="text-red-500 text-sm mt-1 hidden" id="email-error">Valid email is required</p>
+          </div>
+          <div>
+            <label for="message" class="block text-sm font-medium text-grayish">Message</label>
+            <textarea
+              id="message"
+              rows="4"
+              class="mt-1 w-full rounded-lg border border-neutral-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gold"
+              placeholder="Your Message"
+            ></textarea>
+            <p class="text-red-500 text-sm mt-1 hidden" id="message-error">Message is required</p>
+          </div>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-lg bg-gold text-ink font-semibold px-5 py-2.5 transition-transform hover:-translate-y-0.5"
+            onclick="submitForm()"
+          >
+            <i class="fa-solid fa-paper-plane"></i>
+            Send Message
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Details -->
+    <section class="mt-8 animate-fade-in">
+      <h2 class="font-playfair text-2xl font-semibold mb-6 flex items-center">
+        <i class="fa-solid fa-address-book mr-3 text-gold"></i> Our Contact Details
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div class="border border-neutral-200 rounded-xl p-6 text-center transition-transform hover:scale-105 hover:shadow-md">
+          <div class="w-10 h-10 mx-auto mb-3 rounded-md bg-gold/10 flex items-center justify-center">
+            <i class="fa-solid fa-envelope text-gold"></i>
+          </div>
+          <h3 class="font-semibold mb-1">Email</h3>
+          <p class="text-grayish text-sm">support@eonforge.example</p>
+          <button
+            class="mt-3 text-gold hover:text-ink text-sm underline"
+            onclick="copyEmail()"
+          >
+            Copy Email
+          </button>
+        </div>
+        <div class="border border-neutral-200 rounded-xl p-6 text-center transition-transform hover:scale-105 hover:shadow-md">
+          <div class="w-10 h-10 mx-auto mb-3 rounded-md bg-gold/10 flex items-center justify-center">
+            <i class="fa-solid fa-phone text-gold"></i>
+          </div>
+          <h3 class="font-semibold mb-1">Phone</h3>
+          <p class="text-grayish text-sm">+1 (555) 123-4567</p>
+        </div>
+        <div class="border border-neutral-200 rounded-xl p-6 text-center transition-transform hover:scale-105 hover:shadow-md">
+          <div class="w-10 h-10 mx-auto mb-3 rounded-md bg-gold/10 flex items-center justify-center">
+            <i class="fa-solid fa-map-marker-alt text-gold"></i>
+          </div>
+          <h3 class="font-semibold mb-1">Address</h3>
+          <p class="text-grayish text-sm">123 Timeless Way, Forge City, FC 12345</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Static Footer -->
+
+   <%- include("../../views/partials/user/footer") %>
+  <script>
+    // Form Submission with Validation
+    function submitForm() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const nameError = document.getElementById('name-error');
+      const emailError = document.getElementById('email-error');
+      const messageError = document.getElementById('message-error');
+
+      // Reset error messages
+      nameError.classList.add('hidden');
+      emailError.classList.add('hidden');
+      messageError.classList.add('hidden');
+
+      let isValid = true;
+
+      // Validate inputs
+      if (!name) {
+        nameError.classList.remove('hidden');
+        isValid = false;
+      }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailError.classList.remove('hidden');
+        isValid = false;
+      }
+      if (!message) {
+        messageError.classList.remove('hidden');
+        isValid = false;
+      }
+
+      if (isValid) {
+        Swal.fire({
+          title: 'Message Sent!',
+          text: 'Thank you for reaching out. We’ll get back to you soon.',
+          icon: 'success',
+          confirmButtonText: 'Close',
+          confirmButtonColor: '#d4af37',
+          customClass: { popup: 'rounded-xl', confirmButton: 'rounded-lg px-6 py-2' }
+        });
+        // Reset form
+        document.getElementById('name').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('message').value = '';
+      }
+    }
+
+    // Copy Email to Clipboard
+    function copyEmail() {
+      const email = 'support@eonforge.example';
+      navigator.clipboard.writeText(email).then(() => {
+        Swal.fire({
+          title: 'Email Copied!',
+          text: 'The email address has been copied to your clipboard.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false,
+          customClass: { popup: 'rounded-xl' }
+        });
+      }).catch(() => {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to copy email. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'Close',
+          confirmButtonColor: '#d4af37',
+          customClass: { popup: 'rounded-xl', confirmButton: 'rounded-lg px-6 py-2' }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

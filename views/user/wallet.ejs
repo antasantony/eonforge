@@ -48,6 +48,55 @@
         }
     </script>
     <style>
+        /* Enhanced Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: #333333;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            border-left: 4px solid #666666;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-size: 0.875rem;
+            font-weight: 500;
+            max-width: 300px;
+            transform: translateY(10px);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Success toast */
+        .toast.success {
+            background-color: #333333;
+            border-left-color: #10b981; /* Emerald green */
+        }
+
+        /* Error toast */
+        .toast.error {
+            background-color: #333333;
+            border-left-color: #ef4444; /* Red */
+        }
+
+        /* Warning toast */
+        .toast.warning {
+            background-color: #333333;
+            border-left-color: #f59e0b; /* Amber */
+        }
+
+        /* Info toast */
+        .toast.info {
+            background-color: #333333;
+            border-left-color: #3b82f6; /* Blue */
+        }
+
         .glassmorphism {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
@@ -144,9 +193,26 @@
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(4px);
         }
+
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #d4af37;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="gradient-bg min-h-screen font-inter text-text-primary">
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
     <%- include("../../views/partials/user/header") %>
     <div class="py-16">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -159,17 +225,18 @@
 
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <!-- Wallet Summary -->
-         
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 ">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-2xl p-8 card-shadow animate-slide-up ">
+                <div class="bg-white rounded-2xl p-8 card-shadow animate-slide-up">
                     <div class="flex items-center justify-center mb-6">
                         <i class="fas fa-wallet text-accent text-4xl mr-3"></i>
                         <h2 class="text-2xl font-poppins font-semibold text-primary">Wallet Balance</h2>
                     </div>
                     <p class="text-5xl font-bold text-accent text-center mb-6" id="walletBalance">₹<%= walletBalance.toLocaleString() %></p>
                     <p class="text-sm text-text-secondary text-center mb-8">Available for Use</p>
-                    <button onclick="showAddFunds()" class="btn-primary w-full"><i class="fas fa-plus-circle mr-2"></i>Add Money</button>
+                    <button onclick="showAddFunds()" id="addFundsBtn" class="btn-primary w-full">
+                        <i class="fas fa-plus-circle mr-2"></i>Add Money
+                    </button>
                     <% if (!kycVerified) { %>
                         <div class="mt-6 p-4 bg-red-50 rounded-lg text-center">
                             <p class="text-sm text-red-600">Please verify your identity. <a href="/manage-accounts" class="underline font-medium">Manage Bank Accounts / UPI</a></p>
@@ -202,7 +269,6 @@
                 </div>
             </div>
         </div>
-        
 
         <!-- Transaction History and Actions -->
         <div class="bg-white rounded-2xl p-8 card-shadow animate-slide-up" style="animation-delay: 0.2s;">
@@ -367,7 +433,9 @@
                     <option value="upi">UPI</option>
                     <option value="card">Card</option>
                 </select>
-                <button onclick="submitAddFunds()" class="btn-primary w-full">Add Money</button>
+                <button onclick="submitAddFunds()" id="submitAddFundsBtn" class="btn-primary w-full">
+                    Add Money
+                </button>
             </div>
         </div>
     </div>
@@ -376,6 +444,25 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script>
+        // Enhanced Toast notification functionality
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.getElementById('toastContainer').appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (document.getElementById('toastContainer').contains(toast)) {
+                        document.getElementById('toastContainer').removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
         let currentPage = 1;
         const transactionsPerPage = 3;
         let transactions = <%- JSON.stringify(transactions) %>;
@@ -385,6 +472,13 @@
             totalWithdrawals: <%= totalWithdrawals %>,
             availableWithdrawal: <%= availableWithdrawal %>
         };
+
+        // Show welcome message
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                showToast('Welcome to your wallet! Manage your funds securely.', 'info');
+            }, 1000);
+        });
 
         function showAddFunds() {
             document.getElementById('addFundsModal').classList.remove('hidden');
@@ -407,25 +501,17 @@
         async function submitAddFunds() {
             const amount = parseFloat(document.getElementById('amount').value);
             const paymentMethod = document.getElementById('paymentMethod').value;
+            const submitBtn = document.getElementById('submitAddFundsBtn');
+            const originalText = submitBtn.innerHTML;
 
             if (isNaN(amount) || amount <= 0) {
-                Swal.fire({
-                    title: 'Invalid Amount',
-                    text: 'Please enter a valid amount',
-                    icon: 'error',
-                    confirmButtonColor: '#d4af37'
-                });
+                showToast('Please enter a valid amount', 'warning');
                 return;
             }
 
-            closeAddFundsModal();
-            Swal.fire({
-                title: 'Processing...',
-                text: `Adding ₹${amount} via ${paymentMethod}`,
-                icon: 'info',
-                showConfirmButton: false,
-                allowOutsideClick: false
-            });
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading-spinner mr-2"></div>Processing...';
 
             try {
                 const response = await fetch('/wallet/add-funds', {
@@ -436,8 +522,11 @@
 
                 const data = await response.json();
                 if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Failed to create Razorpay order');
+                    throw new Error(data.message || 'Failed to create payment order');
                 }
+
+                closeAddFundsModal();
+                showToast(`Processing payment of ₹${amount}...`, 'info');
 
                 const options = {
                     key: data.razorpayKeyId,
@@ -459,16 +548,17 @@
                 const rzp = new Razorpay(options);
                 rzp.open();
             } catch (error) {
-                Swal.fire({
-                    title: 'Error',
-                    text: error.message || 'Failed to add funds',
-                    icon: 'error',
-                    confirmButtonColor: '#d4af37'
-                });
+                showToast(error.message || 'Failed to add funds', 'error');
+            } finally {
+                // Restore button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }
         }
 
         async function verifyPayment(paymentResponse) {
+            showToast('Verifying payment...', 'info');
+
             try {
                 const res = await fetch('/wallet/verify-add-funds', {
                     method: 'POST',
@@ -488,22 +578,12 @@
                     document.getElementById('availableWithdrawal').textContent = `₹${walletData.availableWithdrawal.toLocaleString()}`;
                     applyFilters();
 
-                    Swal.fire({
-                        title: 'Success!',
-                      text: `₹${data.amount} added successfully.`,
-                        icon: 'success',
-                        confirmButtonColor: '#d4af37'
-                    });
+                    showToast(`₹${data.amount} added to your wallet successfully!`, 'success');
                 } else {
-                    throw new Error('Verification failed');
+                    throw new Error(data.message || 'Payment verification failed');
                 }
             } catch (err) {
-                Swal.fire({
-                    title: 'Error',
-                    text: err.message,
-                    icon: 'error',
-                    confirmButtonColor: '#d4af37'
-                });
+                showToast(err.message || 'Payment verification failed', 'error');
             }
         }
 
@@ -521,32 +601,32 @@
         }
 
         function exportTransactions() {
-            Swal.fire({
-                title: 'Export Transactions',
-                text: 'Download your transaction history as a CSV file?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Download',
-                cancelButtonText: 'Cancel',
-                confirmButtonColor: '#d4af37',
-                cancelButtonColor: '#6b7280'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const csvContent = [
-                        'Transaction ID,Date,Type,Amount,Status,Description,Order ID',
-                        ...transactions.map(t => 
-                            `"${t._id || 'N/A'}","${new Date(t.date).toLocaleString()}","${t.type}","${t.amount}","${t.status}","${t.description || 'N/A'}","${t.orderId || 'N/A'}"`
-                        )
-                    ].join('\n');
-                    const blob = new Blob([csvContent], { type: 'text/csv' });
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'transactions.csv';
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                }
-            });
+            if (transactions.length === 0) {
+                showToast('No transactions to export', 'warning');
+                return;
+            }
+
+            showToast('Preparing CSV download...', 'info');
+
+            try {
+                const csvContent = [
+                    'Transaction ID,Date,Type,Amount,Status,Description,Order ID',
+                    ...transactions.map(t => 
+                        `"${t._id || 'N/A'}","${new Date(t.date).toLocaleString()}","${t.type}","${t.amount}","${t.status}","${t.description || 'N/A'}","${t.orderId || 'N/A'}"`
+                    )
+                ].join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                showToast('Transaction history downloaded successfully!', 'success');
+            } catch (error) {
+                showToast('Failed to export transactions', 'error');
+            }
         }
 
         function applyFilters() {
@@ -595,8 +675,8 @@
                 transactionPreview.innerHTML = `
                     <div class="text-center py-12">
                         <i class="fas fa-history text-accent text-4xl mb-4"></i>
-                        <p class="text-xl font-poppins text-primary">No transactions yet</p>
-                        <p class="text-sm text-text-secondary">Add funds to get started</p>
+                        <p class="text-xl font-poppins text-primary">No transactions found</p>
+                        <p class="text-sm text-text-secondary">Try adjusting your filters</p>
                     </div>
                 `;
                 modalTransactionList.innerHTML = transactionPreview.innerHTML;

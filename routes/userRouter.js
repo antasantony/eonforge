@@ -6,14 +6,15 @@ const profileController = require('../controllers/user/profileController');
 const productController = require('../controllers/user/productController');
 const cartController = require('../controllers/user/cartController');
 const checkoutController=require('../controllers/user/checkoutController');
-const paymentController =require('../controllers/user/paymentController')
+const paymentController =require('../controllers/user/paymentController');
+const infoPageController = require('../controllers/user/infoPageController');
 const passport = require('passport');
 const cloudinary = require('../config/cloudinary');
 const uploads = require('../helpers/multer');
 const { userAuth, isLogin} = require('../middlewares/auth');
 
 
-router.get('/pageNotFound', userController.pageNotFound);
+// router.get('/pageNotFound', userController.pageNotFound);
 router.get('/signup', isLogin, userController.loadSignup);
 router.post('/signup', isLogin, userController.signup);
 router.post('/verify-otp',isLogin, userController.verifyOtp)
@@ -38,6 +39,14 @@ router.get('/logout', userController.logout)
 router.get('/',  userController.loadHomePage);
 router.get('/shop', userController.loadShopPage);
 router.get('/filter', userController.filterProducts);
+
+//===============info page details ============//
+router.get('/about',infoPageController.about);
+router.get('/contact',infoPageController.contact);
+router.get('/privacyPolicy',infoPageController.privacyPolicy);
+
+
+
 
 //=========== profile Managenent ============//
 

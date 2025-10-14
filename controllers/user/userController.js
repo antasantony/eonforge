@@ -3,7 +3,7 @@ const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const Brand = require('../../models/brandSchema');
 const Wishlist = require('../../models/wishlistSchema');
-const { generateReferralCode, applyReferral } =require('../../helpers/refferal')
+const { generateReferralCode, applyReferral } =require('../../helpers/refferal');
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer")
 const bcrypt = require("bcrypt")
@@ -307,6 +307,7 @@ const login = async (req, res) => {
     let findUser;
     if (googleId) {
       findUser = await User.findOne({ email })
+      
       if (!findUser) {
         findUser = new User({ email: email, googleId: googleId, isBlocked: false })
         console.log('googleid from login', findUser.googleId)

@@ -2,6 +2,7 @@ const Order = require('../../models/orderSchema');
 const User = require('../../models/userSchema');
 const Wallet=require('../../models/walletSchema')
 const Razorpay = require('razorpay');
+const calculateItemRefund = require('../../helpers/calculateItemRefund');
 const crypto = require('crypto');
 
 const razorpayInstance = new Razorpay({
@@ -272,9 +273,11 @@ const verifyItemReturnRequest = async (req, res) => {
       item.status = 'Returned';
       item.refunded = true;
 
-      const refundAmount = item.price * item.stock;
+      // --- Coupon handling ---
+      let refundAmount =calculateItemRefund(item,order.totalPrice,order.couponDiscount)
 
-      // Always refund to wallet
+
+      // --- Wallet refund ---
       let wallet = await Wallet.findOne({ userId: order.userId });
       if (!wallet) {
         wallet = new Wallet({ userId: order.userId, balance: 0, transactions: [] });
@@ -292,9 +295,17 @@ const verifyItemReturnRequest = async (req, res) => {
       });
       await wallet.save();
 
-      order.finalAmount -= refundAmount;
-      if (order.finalAmount <= 0) {
-        order.paymentStatus = 'Refunded';
+      // --- If all items returned or cancelled, reset coupon usage ---
+      const allReturnedOrCancelled = order.orderItems.every(
+        i => i.status === 'Returned' || i.status === 'Cancelled'
+      );
+
+      if (allReturnedOrCancelled && order.couponCode) {
+        await Coupon.updateOne(
+          { code: order.couponCode },
+          { $pull: { usedBy: { user: order.userId } } }
+        );
+        order.couponApplied = false;
       }
 
     } else {
@@ -305,7 +316,9 @@ const verifyItemReturnRequest = async (req, res) => {
 
     res.json({
       success: true,
-      message: approved ? 'Item return approved & refund credited to wallet' : 'Item return rejected'
+      message: approved
+        ? 'Item return approved & refund credited to wallet'
+        : 'Item return rejected'
     });
 
   } catch (err) {

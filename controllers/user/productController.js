@@ -370,64 +370,7 @@ const verifyAddFunds = async (req, res) => {
     }
 };
 
-// const withdrawFunds = async (req, res) => {
-//   try {
-//     const userId = req.session.userId; // or req.user._id if using middleware
-//     const { amount, withdrawMethod } = req.body;
-//   console.log('withdraw fund with ',amount)
-//     // Validate amount
-//     if (!amount || isNaN(amount) || amount <= 0) {
-//       return res.status(400).json({ success: false, message: 'Invalid amount' });
-//     }
 
-//     // Get user wallet
-//     const wallet = await Wallet.findOne({ user: userId });
-//     console.log('wallet getting ',wallet)
-//     if (!wallet) {
-//       return res.status(404).json({ success: false, message: 'Wallet not found' });
-//     }
-
-//     // Check sufficient balance
-//     if (amount > wallet.balance) {
-//       return res.status(400).json({ success: false, message: 'Insufficient balance' });
-//     }
-
-//     // Subtract balance & log transaction as "pending"
-//     wallet.balance -= amount;
-//     wallet.transactions.push({
-//       type: 'debit',
-//       amount,
-//       status: 'pending', // you can later approve it
-//       reason: `Withdraw via ${withdrawMethod}`,
-//       date: new Date()
-//     });
-
-//     await wallet.save();
-
-//     // Respond with updated wallet
-//     res.json({
-//       success: true,
-//       walletBalance: wallet.balance,
-//       totalWithdrawals: wallet.transactions
-//         .filter(tx => tx.type === 'debit' && tx.status === 'success')
-//         .reduce((sum, tx) => sum + tx.amount, 0),
-//       availableWithdrawal: wallet.balance,
-//       transactions: wallet.transactions.map(tx => ({
-//         _id: tx._id.toString(),
-//         date: tx.date,
-//         type: tx.type,
-//         amount: tx.amount,
-//         status: tx.status,
-//         description: tx.reason,
-//         orderId: tx.orderId || null
-//       }))
-//     });
-
-//   } catch (error) {
-//     console.error('withdraw funds from wallet', error);
-//     res.status(500).json({ success: false, message: 'Server error' });
-//   }
-// };
 
 
 

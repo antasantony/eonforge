@@ -43,21 +43,48 @@
     .animate-fadeIn {
       animation: fadeIn 0.3s ease-out;
     }
+    
+    /* Mobile sidebar styles */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 40;
+      display: none;
+    }
+    
+    .sidebar-overlay.active {
+      display: block;
+    }
+    
+    /* Responsive table styles */
+    @media (max-width: 768px) {
+      .responsive-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
   </style>
 </head>
 <body class="font-sans bg-gray-50 text-gray-900 overflow-x-hidden">
+   <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="flex min-h-screen">
     <!-- Sidebar -->
-     <%-include("../../views/partials/admin/sidebar")%>
+    <%- include("../../views/partials/admin/sidebar") %>
     
     <!-- Main Content -->
-    <div class="flex-1 ml-64 min-h-screen">
-      <header class="bg-white py-4 px-6 flex items-center shadow sticky top-0 z-40">
-        <button class="menu-toggle mr-4 text-xl md:hidden">
-          <i class="fas fa-bars"></i>
+    <div class="flex-1 lg:ml-64 min-h-screen w-full">
+      <header class="bg-white py-4 px-4 lg:px-6 flex items-center shadow sticky top-0 z-40">
+        <button class="lg:hidden mr-4 text-gray-700" id="openSidebar">
+          <i class="fas fa-bars text-xl"></i>
         </button>
         
-        <form action="/admin/category" method="get" class="search-container flex items-center bg-gray-50 rounded-full px-4 py-2 w-full max-w-md ml-4">
+        <form action="/admin/category" method="get" class="search-container flex items-center bg-gray-50 rounded-full px-4 py-2 w-full max-w-md ml-0 lg:ml-4">
           <input 
             type="text" 
             name="search" 
@@ -90,40 +117,40 @@
         </div>
       </header>
       
-      <main class="p-6">
-        <div class="flex justify-between items-center mb-6">
+      <main class="p-4 lg:p-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 class="text-2xl font-semibold text-gray-800">Category Management</h1>
-          <button id="add-category-btn" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded flex items-center">
+          <button id="add-category-btn" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded flex items-center w-full sm:w-auto">
             <i class="fas fa-plus mr-2"></i> Add Category
           </button>
         </div>
         
         <!-- Category Management Table -->
         <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto responsive-table">
             <table class="w-full border-collapse">
               <thead>
-                <tr class="sticky top-0 bg-white shadow-sm">
+                <tr class="bg-gray-50">
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">No.</th>
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">Name</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Description</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Offer Price</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Offer</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 hidden md:table-cell">Description</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 hidden sm:table-cell">Offer Price</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 hidden sm:table-cell">Offer</th>
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">Status</th>
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <% cat.forEach((category,index) => { %>
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-gray-50 border-b">
                   <td class="px-4 py-3"><%=(currentPage-1)*limit+index+1 %></td>
                   <td class="px-4 py-3 font-medium"><%= category.name %></td>
-                  <td class="px-4 py-3"><%= category.description || 'N/A' %></td>
-                  <td class="px-4 py-3">
+                  <td class="px-4 py-3 hidden md:table-cell"><%= category.description || 'N/A' %></td>
+                  <td class="px-4 py-3 hidden sm:table-cell">
                     <%= category.offerPrice > 0 ? category.offerPrice + '%' : '0%' %>
                    </td>
 
-                  <td class="px-4 py-3">
+                  <td class="px-4 py-3 hidden sm:table-cell">
                     <% if(category.hasOffer) { %>
                       <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Active
@@ -139,22 +166,24 @@
                       <%= category.isListed ? 'Listed' : 'Unlisted' %>
                     </span>
                   </td>
-                  <td class="px-4 py-3 flex space-x-2">
-                    <button onclick="openEditModal('<%= category._id %>','<%= category.name %>','<%= category.description %>','<%= category.isListed %>','<%= category.offerPrice || 0 %>', '<%= category.hasOffer %>')" 
-                            class="text-blue-600 hover:text-blue-800">
-                      <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <% if(category.isListed) { %>
-                      <button onclick="toggleCategoryStatus('<%= category._id %>', false)" 
-                              class="text-red-600 hover:text-red-800">
-                        <i class="fas fa-eye-slash"></i> Unlist
+                  <td class="px-4 py-3">
+                    <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-1 sm:space-y-0">
+                      <button onclick="openEditModal('<%= category._id %>','<%= category.name %>','<%= category.description %>','<%= category.isListed %>','<%= category.offerPrice || 0 %>', '<%= category.hasOffer %>')" 
+                              class="text-blue-600 hover:text-blue-800 text-left">
+                        <i class="fas fa-edit mr-1"></i> Edit
                       </button>
-                    <% } else { %>
-                      <button onclick="toggleCategoryStatus('<%= category._id %>', true)" 
-                              class="text-green-600 hover:text-green-800">
-                        <i class="fas fa-eye"></i> List
-                      </button>
-                    <% } %>
+                      <% if(category.isListed) { %>
+                        <button onclick="toggleCategoryStatus('<%= category._id %>', false)" 
+                                class="text-red-600 hover:text-red-800 text-left">
+                          <i class="fas fa-eye-slash mr-1"></i> Unlist
+                        </button>
+                      <% } else { %>
+                        <button onclick="toggleCategoryStatus('<%= category._id %>', true)" 
+                                class="text-green-600 hover:text-green-800 text-left">
+                          <i class="fas fa-eye mr-1"></i> List
+                        </button>
+                      <% } %>
+                    </div>
                   </td>
                 </tr>
                 <% }); %>
@@ -182,11 +211,7 @@
               <i class="fas fa-chevron-right"></i>
             </a>
           </div>
-
-
         </div>
-        
-        
 
         <!-- Add/Edit Category Modal -->
         <div id="category-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
@@ -195,17 +220,15 @@
               <h2 id="modal-title" class="text-xl font-semibold">Add New Category</h2>
               <button id="close-modal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-             <p id="modalMessage" class="text-center text-sm  mt-4 text-red-500"></p>
+             <p id="modalMessage" class="text-center text-sm mt-4 text-red-500"></p>
             <form id="category-form" class="p-4">
               <input type="hidden" id="category-id">
                 
-
               <div class="mb-4">
                 <label for="category-name" class="block text-gray-700 mb-2">Category Name *</label>
                 <input type="text" id="category-name" 
                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary">
               </div>
-             
              
               <div class="mb-4">
                 <label for="category-desc" class="block text-gray-700 mb-2">Description</label>
@@ -213,19 +236,21 @@
                           class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
               </div>
               <div class="mb-4">
-                <label for="offer-price" class="block text-gray-700 mb-2">Offer Price</label>
+                <label for="offer-price" class="block text-gray-700 mb-2">Offer Price (%)</label>
                 <input type="number" id="offer-price" step="0.01" min="0"
                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary">
               </div>
-             <div class="mb-4 flex items-center">
-                <div class="mb-4 flex items-center">
+             
+              <div class="mb-4 flex items-center">
                 <input type="checkbox" id="has-offer" class="mr-2">
                 <label for="has-offer" class="text-gray-700">Has Offer</label>
               </div>
+              
               <div class="mb-4 flex items-center">
                 <input type="checkbox" id="category-status" class="mr-2">
                 <label for="category-status" class="text-gray-700">List this category</label>
               </div>
+              
               <div class="flex justify-end space-x-3">
                 <button type="button" id="cancel-btn" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
                   Cancel
@@ -240,6 +265,7 @@
       </main>
     </div>
   </div>
+
 <script src="/assets/js/admin/category.js"></script>
 </body>
 </html>

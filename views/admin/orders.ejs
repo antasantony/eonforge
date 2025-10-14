@@ -8,20 +8,17 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script>
-    
     tailwind.config = {
       theme: {
-        
         extend: {
           colors: {
-             primary: '#4361ee',
+            primary: '#4361ee',
             'primary-dark': '#3a56d4',
             secondary: '#3b82f6',
             accent: '#10b981',
             warning: '#f59e0b',
             danger: '#ef4444',
           },
-          
           animation: {
             'fade-in': 'fadeIn 0.3s ease-out',
             'slide-up': 'slideUp 0.3s ease-out',
@@ -41,7 +38,7 @@
     }
   </script>
   <style>
-     .account-dropdown {
+    .account-dropdown {
       display: none;
     }
     .account-wrapper:hover .account-dropdown {
@@ -66,32 +63,60 @@
     .search-container:focus-within {
       box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
     }
+    
+    /* Mobile sidebar styles */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 40;
+      display: none;
+    }
+    
+    .sidebar-overlay.active {
+      display: block;
+    }
+    
+    /* Responsive table styles */
+    @media (max-width: 768px) {
+      .responsive-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
   </style>
 </head>
 <body class="font-sans bg-gray-100 text-gray-900">
+  <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="flex min-h-screen">
-    <%- include("../../views/partials/admin/sidebar") %>
+   <%- include("../../views/partials/admin/sidebar") %>
 
-    <div class="flex-1 ml-64">
+    <div class="flex-1 lg:ml-64 min-h-screen w-full">
       <!-- Header -->
-      <header class="bg-white py-4 px-6 flex items-center shadow sticky top-0 z-40">
-        <button class="menu-toggle mr-4 text-xl md:hidden">
-          <i class="fas fa-bars"></i>
+      <header class="bg-white py-4 px-4 lg:px-6 flex items-center shadow sticky top-0 z-40">
+        <button class="lg:hidden mr-4 text-gray-700" id="openSidebar">
+          <i class="fas fa-bars text-xl"></i>
         </button>
         
-        <form action="/admin/orders" method="get" class="search-container flex items-center bg-gray-100 rounded-full px-4 py-2">
-              <input type="text" name="search" placeholder="Search orders..." 
-                     class="bg-transparent border-none focus:outline-none text-sm w-64" 
-                     value="<%= typeof search !== 'undefined' ? search : '' %>">
-              <button type="submit" class="text-gray-500 hover:text-primary">
-                <i class="fas fa-search"></i>
-              </button>
-              <% if(search) { %>
-                <a href="/admin/orders" class="ml-2 text-gray-500 hover:text-danger">
-                  <i class="fas fa-times"></i>
-                </a>
-              <% } %>
-            </form>
+        <form action="/admin/orders" method="get" class="search-container flex items-center bg-gray-100 rounded-full px-4 py-2 w-full max-w-md ml-0 lg:ml-4">
+          <input type="text" name="search" placeholder="Search orders..." 
+                 class="bg-transparent border-none focus:outline-none text-sm w-full" 
+                 value="<%= typeof search !== 'undefined' ? search : '' %>">
+          <button type="submit" class="text-gray-500 hover:text-primary">
+            <i class="fas fa-search"></i>
+          </button>
+          <% if(search) { %>
+            <a href="/admin/orders" class="ml-2 text-gray-500 hover:text-danger">
+              <i class="fas fa-times"></i>
+            </a>
+          <% } %>
+        </form>
+        
         <div class="account-wrapper relative ml-auto">
           <button class="icon-btn text-xl text-gray-700" title="Account">
             <i class="fas fa-user"></i>
@@ -108,63 +133,63 @@
       </header>
 
       <!-- Main Content -->
-      <main class="p-6">
+      <main class="p-4 lg:p-6">
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+          <div class="stats-card bg-white rounded-xl p-4 lg:p-6 shadow-lg animate-slide-up">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Total Orders</p>
-                <h3 class="text-2xl font-bold text-primary"><%= totalOrders || 0 %></h3>
+                <h3 class="text-xl lg:text-2xl font-bold text-primary"><%= totalOrders || 0 %></h3>
               </div>
-              <div class="bg-primary/10 p-3 rounded-full">
-                <i class="fas fa-shopping-cart text-primary text-xl"></i>
+              <div class="bg-primary/10 p-2 lg:p-3 rounded-full">
+                <i class="fas fa-shopping-cart text-primary text-lg lg:text-xl"></i>
               </div>
             </div>
           </div>
-          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+          <div class="stats-card bg-white rounded-xl p-4 lg:p-6 shadow-lg animate-slide-up">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Pending Orders</p>
-                <h3 class="text-2xl font-bold text-warning"><%= pendingOrders || 0 %></h3>
+                <h3 class="text-xl lg:text-2xl font-bold text-warning"><%= pendingOrders || 0 %></h3>
               </div>
-              <div class="bg-warning/10 p-3 rounded-full">
-                <i class="fas fa-hourglass-half text-warning text-xl"></i>
+              <div class="bg-warning/10 p-2 lg:p-3 rounded-full">
+                <i class="fas fa-hourglass-half text-warning text-lg lg:text-xl"></i>
               </div>
             </div>
           </div>
-          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+          <div class="stats-card bg-white rounded-xl p-4 lg:p-6 shadow-lg animate-slide-up">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Return Requests</p>
-                <h3 class="text-2xl font-bold text-danger"><%= returnRequests || 0 %></h3>
+                <h3 class="text-xl lg:text-2xl font-bold text-danger"><%= returnRequests || 0 %></h3>
               </div>
-              <div class="bg-danger/10 p-3 rounded-full">
-                <i class="fas fa-undo text-danger text-xl"></i>
+              <div class="bg-danger/10 p-2 lg:p-3 rounded-full">
+                <i class="fas fa-undo text-danger text-lg lg:text-xl"></i>
               </div>
             </div>
           </div>
-          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+          <div class="stats-card bg-white rounded-xl p-4 lg:p-6 shadow-lg animate-slide-up">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Total Revenue</p>
-                <h3 class="text-2xl font-bold text-accent">₹<%= totalRevenue ? totalRevenue.toFixed(2) : '0.00' %></h3>
+                <h3 class="text-xl lg:text-2xl font-bold text-accent">₹<%= totalRevenue ? totalRevenue.toFixed(2) : '0.00' %></h3>
               </div>
-              <div class="bg-accent/10 p-3 rounded-full">
-                <i class="fas fa-indian-rupee-sign text-accent text-xl"></i>
+              <div class="bg-accent/10 p-2 lg:p-3 rounded-full">
+                <i class="fas fa-indian-rupee-sign text-accent text-lg lg:text-xl"></i>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Filters and Header -->
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
           <div>
-            <h1 class="text-3xl font-bold text-gray-800">Order Management</h1>
+            <h1 class="text-2xl lg:text-3xl font-bold text-gray-800">Order Management</h1>
             <p class="text-gray-600 text-sm">Track and manage customer orders</p>
           </div>
-          <div class="flex gap-4">
-            <select id="status-filter" name="status" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+          <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <select id="status-filter" name="status" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full sm:w-auto">
               <option value="">All Statuses</option>
               <option value="Pending">Pending</option>
               <option value="Processing">Processing</option>
@@ -175,7 +200,7 @@
               <option value="Returned">Returned</option>
               <option value="Rejected">Rejected</option>
             </select>
-            <select id="sort-order" name="sort" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+            <select id="sort-order" name="sort" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full sm:w-auto">
               <option value="desc">Newest First</option>
               <option value="asc">Oldest First</option>
             </select>
@@ -184,87 +209,87 @@
 
         <!-- Orders Table -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto responsive-table">
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">No.</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Order ID</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Customer</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Total</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">No.</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Order ID</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase hidden md:table-cell">Customer</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase hidden sm:table-cell">Date</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Total</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <% orders.forEach((order, index) => { %>
                   <tr class="table-row border-t border-gray-100">
-                    <td class="px-6 py-4 text-sm"><%= (currentPage - 1) * limit + index + 1 %></td>
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900">#ORD-<%= order.orderId %></td>
-                    <td class="px-6 py-4">
+                    <td class="px-4 lg:px-6 py-3 text-sm"><%= (currentPage - 1) * limit + index + 1 %></td>
+                    <td class="px-4 lg:px-6 py-3 text-sm font-medium text-gray-900">#ORD-<%= order.orderId.slice(1,8)%></td>
+                    <td class="px-4 lg:px-6 py-3 hidden md:table-cell">
                       <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         <%= order.userId?.firstName || 'N/A' %>  %>
                       </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-700">
+                    <td class="px-4 lg:px-6 py-3 text-sm text-gray-700 hidden sm:table-cell">
                       <%= new Date(order.createdOn).toLocaleDateString() %>
                     </td>
-                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">₹<%= order.totalPrice.toFixed(2) %></td>
-                    <td class="px-6 py-4">
-  <%
-    const statusStyles = {
-      'Pending': 'bg-yellow-100 text-yellow-800',
-      'Processing': 'bg-blue-100 text-blue-800',
-      'Shipped': 'bg-purple-100 text-purple-800',
-      'Delivered': 'bg-green-100 text-green-800',
-      'Cancelled': 'bg-red-100 text-red-800',
-      'Return Request': 'bg-orange-100 text-orange-800',
-      'Returned': 'bg-gray-100 text-gray-800',
-      'Rejected': 'bg-red-200 text-red-900' 
-    };
-    const statusIcons = {
-      'Pending': 'fa-hourglass-start',
-      'Processing': 'fa-cog',
-      'Shipped': 'fa-truck',
-      'Delivered': 'fa-check-circle',
-      'Cancelled': 'fa-times-circle',
-      'Return Request': 'fa-undo',
-      'Returned': 'fa-exchange-alt',
-      'Rejected': 'fa-ban' 
-    };
+                    <td class="px-4 lg:px-6 py-3 text-sm font-semibold text-gray-900">₹<%= order.totalPrice.toFixed(2) %></td>
+                    <td class="px-4 lg:px-6 py-3">
+                      <%
+                        const statusStyles = {
+                          'Pending': 'bg-yellow-100 text-yellow-800',
+                          'Processing': 'bg-blue-100 text-blue-800',
+                          'Shipped': 'bg-purple-100 text-purple-800',
+                          'Delivered': 'bg-green-100 text-green-800',
+                          'Cancelled': 'bg-red-100 text-red-800',
+                          'Return Request': 'bg-orange-100 text-orange-800',
+                          'Returned': 'bg-gray-100 text-gray-800',
+                          'Rejected': 'bg-red-200 text-red-900' 
+                        };
+                        const statusIcons = {
+                          'Pending': 'fa-hourglass-start',
+                          'Processing': 'fa-cog',
+                          'Shipped': 'fa-truck',
+                          'Delivered': 'fa-check-circle',
+                          'Cancelled': 'fa-times-circle',
+                          'Return Request': 'fa-undo',
+                          'Returned': 'fa-exchange-alt',
+                          'Rejected': 'fa-ban' 
+                        };
 
-    const finalStatus = order.status;
-  %>
+                        const finalStatus = order.status;
+                      %>
 
-  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= statusStyles[finalStatus] %>">
-    <i class="fas <%= statusIcons[finalStatus] %> mr-1"></i>
-    <%= finalStatus %>
-  </span>
-</td>
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= statusStyles[finalStatus] %>">
+                        <i class="fas <%= statusIcons[finalStatus] %> mr-1"></i>
+                        <span class="hidden sm:inline"><%= finalStatus %></span>
+                        <span class="sm:hidden"><%= finalStatus.substring(0, 3) %></span>
+                      </span>
+                    </td>
+                    <td class="px-4 lg:px-6 py-3">
+                      <div class="flex flex-col sm:flex-row sm:gap-2 gap-1">
+                        <a href="/admin/orders/<%= order._id %>" 
+                           class="text-primary hover:text-primary-dark text-sm font-medium px-2 py-1 rounded-lg hover:bg-primary/10 text-left">
+                          <i class="fas fa-eye mr-1"></i><span class="hidden sm:inline">View</span>
+                        </a>
 
+                        <% if (finalStatus !== 'Delivered' && finalStatus !== 'Cancelled' && finalStatus !== 'Rejected' && finalStatus !== 'Returned' ) { %>
+                          <button onclick="openStatusModal('<%= order._id %>', '<%= finalStatus %>')" 
+                                  class="text-accent hover:text-accent-dark text-sm font-medium px-2 py-1 rounded-lg hover:bg-accent/10 text-left">
+                            <i class="fas fa-edit mr-1"></i><span class="hidden sm:inline">Status</span>
+                          </button>
+                        <% } %>
 
-                    <td class="px-6 py-4 flex items-center gap-2">
-  <a href="/admin/orders/<%= order._id %>" 
-     class="text-primary hover:text-primary-dark text-sm font-medium px-3 py-1 rounded-lg hover:bg-primary/10">
-    <i class="fas fa-eye mr-1"></i>View
-  </a>
-
-  <% if (finalStatus !== 'Delivered' && finalStatus !== 'Cancelled' && finalStatus !== 'Rejected' && finalStatus !== 'Returned' ) { %>
-    <button onclick="openStatusModal('<%= order._id %>', '<%= finalStatus %>')" 
-            class="text-accent hover:text-accent-dark text-sm font-medium px-3 py-1 rounded-lg hover:bg-accent/10">
-      <i class="fas fa-edit mr-1"></i>Status
-    </button>
-  <% } %>
-
-  <% if (order.status === 'Return Request') { %>
-    <button onclick="verifyReturn('<%= order.orderId %>',`<%= order.returnReason %>`)" 
-            class="text-warning hover:text-warning-dark text-sm font-medium px-3 py-1 rounded-lg hover:bg-warning/10">
-      <i class="fas fa-check-double mr-1"></i>Verify
-    </button>
-  <% } %>
-</td>
-
+                        <% if (order.status === 'Return Request') { %>
+                          <button onclick="verifyReturn('<%= order.orderId %>',`<%= order.returnReason %>`)" 
+                                  class="text-warning hover:text-warning-dark text-sm font-medium px-2 py-1 rounded-lg hover:bg-warning/10 text-left">
+                            <i class="fas fa-check-double mr-1"></i><span class="hidden sm:inline">Verify</span>
+                          </button>
+                        <% } %>
+                      </div>
+                    </td>
                   </tr>
                 <% }); %>
               </tbody>
@@ -273,18 +298,18 @@
           <!-- Pagination -->
           <div class="flex items-center justify-center gap-2 p-4 bg-gray-50 border-t border-gray-200">
             <a href="?page=<%= currentPage - 1 %>&search=<%= search || '' %>&status=<%= status || '' %>&sort=<%= sort || 'desc' %>" 
-               class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage === 1 ? 'opacity-50 pointer-events-none' : '' %>">
-              <i class="fas fa-chevron-left"></i>
+               class="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage === 1 ? 'opacity-50 pointer-events-none' : '' %>">
+              <i class="fas fa-chevron-left text-xs lg:text-sm"></i>
             </a>
             <% for(let i = 1; i <= totalPages; i++) { %>
               <a href="?page=<%= i %>&search=<%= search || '' %>&status=<%= status || '' %>&sort=<%= sort || 'desc' %>" 
-                 class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-sm <%= i === currentPage ? 'bg-primary text-white' : 'hover:bg-gray-100' %>">
+                 class="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-lg border border-gray-200 text-xs lg:text-sm <%= i === currentPage ? 'bg-primary text-white' : 'hover:bg-gray-100' %>">
                 <%= i %>
               </a>
             <% } %>
             <a href="?page=<%= currentPage + 1 %>&search=<%= search || '' %>&status=<%= status || '' %>&sort=<%= sort || 'desc' %>" 
-               class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage >= totalPages ? 'opacity-50 pointer-events-none' : '' %>">
-              <i class="fas fa-chevron-right"></i>
+               class="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage >= totalPages ? 'opacity-50 pointer-events-none' : '' %>">
+              <i class="fas fa-chevron-right text-xs lg:text-sm"></i>
             </a>
           </div>
         </div>
@@ -325,118 +350,6 @@
     </div>
   </div>
 
-  <script>
-
-    const statusOrder = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
-
-    // Open Status Modal
-    function openStatusModal(orderId, currentStatus) {
-      document.getElementById('status-modal').classList.remove('hidden');
-      document.getElementById('order-id').value = orderId;
-      const select=document.getElementById('new-status')  
-      select.value=currentStatus;
-      const currentIndex=statusOrder.indexOf(currentStatus);
-      console.log('currentindex',currentIndex)
-      for(let i=0;i<select.options.length;i++){
-        const optionValue=select.options[i].value;
-        const optionIndex=statusOrder.indexOf(optionValue)
-        select.options[i].disabled= optionIndex !==currentIndex+1 && optionValue!=='Cancelled'
-      }
-      
-    }
-
-    // Close Status Modal
-    document.getElementById('close-status-modal').addEventListener('click', () => {
-      document.getElementById('status-modal').classList.add('hidden');
-    });
-
-    document.getElementById('cancel-status-btn').addEventListener('click', () => {
-      document.getElementById('status-modal').classList.add('hidden');
-    });
-
-    // Update Status
-    document.getElementById('status-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const orderId = document.getElementById('order-id').value;
-      const newStatus = document.getElementById('new-status').value;
-
-      try {
-        const res = await fetch(`/admin/orders/${orderId}/status`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: newStatus })
-        });
-        const data = await res.json();
-        if (data.success) {
-          Swal.fire('Success', 'Order status updated!', 'success').then(() => {
-            document.getElementById('status-modal').classList.add('hidden');
-            location.reload();
-          });
-        } else {
-          Swal.fire('Error', data.message || 'Failed to update status', 'error');
-        }
-      } catch (err) {
-        Swal.fire('Error', 'Failed to update status', 'error');
-      }
-    });
-
-   function verifyReturn(orderId, returnReason) {
-  Swal.fire({
-    title: 'Verify Return Request',
-    html: `<b>Reason:</b> ${returnReason}`,
-    icon: 'question',
-    showConfirmButton: true,
-    showDenyButton: true,
-    showCancelButton: true,
-    confirmButtonText: 'Approve',
-    denyButtonText: 'Reject',
-    cancelButtonText: 'Cancel',
-    preConfirm: () => {
-      // Disable buttons to prevent multiple clicks
-      Swal.showLoading();
-      Swal.getConfirmButton().disabled = true;
-      Swal.getDenyButton().disabled = true;
-      Swal.getCancelButton().disabled = true;
-    }
-  }).then(async (result) => {
-    if (result.isConfirmed || result.isDenied) {
-      try {
-        const res = await fetch(`/admin/orders/${orderId}/return`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ approved: result.isConfirmed })
-        });
-        const data = await res.json();
-        Swal.close();
-
-        if (data.success) {
-          const msg = result.isConfirmed
-            ? 'Return approved and refunded!'
-            : 'Return rejected!';
-          Swal.fire('Success', msg, 'success').then(() => location.reload());
-        } else {
-          Swal.fire('Error', data.message || 'Failed to process return', 'error');
-        }
-      } catch (err) {
-        Swal.fire('Error', 'Failed to process return', 'error');
-      }
-    } else {
-      console.log('Modal dismissed without action');
-    }
-  });
-}
-
-
-    // Filters
-    function applyFilters() {
-      const status = document.getElementById('status-filter').value;
-      const sort = document.getElementById('sort-order').value;
-      const search = document.querySelector('input[name="search"]').value;
-      window.location.href = `/admin/orders?search=${encodeURIComponent(search)}&status=${status}&sort=${sort}`;
-    }
-
-    document.getElementById('status-filter').addEventListener('change', applyFilters);
-    document.getElementById('sort-order').addEventListener('change', applyFilters);
-  </script>
+  <script src="/assets/js/admin/orders.js"></script>
 </body>
 </html>

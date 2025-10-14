@@ -15,14 +15,20 @@ const errorController = require("../controllers/error/errorController")
 // const multer = require('multer')
 const uploads = require('../helpers/multer');
 // const uploads = multer({storage:storage})
+// const getDashboardMetrics = require("../helpers/getDashboardMetrics");
 
 
 
-router.get('/pageError', adminController.pageError);
-router.get('/login', adminLogin, adminController.loadLogin);
-router.post('/login', adminLogin, adminController.login);
-router.get('/adminDashboard', adminAuth, adminController.loadDashboard);
+// router.get('/pageError', adminController.pageError);
+router.get('/login', adminController.loadLogin);
+router.post('/login', adminController.login);
 router.get('/logout', adminController.adminLogout);
+
+// admin Dash board
+router.get('/adminDashboard',  adminController.loadDashboard);
+router.get('/chart-data',  adminController.getChartData);
+router.post('/ledger',  adminController.generateLedger);
+
 
 
 //Customer Management
@@ -61,7 +67,7 @@ router.put('/products/:productId/variants/:variantId', adminAuth, uploads.any(),
 router.get('/orders',adminAuth, orderController.loadOrders);
 router.get('/orders/:id', adminAuth,orderController.loadOrderDetail)
 router.patch('/orders/:orderId/status',adminAuth, orderController.updateOrderStatus);
-router.post('/orders/:orderId/return',adminAuth, orderController.verifyReturnRequest);
+router.patch('/orders/:orderId/return',adminAuth, orderController.verifyReturnRequest);
 router.post('/orders/:orderId/:itemId/return',adminAuth, orderController.verifyItemReturnRequest);
 
 
@@ -79,6 +85,6 @@ router.get('/sales-report',adminAuth,salesController.loadSalesReport);
 router.get('/sales-report/filter',adminAuth,salesController.filterSalesReport);
 router.get('/sales-report/download/:type', adminAuth, salesController.downloadSalesReport);
 
-// router.use(errorController.pageError)
+
 
 module.exports = router;

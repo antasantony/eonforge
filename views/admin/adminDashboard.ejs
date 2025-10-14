@@ -23,213 +23,68 @@
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
-  <style>
-    .account-dropdown {
-      display: none;
-    }
-    .account-wrapper:hover .account-dropdown {
-      display: block;
-    }
-    .sidebar-menu a.active {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-  </style>
-</head>
-<body class="font-sans bg-gray-50 text-gray-900 overflow-x-hidden">
-  <div class="flex min-h-screen">
-    <!-- Sidebar -->
-   
-   <%- include("../../views/partials/admin/sidebar") %>
-    <!-- Main Content -->
-    <div class="flex-1 ml-64 min-h-screen">
-      <header class="bg-white py-4 px-6 flex justify-end items-center shadow sticky top-0 z-40">
-        <div class="account-wrapper relative">
-          <button class="bg-transparent border-none cursor-pointer text-xl text-gray-700" title="Account">
-            <i class="fas fa-user"></i>
-          </button>
-          <div class="account-dropdown absolute right-0 top-full bg-white min-w-40 shadow-lg rounded-md overflow-hidden">
-            <a href="/profile" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
-              <i class="fas fa-user mr-2"></i> Profile
-            </a>
-            <a href="/admin/logout" class="block px-4 py-2 text-gray-700 no-underline hover:bg-gray-100">
-              <i class="fas fa-sign-out-alt mr-2"></i> Logout
-            </a>
-          </div>
-        </div>
-      </header>
-      
-      <main class="p-6">
-        <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-semibold text-gray-800">Dashboard Overview</h1>
-          <div class="date-picker">
-            <input type="date" id="dashboard-date" value="<%= new Date().toISOString().split('T')[0] %>" 
-                   class="px-4 py-2 rounded border border-gray-300">
-          </div>
-        </div>
-        
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
-          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
-            <div class="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center mr-4 text-white text-xl">
-              <i class="fas fa-shopping-cart"></i>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-1">Total Sales</h3>
-              <p class="text-2xl font-semibold text-gray-800">$<span id="total-sales">24,560</span></p>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
-            <div class="w-14 h-14 rounded-xl bg-green-600 flex items-center justify-center mr-4 text-white text-xl">
-              <i class="fas fa-users"></i>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-1">New Users</h3>
-              <p class="text-2xl font-semibold text-gray-800"><span id="new-users">142</span></p>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
-            <div class="w-14 h-14 rounded-xl bg-orange-500 flex items-center justify-center mr-4 text-white text-xl">
-              <i class="fas fa-box-open"></i>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-1">Products</h3>
-              <p class="text-2xl font-semibold text-gray-800"><span id="total-products">1,248</span></p>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
-            <div class="w-14 h-14 rounded-xl bg-purple-600 flex items-center justify-center mr-4 text-white text-xl">
-              <i class="fas fa-chart-line"></i>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-1">Conversion</h3>
-              <p class="text-2xl font-semibold text-gray-800"><span id="conversion-rate">3.2</span>%</p>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Sales Graph -->
-        <div class="bg-white rounded-xl p-5 shadow-sm mb-6 h-[500px]">
-          <div class="flex justify-between items-center mb-5">
-            <h2 class="text-lg font-semibold">Sales Analytics</h2>
-            <div>
-              <select id="chart-period" class="px-4 py-2 rounded border border-gray-300 bg-white">
-                <option value="7">Last 7 Days</option>
-                <option value="30" selected>Last 30 Days</option>
-                <option value="90">Last 90 Days</option>
-              </select>
-            </div>
-          </div>
-          <canvas id="salesChart"></canvas>
-        </div>
-        
-        <!-- Recent Orders -->
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div class="p-5">
-            <h2 class="text-lg font-semibold">Recent Orders</h2>
-          </div>
-          <div class="max-h-[400px] overflow-y-auto">
-            <table class="w-full border-collapse">
-              <thead>
-                <tr class="sticky top-0 bg-white shadow-sm">
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Order ID</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Customer</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Date</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Amount</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Status</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Table rows will be inserted here -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-    </div>
-  </div>
-  <script src="/assets/js/admin/adminDashboard.js"></script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eon Forge - Admin Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#4361ee',
-            'primary-dark': '#3a56d4',
-            secondary: '#3f37c9',
-            success: '#4cc9f0',
-            danger: '#f72585',
-            warning: '#f8961e',
-            info: '#4895ef',
-          }
-        }
-      }
-    }
-  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    .account-dropdown {
+    .account-dropdown { display: none; }
+    .account-wrapper:hover .account-dropdown { display: block; }
+    .sidebar-menu a.active { background-color: rgba(255, 255, 255, 0.1); }
+    .stat-card { transition: all 0.3s ease; }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+    .chart-container { position: relative; height: 400px; }
+    
+    /* Mobile sidebar styles */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 40;
       display: none;
     }
-    .account-wrapper:hover .account-dropdown {
+    
+    .sidebar-overlay.active {
       display: block;
     }
-    .sidebar-menu a.active {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-    .stat-card {
-      transition: all 0.3s ease;
-    }
-    .stat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
-    .chart-container {
-      position: relative;
-      height: 400px;
+    
+    /* Responsive table styles */
+    @media (max-width: 768px) {
+      .responsive-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
     }
   </style>
 </head>
 <body class="font-sans bg-gray-50 text-gray-900 overflow-x-hidden">
+  <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
   <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <%-include("../../views/partials/admin/sidebar")%>
-    
+    <%- include("../../views/partials/admin/sidebar") %>
+
     <!-- Main Content -->
-    <div class="flex-1 ml-64 min-h-screen">
+    <div class="flex-1 lg:ml-64 min-h-screen w-full">
       <!-- Header -->
       <header class="bg-white py-4 px-6 flex justify-between items-center shadow sticky top-0 z-40">
         <div class="flex items-center">
+          <button class="lg:hidden mr-4 text-gray-700" id="openSidebar">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
           <h1 class="text-xl font-semibold text-gray-800">Dashboard Overview</h1>
-          <div class="ml-4 text-sm text-gray-500">
+          <div class="ml-4 text-sm text-gray-500 hidden md:block">
             <i class="fas fa-calendar-alt mr-1"></i>
             <%= new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
           </div>
         </div>
         <div class="flex items-center space-x-4">
-          <!-- Quick Actions -->
-          <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
-            <i class="fas fa-plus mr-2"></i>New Order
-          </button>
-          <!-- Date Picker -->
-          <input type="date" id="dashboard-date" value="<%= new Date().toISOString().split('T')[0] %>" 
-                 class="px-3 py-2 rounded-lg border border-gray-300 text-sm">
-          <!-- Account -->
+          <button id="download-ledger" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto">
+                <i class="fas fa-download mr-2"></i>Download Ledger
+              </button>
+          <input type="date" id="dashboard-date" class="px-3 py-2 rounded-lg border border-gray-300 text-sm hidden md:block">
           <div class="account-wrapper relative">
             <button class="bg-transparent border-none cursor-pointer text-xl text-gray-700 hover:text-primary transition-colors" title="Account">
               <i class="fas fa-user"></i>
@@ -246,64 +101,65 @@
         </div>
       </header>
       
-      <main class="p-6">
+      <main class="p-4 lg:p-6">
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="stat-card bg-white rounded-xl p-6 shadow-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+          <div class="stat-card bg-white rounded-xl p-4 lg:p-6 shadow-sm">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Total Sales</h3>
-                <p class="text-3xl font-bold text-gray-800">$<span id="total-sales">24,560</span></p>
-                <p class="text-sm text-green-600 mt-1">
-                  <i class="fas fa-arrow-up mr-1"></i>+12.5% from last month
+                <p class="text-2xl lg:text-3xl font-bold text-gray-800">₹<span id="total-sales"><%= totalSales.toLocaleString() || '0' %></span></p>
+                <p class="text-xs lg:text-sm mt-1" id="sales-change">
+                   <i class="fas <%= salesChange >= 0 ? 'fa-arrow-up text-green-600' : 'fa-arrow-down text-red-600' %> mr-1"></i>
+                  <span id="sales-change-value"><%= Math.abs(salesChange) %>%</span> from <%= period === 'daily' ? 'yesterday' : period === 'weekly' ? 'last week' : period === 'monthly' ? 'last month' : 'last year' %>
                 </p>
               </div>
-              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-2xl">
+              <div class="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl lg:text-2xl">
                 <i class="fas fa-shopping-cart"></i>
               </div>
             </div>
           </div>
-          
-          <div class="stat-card bg-white rounded-xl p-6 shadow-sm">
+          <div class="stat-card bg-white rounded-xl p-4 lg:p-6 shadow-sm">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-sm font-medium text-gray-500 mb-1">New Users</h3>
-                <p class="text-3xl font-bold text-gray-800"><span id="new-users">142</span></p>
-                <p class="text-sm text-green-600 mt-1">
-                  <i class="fas fa-arrow-up mr-1"></i>+8.2% from last week
+                <p class="text-2xl lg:text-3xl font-bold text-gray-800"><span id="new-users"><%= newUsersCount || '0' %></span></p>
+                <p class="text-xs lg:text-sm mt-1" id="new-users-change">
+                  <i class="fas <%= newUsersChange >= 0 ? 'fa-arrow-up text-green-600' : 'fa-arrow-down text-red-600' %> mr-1"></i>
+                  <span id="new-users-change-value"><%= Math.abs(newUsersChange) %>%</span> from  <%= period === 'daily' ? 'yesterday' : period === 'weekly' ? 'last week' : period === 'monthly' ? 'last month' : 'last year' %>
                 </p>
               </div>
-              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center text-white text-2xl">
+              <div class="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl lg:text-2xl">
                 <i class="fas fa-users"></i>
               </div>
             </div>
           </div>
-          
-          <div class="stat-card bg-white rounded-xl p-6 shadow-sm">
+          <div class="stat-card bg-white rounded-xl p-4 lg:p-6 shadow-sm">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Products</h3>
-                <p class="text-3xl font-bold text-gray-800"><span id="total-products">1,248</span></p>
-                <p class="text-sm text-blue-600 mt-1">
-                  <i class="fas fa-plus mr-1"></i>24 added this week
+                <p class="text-2xl lg:text-3xl font-bold text-gray-800"><span id="total-products"><%= totalProducts || '0' %></span></p>
+                <p class="text-xs lg:text-sm mt-1" id="products-change">
+                 <i class="fas <%= productsChange >= 0 ? 'fa-arrow-up text-green-600' : 'fa-arrow-down text-red-600' %> mr-1"></i>
+                  <span id="products-change-value"><%= Math.abs(productsChange) %>%</span> from <%= period === 'daily' ? 'yesterday' : period === 'weekly' ? 'last week' : period === 'monthly' ? 'last month' : 'last year' %>
                 </p>
               </div>
-              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl">
+              <div class="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl lg:text-2xl">
                 <i class="fas fa-box-open"></i>
               </div>
             </div>
           </div>
-          
-          <div class="stat-card bg-white rounded-xl p-6 shadow-sm">
+          <div class="stat-card bg-white rounded-xl p-4 lg:p-6 shadow-sm">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Conversion Rate</h3>
-                <p class="text-3xl font-bold text-gray-800"><span id="conversion-rate">3.2</span>%</p>
-                <p class="text-sm text-red-600 mt-1">
-                  <i class="fas fa-arrow-down mr-1"></i>-0.3% from last month
+                <p class="text-2xl lg:text-3xl font-bold text-gray-800"><span id="conversion-rate"><%= conversionRate || '0' %></span>%</p>
+                <p class="text-xs lg:text-sm mt-1" id="conversion-rate-change">
+                   <i class="fas <%= conversionRateChange >= 0 ? 'fa-arrow-up text-green-600' : 'fa-arrow-down text-red-600' %> mr-1"></i>
+                  <span id="conversion-rate-change-value"><%= Math.abs(conversionRateChange) %>%</span> from <%= period === 'daily' ? 'yesterday' : period === 'weekly' ? 'last week' : period === 'monthly' ? 'last month' : 'last year' %>
                 </p>
               </div>
-              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center text-white text-2xl">
+              <div class="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl lg:text-2xl">
                 <i class="fas fa-chart-line"></i>
               </div>
             </div>
@@ -311,16 +167,16 @@
         </div>
         
         <!-- Charts Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <!-- Sales Analytics Chart -->
-          <div class="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm">
-            <div class="flex justify-between items-center mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 lg:mb-8">
+          <div class="lg:col-span-2 bg-white rounded-xl p-4 lg:p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <h2 class="text-xl font-semibold text-gray-800">Sales Analytics</h2>
               <div class="flex items-center space-x-3">
                 <select id="chart-period" class="px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm">
-                  <option value="7">Last 7 Days</option>
-                  <option value="30" selected>Last 30 Days</option>
-                  <option value="90">Last 90 Days</option>
+                  <option value="yearly">Yearly</option>
+                  <option value="monthly" selected>Monthly</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="daily">Daily</option>
                 </select>
                 <button class="text-gray-500 hover:text-primary">
                   <i class="fas fa-download"></i>
@@ -331,9 +187,7 @@
               <canvas id="salesChart"></canvas>
             </div>
           </div>
-          
-          <!-- Revenue Breakdown -->
-          <div class="bg-white rounded-xl p-6 shadow-sm">
+          <div class="bg-white rounded-xl p-4 lg:p-6 shadow-sm">
             <h2 class="text-xl font-semibold text-gray-800 mb-6">Revenue Breakdown</h2>
             <div class="chart-container">
               <canvas id="revenueChart"></canvas>
@@ -341,272 +195,374 @@
           </div>
         </div>
         
-        <!-- Recent Orders & Top Products -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Recent Orders -->
+        <!-- Top 10 Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 lg:mb-8">
           <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-gray-200">
-              <div class="flex justify-between items-center">
-                <h2 class="text-xl font-semibold text-gray-800">Recent Orders</h2>
-                <a href="/admin/orders" class="text-primary hover:text-primary-dark text-sm font-medium">
-                  View All <i class="fas fa-arrow-right ml-1"></i>
-                </a>
-              </div>
+            <div class="p-4 lg:p-6 border-b border-gray-200">
+              <h2 class="text-xl font-semibold text-gray-800">Top 5 Products</h2>
             </div>
-            <div class="max-h-[400px] overflow-y-auto">
-              <table class="w-full">
-                <thead class="sticky top-0 bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">#ORD-001</div>
-                      <div class="text-sm text-gray-500">2 hours ago</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-900">John Doe</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">$299.00</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">#ORD-002</div>
-                      <div class="text-sm text-gray-500">4 hours ago</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-900">Jane Smith</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">$156.50</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Processing</span>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">#ORD-003</div>
-                      <div class="text-sm text-gray-500">6 hours ago</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm text-gray-900">Mike Johnson</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-medium text-gray-900">$89.99</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Shipped</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="p-4 lg:p-6">
+            <div class="space-y-4">
+                <% topProducts.forEach(product => { %>
+                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 rounded-lg overflow-hidden mr-4">
+                        <img 
+                          src="<%= product.productDetails.colorVariants[0]?.productImage[0] || '/images/no-image.jpg' %>" 
+                          alt="product" 
+                          class="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h4 class="font-medium text-gray-900 truncate w-40" title="<%= product.productDetails.productName %>">
+                          <%= product.productDetails.productName.slice(0,10)+"..." %>
+                        </h4>
+                        <p class="text-sm text-gray-500">
+                          <%= product.categoryDetails.name %> | <%= product.brandDetails.brandName %>
+                        </p>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="font-semibold text-gray-900">
+                        ₹<%= product.productDetails.colorVariants[0]?.offerPrice || product.productDetails.colorVariants[0]?.regularPrice %>
+                      </p>
+                      <p class="text-sm text-green-600">
+                        Sold: <%= product.totalSold %>
+                      </p>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
             </div>
           </div>
           
-          <!-- Top Products -->
           <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-gray-200">
-              <div class="flex justify-between items-center">
-                <h2 class="text-xl font-semibold text-gray-800">Top Products</h2>
-                <a href="/admin/products" class="text-primary hover:text-primary-dark text-sm font-medium">
-                  View All <i class="fas fa-arrow-right ml-1"></i>
-                </a>
-              </div>
+            <div class="p-4 lg:p-6 border-b border-gray-200">
+              <h2 class="text-xl font-semibold text-gray-800">Top 5 Categories</h2>
             </div>
-            <div class="p-6">
-              <div class="space-y-4">
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white mr-4">
-                      <i class="fas fa-laptop"></i>
-                    </div>
+            <div class="p-4 lg:p-6">
+             <div class="space-y-4">
+                <% topCategories.forEach(category => { %>
+                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div>
-                      <h4 class="font-medium text-gray-900">MacBook Pro</h4>
-                      <p class="text-sm text-gray-500">Electronics</p>
+                      <h4 class="font-medium text-gray-900"><%= category.name %></h4>
+                      <p class="text-sm text-gray-500"><%= category.salesCount %> items sold</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="font-semibold text-gray-900">
+                        ₹<%= category.revenue.toLocaleString() %>
+                      </p>
                     </div>
                   </div>
-                  <div class="text-right">
-                    <p class="font-semibold text-gray-900">$2,399</p>
-                    <p class="text-sm text-green-600">+15%</p>
-                  </div>
-                </div>
-                
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center text-white mr-4">
-                      <i class="fas fa-headphones"></i>
-                    </div>
-                    <div>
-                      <h4 class="font-medium text-gray-900">AirPods Pro</h4>
-                      <p class="text-sm text-gray-500">Audio</p>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <p class="font-semibold text-gray-900">$249</p>
-                    <p class="text-sm text-green-600">+8%</p>
-                  </div>
-                </div>
-                
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center text-white mr-4">
-                      <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <div>
-                      <h4 class="font-medium text-gray-900">iPhone 15</h4>
-                      <p class="text-sm text-gray-500">Mobile</p>
-                    </div>
-                  </div>
-                  <div class="text-right">
-                    <p class="font-semibold text-gray-900">$999</p>
-                    <p class="text-sm text-red-600">-3%</p>
-                  </div>
-                </div>
+                <% }) %>
               </div>
             </div>
           </div>
+          
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="p-4 lg:p-6 border-b border-gray-200">
+              <h2 class="text-xl font-semibold text-gray-800">Top 5 Brands</h2>
+            </div>
+            <div class="p-4 lg:p-6">
+              <div class="space-y-4">
+                <% topBrands.forEach(brand => { %>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h4 class="font-medium text-gray-900"><%= brand.name %></h4>
+                    <p class="text-sm text-gray-500"><%= brand.salesCount %> items sold</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-gray-900">₹<%= brand.revenue.toLocaleString() %></p>
+                  </div>
+                </div>
+                <% }) %>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Ledger Book -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="p-4 lg:p-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 class="text-xl font-semibold text-gray-800">Ledger Book</h2>
+              <button id="download-ledger" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto">
+                <i class="fas fa-download mr-2"></i>Download Ledger
+              </button>
+            </div>
+          </div>
+          
         </div>
       </main>
     </div>
   </div>
 
+  <form id="ledger-form" style="display: none;">
+    <input type="hidden" name="startDate" id="ledger-startDate">
+    <input type="hidden" name="endDate" id="ledger-endDate">
+    <input type="hidden" name="period" id="ledger-period">
+  </form>
+
   <script>
-    // Sales Chart
-    const salesCtx = document.getElementById('salesChart').getContext('2d');
-    const salesChart = new Chart(salesCtx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        datasets: [{
-          label: 'Sales',
-          data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 32000, 40000, 38000, 45000],
-          borderColor: '#4361ee',
-          backgroundColor: 'rgba(67, 97, 238, 0.1)',
-          borderWidth: 3,
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#4361ee',
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 2,
-          pointRadius: 6,
-          pointHoverRadius: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(0, 0, 0, 0.05)'
-            },
-            ticks: {
-              callback: function(value) {
-                return '$' + value.toLocaleString();
-              }
-            }
+    // Initialize sidebar toggle FIRST
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile sidebar toggle
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const openSidebarBtn = document.getElementById('openSidebar');
+      const closeSidebarBtn = document.getElementById('closeSidebar');
+      
+      if (openSidebarBtn && sidebar && sidebarOverlay && closeSidebarBtn) {
+        openSidebarBtn.addEventListener('click', () => {
+          sidebar.classList.remove('-translate-x-full');
+          sidebarOverlay.classList.add('active');
+        });
+        
+        closeSidebarBtn.addEventListener('click', () => {
+          sidebar.classList.add('-translate-x-full');
+          sidebarOverlay.classList.remove('active');
+        });
+        
+        sidebarOverlay.addEventListener('click', () => {
+          sidebar.classList.add('-translate-x-full');
+          sidebarOverlay.classList.remove('active');
+        });
+      } else {
+        console.error('Sidebar elements not found');
+      }
+
+      // Set default date for date input
+      const dashboardDate = document.getElementById('dashboard-date');
+      if (dashboardDate) {
+        dashboardDate.value = new Date().toISOString().split('T')[0];
+      }
+
+      // Initialize charts only if canvas elements exist
+      initializeCharts();
+    });
+
+    // Chart initialization function
+    function initializeCharts() {
+      // Sales Chart
+      const salesCtx = document.getElementById('salesChart');
+      if (salesCtx) {
+        const salesChart = new Chart(salesCtx, {
+          type: 'line',
+          data: {
+            labels: <%- JSON.stringify(salesLabels || []) %>,
+            datasets: [{
+              label: 'Sales',
+              data: <%- JSON.stringify(salesData || []) %>,
+              borderColor: '#4361ee',
+              backgroundColor: 'rgba(67, 97, 238, 0.1)',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#4361ee',
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              pointHoverRadius: 8
+            }]
           },
-          x: {
-            grid: {
-              display: false
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                ticks: { callback: function(value) { return '₹' + value.toLocaleString(); } }
+              },
+              x: { grid: { display: false } }
             }
           }
-        },
-        elements: {
-          point: {
-            hoverBackgroundColor: '#4361ee'
+        });
+      }
+
+      // Revenue Breakdown Chart
+      const revenueCtx = document.getElementById('revenueChart');
+      if (revenueCtx) {
+        const revenueChart = new Chart(revenueCtx, {
+          type: 'doughnut',
+          data: {
+            labels: <%- JSON.stringify(revenueLabels || ['Products', 'Services', 'Subscriptions', 'Other']) %>,
+            datasets: [{
+              data: <%- JSON.stringify(revenueData || [45, 25, 20, 10]) %>,
+              backgroundColor: ['#4361ee', '#4cc9f0', '#f8961e', '#f72585'],
+              borderWidth: 0,
+              hoverOffset: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } }
           }
-        }
+        });
       }
-    });
 
-    // Revenue Breakdown Chart
-    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-    const revenueChart = new Chart(revenueCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Products', 'Services', 'Subscriptions', 'Other'],
-        datasets: [{
-          data: [45, 25, 20, 10],
-          backgroundColor: [
-            '#4361ee',
-            '#4cc9f0',
-            '#f8961e',
-            '#f72585'
-          ],
-          borderWidth: 0,
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              padding: 20,
-              usePointStyle: true
-            }
+      // Set up chart period change handler
+      const chartPeriodSelect = document.getElementById('chart-period');
+      if (chartPeriodSelect) {
+        chartPeriodSelect.addEventListener('change', function() {
+          const period = this.value;
+          const date = document.getElementById('dashboard-date').value;
+          const url = period === 'daily' ? `/admin/chart-data?period=${period}&date=${date}` : `/admin/chart-data?period=${period}`;
+          fetchChartData(url, period);
+        });
+      }
+
+      // Set up date change handler for daily period
+      const dashboardDateInput = document.getElementById('dashboard-date');
+      if (dashboardDateInput) {
+        dashboardDateInput.addEventListener('change', function() {
+          const period = document.getElementById('chart-period').value;
+          if (period === 'daily') {
+            const date = this.value;
+            fetchChartData(`/admin/chart-data?period=daily&date=${date}`, period);
           }
-        }
-      }
-    });
-
-    // Chart period change handler
-    document.getElementById('chart-period').addEventListener('change', function() {
-      // Update chart data based on selected period
-      console.log('Period changed to:', this.value);
-    });
-
-    // Animate numbers on page load
-    function animateValue(id, start, end, duration) {
-      const obj = document.getElementById(id);
-      const range = end - start;
-      const minTimer = 50;
-      let stepTime = Math.abs(Math.floor(duration / range));
-      stepTime = Math.max(stepTime, minTimer);
-      const startTime = new Date().getTime();
-      const endTime = startTime + duration;
-      let timer;
-
-      function run() {
-        const now = new Date().getTime();
-        const remaining = Math.max((endTime - now) / duration, 0);
-        const value = Math.round(end - (remaining * range));
-        obj.innerHTML = value.toLocaleString();
-        if (value == end) {
-          clearInterval(timer);
-        }
+        });
       }
 
-      timer = setInterval(run, stepTime);
-      run();
+      // Set up ledger download handler
+      const downloadLedgerBtn = document.getElementById('download-ledger');
+      if (downloadLedgerBtn) {
+        downloadLedgerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          downloadLedger();
+        });
+      }
+
+      // Trigger initial fetch for monthly data
+      const period = document.getElementById('chart-period').value;
+      const date = document.getElementById('dashboard-date').value;
+      const url = period === 'daily' ? `/admin/chart-data?period=${period}&date=${date}` : `/admin/chart-data?period=${period}`;
+      fetchChartData(url, period);
     }
 
-    // Animate stats on page load
-    window.addEventListener('load', function() {
-      animateValue('total-sales', 0, 24560, 2000);
-      animateValue('new-users', 0, 142, 1500);
-      animateValue('total-products', 0, 1248, 2500);
-    });
+    // Fetch chart data helper
+    function fetchChartData(url, period) {
+      console.log('Fetching chart data from:', url);
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Received chart data:', data);
+          if (data.error) {
+            console.error('Server error:', data.error);
+            alert(`Error: ${data.error}`);
+            return;
+          }
+          
+          // Update Sales Chart
+          const salesChartCanvas = document.getElementById('salesChart');
+          if (salesChartCanvas) {
+            const salesChart = Chart.getChart(salesChartCanvas);
+            if (salesChart) {
+              salesChart.data.labels = data.labels;
+              salesChart.data.datasets[0].data = data.values;
+              salesChart.update();
+            }
+          }
+          
+          // Update Metrics
+          document.getElementById('total-sales').textContent = data.totalSales.toLocaleString();
+          document.getElementById('new-users').textContent = data.newUsersCount;
+          document.getElementById('total-products').textContent = data.totalProducts;
+          document.getElementById('conversion-rate').textContent = data.conversionRate + '%';
+          
+          // Update Percentage Changes
+          const periodText = period === 'daily' ? 'yesterday' : period === 'weekly' ? 'last week' : period === 'monthly' ? 'last month' : 'last year';
+          updateChange('sales-change', data.salesChange, periodText);
+          updateChange('new-users-change', data.newUsersChange, periodText);
+          updateChange('products-change', data.productsChange, periodText);
+          updateChange('conversion-rate-change', data.conversionRateChange, periodText);
+        })
+        .catch(error => {
+          console.error('Error fetching chart data:', error);
+          alert('Failed to load chart data. Please try again.');
+        });
+    }
+
+    // Helper to update percentage change display
+    function updateChange(elementId, change, periodText) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        const isPositive = change >= 0;
+        element.innerHTML = `
+          <i class="fas ${isPositive ? 'fa-arrow-up text-green-600' : 'fa-arrow-down text-red-600'} mr-1"></i>
+          ${Math.abs(change)}% from ${periodText}
+        `;
+      }
+    }
+
+    // Download ledger function
+    function downloadLedger() {
+      const period = document.getElementById('chart-period').value;
+      const date = document.getElementById('dashboard-date').value;
+      
+      // Set form values based on current chart selection
+      document.getElementById('ledger-period').value = period;
+      
+      if (period === 'daily') {
+        // For daily, use the selected date as both start and end
+        document.getElementById('ledger-startDate').value = date;
+        document.getElementById('ledger-endDate').value = date;
+      } else {
+        // For other periods, let the server calculate the date range
+        document.getElementById('ledger-startDate').value = '';
+        document.getElementById('ledger-endDate').value = '';
+      }
+
+      const form = document.getElementById('ledger-form');
+      const formData = new FormData(form);
+      const data = {
+        period: formData.get('period'),
+        startDate: formData.get('startDate'),
+        endDate: formData.get('endDate')
+      };
+
+      fetch('/admin/ledger', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          
+          // Generate appropriate filename based on period
+          let filename = `ledger-${period}`;
+          if (period === 'daily' && data.startDate) {
+            filename += `-${data.startDate}`;
+          }
+          a.download = `${filename}.pdf`;
+          
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+          console.error('Error downloading ledger:', error);
+          alert('Failed to download ledger. Please try again.');
+        });
+    }
   </script>
 </body>
 </html>

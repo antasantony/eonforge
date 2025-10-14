@@ -39,8 +39,10 @@ const createRazorpayOrder = async (req, res) => {
         // Apply coupon
         let couponApplied = false;
         let couponDiscount = 0;
+        let couponCode=null;
         if (coupon && coupon.isActive && subtotal >= coupon.minimumPurchaseAmount) {
             couponApplied = true;
+            couponCode=coupon.code;
             couponDiscount = coupon.discountType === 'Percentage'
                 ? (subtotal * coupon.discountValue) / 100
                 : coupon.discountValue;
@@ -124,6 +126,7 @@ const createRazorpayOrder = async (req, res) => {
             existingOrder.deliveryFee = deliveryFee;
             existingOrder.totalPrice = subtotal;
             existingOrder.finalAmount = totalAmount;
+            existingOrder.couponCode = couponCode;
             existingOrder.couponApplied = couponApplied;
             existingOrder.couponDiscount = couponDiscount;
 
@@ -151,6 +154,7 @@ const createRazorpayOrder = async (req, res) => {
             finalAmount: totalAmount,
             razorpayOrderId: razorpayOrder.id,
             status: 'Pending',
+            couponCode,
             couponApplied,
             couponDiscount
         });

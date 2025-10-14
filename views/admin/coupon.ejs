@@ -79,19 +79,46 @@
     #edit-coupon-form::-webkit-scrollbar-thumb:hover {
       background: #3a56d4;
     }
+    
+    /* Mobile sidebar styles */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 40;
+      display: none;
+    }
+    
+    .sidebar-overlay.active {
+      display: block;
+    }
+    
+    /* Responsive table styles */
+    @media (max-width: 768px) {
+      .responsive-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
   </style>
 </head>
 <body class="font-sans bg-gray-100 text-gray-900">
+  <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="flex min-h-screen">
     <%- include("../../views/partials/admin/sidebar") %>
-    <div class="flex-1 ml-64">
+    <div class="flex-1 lg:ml-64 min-h-screen w-full">
       <!-- header -->
-      <header class="bg-white py-4 px-6 flex items-center shadow sticky top-0 z-40">
-        <button class="menu-toggle mr-4 text-xl md:hidden">
-          <i class="fas fa-bars"></i>
+      <header class="bg-white py-4 px-4 lg:px-6 flex items-center shadow sticky top-0 z-40">
+        <button class="lg:hidden mr-4 text-gray-700" id="openSidebar">
+          <i class="fas fa-bars text-xl"></i>
         </button>
         
-        <form action="/admin/coupon" method="get" class="search-container flex items-center bg-gray-50 rounded-full px-4 py-2 w-full max-w-md ml-4">
+        <form action="/admin/coupon" method="get" class="search-container flex items-center bg-gray-50 rounded-full px-4 py-2 w-full max-w-md ml-0 lg:ml-4">
           <input 
             type="text" 
             name="search" 
@@ -123,115 +150,118 @@
           </div>
         </div>
       </header>
-      <main class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+      <main class="p-4 lg:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+          <div class="stats-card bg-white rounded-xl p-4 lg:p-6 shadow-lg animate-slide-up">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Total Coupons</p>
-                <h3 class="text-2xl font-bold text-primary"><%= totalCoupons || 0 %></h3>
+                <h3 class="text-xl lg:text-2xl font-bold text-primary"><%= totalCoupons || 0 %></h3>
               </div>
-              <div class="bg-primary/10 p-3 rounded-full">
-                <i class="fas fa-ticket-alt text-primary text-xl"></i>
+              <div class="bg-primary/10 p-2 lg:p-3 rounded-full">
+                <i class="fas fa-ticket-alt text-primary text-lg lg:text-xl"></i>
               </div>
             </div>
           </div>
-          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+          <div class="stats-card bg-white rounded-xl p-4 lg:p-6 shadow-lg animate-slide-up">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Active Coupons</p>
-                <h3 class="text-2xl font-bold text-accent"><%= activeCoupons || 0 %></h3>
+                <h3 class="text-xl lg:text-2xl font-bold text-accent"><%= activeCoupons || 0 %></h3>
               </div>
-              <div class="bg-accent/10 p-3 rounded-full">
-                <i class="fas fa-check-circle text-accent text-xl"></i>
+              <div class="bg-accent/10 p-2 lg:p-3 rounded-full">
+                <i class="fas fa-check-circle text-accent text-lg lg:text-xl"></i>
               </div>
             </div>
           </div>
-          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+          <div class="stats-card bg-white rounded-xl p-4 lg:p-6 shadow-lg animate-slide-up">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Redeemed Coupons</p>
-                <h3 class="text-2xl font-bold text-warning"><%= redeemedCoupons || 0 %></h3>
+                <h3 class="text-xl lg:text-2xl font-bold text-warning"><%= redeemedCoupons || 0 %></h3>
               </div>
-              <div class="bg-warning/10 p-3 rounded-full">
-                <i class="fas fa-check-double text-warning text-xl"></i>
+              <div class="bg-warning/10 p-2 lg:p-3 rounded-full">
+                <i class="fas fa-check-double text-warning text-lg lg:text-xl"></i>
               </div>
             </div>
           </div>
-          <div class="stats-card bg-white rounded-xl p-6 shadow-lg animate-slide-up">
+          <div class="stats-card bg-white rounded-xl p-4 lg:p-6 shadow-lg animate-slide-up">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Total Savings</p>
-                <h3 class="text-2xl font-bold text-secondary">₹<%= totalSavings ? totalSavings.toFixed(2) : '0.00' %></h3>
+                <h3 class="text-xl lg:text-2xl font-bold text-secondary">₹<%= totalSavings ? totalSavings.toFixed(2) : '0.00' %></h3>
               </div>
-              <div class="bg-secondary/10 p-3 rounded-full">
-                <i class="fas fa-indian-rupee-sign text-secondary text-xl"></i>
+              <div class="bg-secondary/10 p-2 lg:p-3 rounded-full">
+                <i class="fas fa-indian-rupee-sign text-secondary text-lg lg:text-xl"></i>
               </div>
             </div>
           </div>
         </div>
-        <div class="flex justify-between items-center mb-6">
+        
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
           <div>
-            <h1 class="text-3xl font-bold text-gray-800">Coupon Management</h1>
+            <h1 class="text-2xl lg:text-3xl font-bold text-gray-800">Coupon Management</h1>
             <p class="text-gray-600 text-sm">Create and manage promotional coupons</p>
           </div>
-          <div class="flex gap-4">
-            <select id="isActive-filter" name="isActive" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
+          <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <select id="isActive-filter" name="isActive" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field w-full sm:w-auto">
               <option value="">All Statuses</option>
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </select>
-            <select id="sort-order" name="sort" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
+            <select id="sort-order" name="sort" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field w-full sm:w-auto">
               <option value="desc">Newest First</option>
               <option value="asc">Oldest First</option>
             </select>
-            <button onclick="openCreateCouponModal()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark text-sm flex items-center gap-2">
+            <button onclick="openCreateCouponModal()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark text-sm flex items-center gap-2 w-full sm:w-auto justify-center">
               <i class="fas fa-plus"></i> Create Coupon
             </button>
           </div>
         </div>
+        
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div class="overflow-x-auto">
+          <div class="overflow-x-auto responsive-table">
             <table class="w-full">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Coupon Code</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Discount</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Min Purchase</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Usage Limit</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Expiry Date</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Description</th>
-                  <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Coupon Code</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase hidden sm:table-cell">Discount</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase hidden md:table-cell">Min Purchase</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase hidden lg:table-cell">Usage Limit</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase hidden md:table-cell">Expiry Date</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase hidden lg:table-cell">Description</th>
+                  <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <% coupons.forEach((coupon) => { %>
                   <tr class="table-row border-t border-gray-100">
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900"><%= coupon.code %></td>
-                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">
+                    <td class="px-4 lg:px-6 py-3 text-sm font-medium text-gray-900"><%= coupon.code %></td>
+                    <td class="px-4 lg:px-6 py-3 text-sm font-semibold text-gray-900 hidden sm:table-cell">
                       <%= coupon.discountType === 'Percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}` %>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-700"><%= coupon.minimumPurchaseAmount ? `₹${coupon.minimumPurchaseAmount}` : 'None' %></td>
-                    <td class="px-6 py-4 text-sm text-gray-700"><%= coupon.usageLimit %></td>
-                    <td class="px-6 py-4 text-sm text-gray-700"><%= new Date(coupon.expiryDate).toLocaleDateString() %></td>
-                    <td class="px-6 py-4">
+                    <td class="px-4 lg:px-6 py-3 text-sm text-gray-700 hidden md:table-cell"><%= coupon.minimumPurchaseAmount ? `₹${coupon.minimumPurchaseAmount}` : 'None' %></td>
+                    <td class="px-4 lg:px-6 py-3 text-sm text-gray-700 hidden lg:table-cell"><%= coupon.usageLimit %></td>
+                    <td class="px-4 lg:px-6 py-3 text-sm text-gray-700 hidden md:table-cell"><%= new Date(coupon.expiryDate).toLocaleDateString() %></td>
+                    <td class="px-4 lg:px-6 py-3">
                       <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= coupon.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
                         <i class="fas <%= coupon.isActive ? 'fa-check-circle' : 'fa-ban' %> mr-1"></i>
                         <%= coupon.isActive ? 'Active' : 'Inactive' %>
                       </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-700"><%= coupon.description || 'None' %></td>
-                    <td class="px-6 py-4 flex items-center gap-2">
-                      <button onclick="openEditCouponModal('<%= coupon._id %>', '<%= coupon.code %>', '<%= coupon.discountType %>', '<%= coupon.discountValue %>', '<%= coupon.minimumPurchaseAmount || '' %>', '<%= coupon.usageLimit %>', '<%= coupon.expiryDate.toISOString().split('T')[0] %>', '<%= coupon.isActive %>', '<%= coupon.description || '' %>')"
-                        class="text-primary hover:text-primary-dark text-sm font-medium px-3 py-1 rounded-lg hover:bg-primary/10">
-                        <i class="fas fa-edit mr-1"></i>Edit
-                      </button>
-                      <button onclick="deleteCoupon('<%= coupon._id %>')"
-                        class="text-danger hover:text-danger-dark text-sm font-medium px-3 py-1 rounded-lg hover:bg-danger/10">
-                        <i class="fas fa-trash mr-1"></i>Delete
-                      </button>
-                     
+                    <td class="px-4 lg:px-6 py-3 text-sm text-gray-700 hidden lg:table-cell"><%= coupon.description || 'None' %></td>
+                    <td class="px-4 lg:px-6 py-3">
+                      <div class="flex flex-col sm:flex-row sm:gap-2 gap-1">
+                        <button onclick="openEditCouponModal('<%= coupon._id %>', '<%= coupon.code %>', '<%= coupon.discountType %>', '<%= coupon.discountValue %>', '<%= coupon.minimumPurchaseAmount || '' %>', '<%= coupon.usageLimit %>', '<%= coupon.expiryDate.toISOString().split('T')[0] %>', '<%= coupon.isActive %>', '<%= coupon.description || '' %>')"
+                          class="text-primary hover:text-primary-dark text-sm font-medium px-2 py-1 rounded-lg hover:bg-primary/10 text-left">
+                          <i class="fas fa-edit mr-1"></i>Edit
+                        </button>
+                        <button onclick="deleteCoupon('<%= coupon._id %>')"
+                          class="text-danger hover:text-danger-dark text-sm font-medium px-2 py-1 rounded-lg hover:bg-danger/10 text-left">
+                          <i class="fas fa-trash mr-1"></i>Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 <% }); %>
@@ -240,42 +270,44 @@
           </div>
           <div class="flex items-center justify-center gap-2 p-4 bg-gray-50 border-t border-gray-200">
             <a href="?page=<%= currentPage - 1 %>&search=<%= search || '' %>&isActive=<%= isActive || '' %>&sort=<%= sort || 'desc' %>"
-              class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage === 1 ? 'opacity-50 pointer-events-none' : '' %>">
-              <i class="fas fa-chevron-left"></i>
+              class="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage === 1 ? 'opacity-50 pointer-events-none' : '' %>">
+              <i class="fas fa-chevron-left text-xs lg:text-sm"></i>
             </a>
             <% for(let i = 1; i <= totalPages; i++) { %>
               <a href="?page=<%= i %>&search=<%= search || '' %>&isActive=<%= isActive || '' %>&sort=<%= sort || 'desc' %>"
-                class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-sm <%= i === currentPage ? 'bg-primary text-white' : 'hover:bg-gray-100' %>">
+                class="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-lg border border-gray-200 text-xs lg:text-sm <%= i === currentPage ? 'bg-primary text-white' : 'hover:bg-gray-100' %>">
                 <%= i %>
               </a>
             <% } %>
             <a href="?page=<%= currentPage + 1 %>&search=<%= search || '' %>&isActive=<%= isActive || '' %>&sort=<%= sort || 'desc' %>"
-              class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage >= totalPages ? 'opacity-50 pointer-events-none' : '' %>">
-              <i class="fas fa-chevron-right"></i>
+              class="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-lg border border-gray-200 hover:bg-primary hover:text-white <%= currentPage >= totalPages ? 'opacity-50 pointer-events-none' : '' %>">
+              <i class="fas fa-chevron-right text-xs lg:text-sm"></i>
             </a>
           </div>
         </div>
       </main>
     </div>
   </div>
+  
+  <!-- Create Coupon Modal -->
   <div id="create-coupon-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl modal-content w-full max-w-lg animate-modal-enter">
-      <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-primary to-secondary text-white flex justify-between items-center rounded-t-2xl">
-        <h2 class="text-xl font-semibold">Create New Coupon</h2>
+      <div class="p-4 lg:p-6 border-b border-gray-200 bg-gradient-to-r from-primary to-secondary text-white flex justify-between items-center rounded-t-2xl">
+        <h2 class="text-lg lg:text-xl font-semibold">Create New Coupon</h2>
         <button onclick="closeCreateCouponModal()" class="text-white hover:text-gray-200">
           <i class="fas fa-times text-lg"></i>
         </button>
       </div>
-      <form id="create-coupon-form" class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+      <form id="create-coupon-form" class="p-4 lg:p-6 space-y-4 max-h-[70vh] overflow-y-auto">
         <div>
           <label for="create-code" class="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
-          <input type="text" id="create-code" name="code" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., SUMMER25" >
+          <input type="text" id="create-code" name="code" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., SUMMER25" >
           <span id="create-code-error" class="form-error hidden mt-1">Coupon code is required</span>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="create-discount-type" class="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
-            <select id="create-discount-type" name="discountType" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
+            <select id="create-discount-type" name="discountType" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
               <option value="" disabled selected>Select discount type</option>
               <option value="Percentage">Percentage</option>
               <option value="Flat">Flat</option>
@@ -284,23 +316,23 @@
           </div>
           <div>
             <label for="create-discount-value" class="block text-sm font-medium text-gray-700 mb-1">Discount Value</label>
-            <input type="number" id="create-discount-value" name="discountValue" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., 20" min="0">
+            <input type="number" id="create-discount-value" name="discountValue" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., 20" min="0">
             <span id="create-discount-value-error" class="form-error hidden mt-1">Enter a valid discount value</span>
           </div>
         </div>
         <div>
           <label for="create-minimum-purchase" class="block text-sm font-medium text-gray-700 mb-1">Minimum Purchase Amount</label>
-          <input type="number" id="create-minimum-purchase" name="minimumPurchaseAmount" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., 500" min="0">
+          <input type="number" id="create-minimum-purchase" name="minimumPurchaseAmount" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., 500" min="0">
           <span id="create-minimum-purchase-error" class="form-error hidden mt-1">Enter a valid amount</span>
         </div>
         <div>
           <label for="create-usage-limit" class="block text-sm font-medium text-gray-700 mb-1">Usage Limit</label>
-          <input type="number" id="create-usage-limit" name="usageLimit" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., 100" min="1">
+          <input type="number" id="create-usage-limit" name="usageLimit" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., 100" min="1">
           <span id="create-usage-limit-error" class="form-error hidden mt-1">Enter a valid usage limit (at least 1)</span>
         </div>
         <div>
           <label for="create-expiry-date" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-          <input type="date" id="create-expiry-date" name="expiryDate" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
+          <input type="date" id="create-expiry-date" name="expiryDate" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
           <span id="create-expiry-date-error" class="form-error hidden mt-1">Enter a valid future date</span>
         </div>
         <div>
@@ -309,9 +341,9 @@
         </div>
         <div>
           <label for="create-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea id="create-description" name="description" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., Valid on orders above ₹500"></textarea>
+          <textarea id="create-description" name="description" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., Valid on orders above ₹500"></textarea>
         </div>
-        <div class="flex justify-end gap-3  bottom-0 bg-white pt-4 -mb-4">
+        <div class="flex justify-end gap-3 pt-4">
           <button type="button" onclick="closeCreateCouponModal()" class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
             Cancel
           </button>
@@ -322,25 +354,27 @@
       </form>
     </div>
   </div>
+  
+  <!-- Edit Coupon Modal -->
   <div id="edit-coupon-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl modal-content w-full max-w-lg animate-modal-enter">
-      <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-primary to-secondary text-white flex justify-between items-center rounded-t-2xl">
-        <h2 class="text-xl font-semibold">Edit Coupon</h2>
+      <div class="p-4 lg:p-6 border-b border-gray-200 bg-gradient-to-r from-primary to-secondary text-white flex justify-between items-center rounded-t-2xl">
+        <h2 class="text-lg lg:text-xl font-semibold">Edit Coupon</h2>
         <button onclick="closeEditCouponModal()" class="text-white hover:text-gray-200">
           <i class="fas fa-times text-lg"></i>
         </button>
       </div>
-      <form id="edit-coupon-form" class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+      <form id="edit-coupon-form" class="p-4 lg:p-6 space-y-4 max-h-[70vh] overflow-y-auto">
         <input type="hidden" id="edit-coupon-id" name="couponId">
         <div>
           <label for="edit-code" class="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
-          <input type="text" id="edit-code" name="code" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" readonly>
+          <input type="text" id="edit-code" name="code" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" readonly>
           <span id="edit-code-error" class="form-error hidden mt-1">Coupon code is required</span>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="edit-discount-type" class="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
-            <select id="edit-discount-type" name="discountType" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
+            <select id="edit-discount-type" name="discountType" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
               <option value="" disabled>Select discount type</option>
               <option value="Percentage">Percentage</option>
               <option value="Flat">Flat</option>
@@ -349,23 +383,23 @@
           </div>
           <div>
             <label for="edit-discount-value" class="block text-sm font-medium text-gray-700 mb-1">Discount Value</label>
-            <input type="number" id="edit-discount-value" name="discountValue" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" min="0">
+            <input type="number" id="edit-discount-value" name="discountValue" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" min="0">
             <span id="edit-discount-value-error" class="form-error hidden mt-1">Enter a valid discount value</span>
           </div>
         </div>
         <div>
           <label for="edit-minimum-purchase" class="block text-sm font-medium text-gray-700 mb-1">Minimum Purchase Amount</label>
-          <input type="number" id="edit-minimum-purchase" name="minimumPurchaseAmount" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" min="0">
+          <input type="number" id="edit-minimum-purchase" name="minimumPurchaseAmount" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" min="0">
           <span id="edit-minimum-purchase-error" class="form-error hidden mt-1">Enter a valid amount</span>
         </div>
         <div>
           <label for="edit-usage-limit" class="block text-sm font-medium text-gray-700 mb-1">Usage Limit</label>
-          <input type="number" id="edit-usage-limit" name="usageLimit" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" min="1">
+          <input type="number" id="edit-usage-limit" name="usageLimit" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" min="1">
           <span id="edit-usage-limit-error" class="form-error hidden mt-1">Enter a valid usage limit (at least 1)</span>
         </div>
         <div>
           <label for="edit-expiry-date" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-          <input type="date" id="edit-expiry-date" name="expiryDate" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
+          <input type="date" id="edit-expiry-date" name="expiryDate" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field">
           <span id="edit-expiry-date-error" class="form-error hidden mt-1">Enter a valid future date</span>
         </div>
         <div>
@@ -374,9 +408,9 @@
         </div>
         <div>
           <label for="edit-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea id="edit-description" name="description" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., Valid on orders above ₹500"></textarea>
+          <textarea id="edit-description" name="description" class="w-full px-3 lg:px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary input-field" placeholder="e.g., Valid on orders above ₹500"></textarea>
         </div>
-        <div class="flex justify-end gap-3 sticky bottom-0 bg-white pt-4 -mb-4">
+        <div class="flex justify-end gap-3 pt-4">
           <button type="button" onclick="closeEditCouponModal()" class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
             Cancel
           </button>
@@ -387,357 +421,7 @@
       </form>
     </div>
   </div>
-  <script>
-  // Modal Functions
-  function openCreateCouponModal() {
-    document.getElementById('create-coupon-modal').classList.remove('hidden');
-    clearFormErrors('create');
-    // document.getElementById('create-code').value = generateCouponCode(); // Commented out as undefined
-  }
-
-  function closeCreateCouponModal() {
-    document.getElementById('create-coupon-form').reset();
-    clearFormErrors('create');
-    document.getElementById('create-coupon-modal').classList.add('hidden');
-  }
-
-  function openEditCouponModal(id, code, discountType, discountValue, minimumPurchaseAmount, usageLimit, expiryDate, isActive, description) {
-    document.getElementById('edit-coupon-id').value = id;
-    document.getElementById('edit-code').value = code;
-    document.getElementById('edit-discount-type').value = discountType;
-    document.getElementById('edit-discount-value').value = discountValue;
-    document.getElementById('edit-minimum-purchase').value = minimumPurchaseAmount;
-    document.getElementById('edit-usage-limit').value = usageLimit;
-    document.getElementById('edit-expiry-date').value = expiryDate;
-    document.getElementById('edit-is-active').checked = isActive === 'true';
-    document.getElementById('edit-description').value = description;
-    clearFormErrors('edit');
-    document.getElementById('edit-coupon-modal').classList.remove('hidden');
-  }
-
-  function closeEditCouponModal() {
-    document.getElementById('edit-coupon-form').reset();
-    clearFormErrors('edit');
-    document.getElementById('edit-coupon-modal').classList.add('hidden');
-  }
-
-  // Validation Functions
-  function showFieldError(input, errorElement, message = 'This field is required') {
-    input.classList.add('error');
-    errorElement.classList.remove('hidden');
-    errorElement.textContent = message;
-  }
-
-  function hideFieldError(input, errorElement) {
-    input.classList.remove('error');
-    errorElement.classList.add('hidden');
-  }
-
-  function clearFormErrors(formPrefix) {
-    document.querySelectorAll(`#${formPrefix}-coupon-form .input-field`).forEach(input => input.classList.remove('error'));
-    document.querySelectorAll(`#${formPrefix}-coupon-form .form-error`).forEach(error => error.classList.add('hidden'));
-  }
-
-  function validateCreateForm() {
-    let isValid = true;
-    const fields = [
-      { id: 'create-code', validate: value => /^[A-Za-z]{3}\d{4}$/.test(value), message: 'Coupon code must be 3 letters followed by 4 numbers (e.g., ABC1234)' },
-      { id: 'create-discount-type', validate: value => ['Percentage', 'Flat'].includes(value), message: 'Select a valid discount type' },
-      { id: 'create-discount-value', validate: (value, form) => {
-          const num = parseFloat(value);
-          const discountType = form.querySelector('#create-discount-type').value;
-          return !isNaN(num) && num >= 0 && (discountType !== 'Percentage' || num <= 100);
-        }, message: 'Enter a valid discount value (0-100 for Percentage)' },
-      { id: 'create-usage-limit', validate: value => !isNaN(parseInt(value)) && parseInt(value) >= 1, message: 'Enter a valid usage limit (at least 1)' },
-      { id: 'create-expiry-date', validate: value => {
-          const date = new Date(value);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          return !isNaN(date) && date >= today;
-        }, message: 'Enter a valid future or current date' },
-      { id: 'create-minimum-purchase', validate: value => !value || (!isNaN(parseFloat(value)) && parseFloat(value) >= 0), message: 'Enter a valid amount (0 or greater)' }
-    ];
-
-    const form = document.getElementById('create-coupon-form');
-    fields.forEach(({ id, validate, message }) => {
-      const input = document.getElementById(id);
-      const error = document.getElementById(`${id}-error`);
-      const value = input.value.trim();
-      if (!value || !validate(value, form)) {
-        showFieldError(input, error, message);
-        isValid = false;
-      } else {
-        hideFieldError(input, error);
-      }
-    });
-
-    return isValid;
-  }
-
-  function validateEditForm() {
-    let isValid = true;
-    const fields = [
-      { id: 'edit-discount-type', validate: value => ['Percentage', 'Flat'].includes(value), message: 'Select a valid discount type' },
-      { id: 'edit-discount-value', validate: (value, form) => {
-          const num = parseFloat(value);
-          const discountType = form.querySelector('#edit-discount-type').value;
-          return !isNaN(num) && num >= 0 && (discountType !== 'Percentage' || num <= 100);
-        }, message: 'Enter a valid discount value (0-100 for Percentage)' },
-      { id: 'edit-usage-limit', validate: value => !isNaN(parseInt(value)) && parseInt(value) >= 1, message: 'Enter a valid usage limit (at least 1)' },
-      { id: 'edit-expiry-date', validate: value => {
-          const date = new Date(value);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          return !isNaN(date) && date >= today;
-        }, message: 'Enter a valid future or current date' },
-      { id: 'edit-minimum-purchase', validate: value => !value || (!isNaN(parseFloat(value)) && parseFloat(value) >= 0), message: 'Enter a valid amount (0 or greater)' }
-    ];
-
-    const form = document.getElementById('edit-coupon-form');
-    fields.forEach(({ id, validate, message }) => {
-      const input = document.getElementById(id);
-      const error = document.getElementById(`${id}-error`);
-      const value = input.value.trim();
-      if (!value || !validate(value, form)) {
-        showFieldError(input, error, message);
-        isValid = false;
-      } else {
-        hideFieldError(input, error);
-      }
-    });
-
-    return isValid;
-  }
-
-  function addInlineValidation(formPrefix) {
-    const fields = [
-      ...(formPrefix === 'create' ? [
-        { id: `${formPrefix}-code`, validate: value => /^[A-Za-z]{3}\d{4}$/.test(value), message: 'Coupon code must be 3 letters followed by 4 numbers (e.g., ABC1234)' }
-      ] : []),
-      { id: `${formPrefix}-discount-type`, validate: value => ['Percentage', 'Flat'].includes(value), message: 'Select a valid discount type' },
-      { id: `${formPrefix}-discount-value`, validate: (value, form) => {
-          const num = parseFloat(value);
-          const discountType = form.querySelector(`#${formPrefix}-discount-type`).value;
-          return !isNaN(num) && num >= 0 && (discountType !== 'Percentage' || num <= 100);
-        }, message: 'Enter a valid discount value (0-100 for Percentage)' },
-      { id: `${formPrefix}-usage-limit`, validate: value => !isNaN(parseInt(value)) && parseInt(value) >= 1, message: 'Enter a valid usage limit (at least 1)' },
-      { id: `${formPrefix}-expiry-date`, validate: value => {
-          const date = new Date(value);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          return !isNaN(date) && date >= today;
-        }, message: 'Enter a valid future or current date' },
-      { id: `${formPrefix}-minimum-purchase`, validate: value => !value || (!isNaN(parseFloat(value)) && parseFloat(value) >= 0), message: 'Enter a valid amount (0 or greater)' }
-    ];
-
-    fields.forEach(({ id, validate, message }) => {
-      const input = document.getElementById(id);
-      const error = document.getElementById(`${id}-error`);
-      input.addEventListener('input', () => {
-        const value = input.value.trim();
-        if (!value || !validate(value, document.getElementById(`${formPrefix}-coupon-form`))) {
-          showFieldError(input, error, message);
-        } else {
-          hideFieldError(input, error);
-        }
-      });
-      input.addEventListener('blur', () => {
-        const value = input.value.trim();
-        if (!value || !validate(value, document.getElementById(`${formPrefix}-coupon-form`))) {
-          showFieldError(input, error, message);
-        } else {
-          hideFieldError(input, error);
-        }
-      });
-    });
-  }
-
-  // Fetch Functions
-  async function createCoupon(event) {
-    event.preventDefault();
-    if (!validateCreateForm()) return;
-
-    const form = document.getElementById('create-coupon-form');
-    const submitButton = document.getElementById('create-submit-button');
-    submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-
-    const formData = new FormData(form);
-    const couponData = {
-      code: formData.get('code'),
-      discountType: formData.get('discountType'),
-      discountValue: parseFloat(formData.get('discountValue')),
-      minimumPurchaseAmount: formData.get('minimumPurchaseAmount') ? parseFloat(formData.get('minimumPurchaseAmount')) : null,
-      usageLimit: parseInt(formData.get('usageLimit')),
-      expiryDate: new Date(formData.get('expiryDate')),
-      isActive: formData.get('isActive') === 'on',
-      description: formData.get('description') || null
-    };
-
-    try {
-      const response = await fetch('/admin/coupon', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(couponData)
-      });
-      const result = await response.json();
-      if (response.ok) {
-        Swal.fire({
-          title: 'Success',
-          text: 'Coupon created successfully!',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false,
-          position: 'center',
-         
-          timerProgressBar:true
-        });
-        closeCreateCouponModal();
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        Swal.fire('Error', result.message || 'Failed to create coupon', 'error');
-      }
-    } catch (error) {
-      Swal.fire('Error', 'An error occurred while creating the coupon', 'error');
-    } finally {
-      submitButton.disabled = false;
-      submitButton.innerHTML = '<i class="fas fa-save"></i> Create';
-    }
-  }
-
-  async function updateCoupon(event) {
-    event.preventDefault();
-    if (!validateEditForm()) return;
-
-    const form = document.getElementById('edit-coupon-form');
-    const submitButton = document.getElementById('edit-submit-button');
-    submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-
-    const formData = new FormData(form);
-    const couponData = {
-      id:formData.get('couponId'),
-      code: formData.get('code'),
-      discountType: formData.get('discountType'),
-      discountValue: parseFloat(formData.get('discountValue')),
-      minimumPurchaseAmount: formData.get('minimumPurchaseAmount') ? parseFloat(formData.get('minimumPurchaseAmount')) : null,
-      usageLimit: parseInt(formData.get('usageLimit')),
-      expiryDate: new Date(formData.get('expiryDate')),
-      isActive: formData.get('isActive') === 'on',
-      description: formData.get('description') || null
-    };
-    console.log(couponData)
-    try {
-      const response = await fetch(`/admin/coupon`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(couponData)
-      });
-      const result = await response.json();
-      if (response.ok) {
-        Swal.fire({
-          title: 'Success',
-          text: 'Coupon updated successfully!',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false,
-         
-        });
-        closeEditCouponModal();
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        Swal.fire('Error', result.message || 'Failed to update coupon', 'error');
-      }
-    } catch (error) {
-      Swal.fire('Error', 'An error occurred while updating the coupon', 'error');
-    } finally {
-      submitButton.disabled = false;
-      submitButton.innerHTML = '<i class="fas fa-save"></i> Update';
-    }
-  }
-
-  async function deleteCoupon(couponId) {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'This action cannot be undone!',
-      icon: 'warning',
-      showCancelButton: true,
-      toast:true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, delete it!'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        const response = await fetch(`/admin/coupon/${couponId}`, {
-          method: 'DELETE'
-        });
-        const result = await response.json();
-        if (response.ok) {
-          Swal.fire({
-            title: 'Deleted',
-            text: 'Coupon deleted successfully!',
-            icon: 'success',
-            timer: 2000,
-            toast:true,
-            position:'top-end',
-            showConfirmButton: false,
-           
-          });
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
-        } else {
-          Swal.fire('Error', result.message || 'Failed to delete coupon', 'error');
-        }
-      } catch (error) {
-        Swal.fire('Error', 'An error occurred while deleting the coupon', 'error');
-      }
-    }
-  }
-
-  async function toggleCouponStatus(couponId, isActive) {
-    try {
-      const response = await fetch(`/api/coupons/${couponId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive })
-      });
-      const result = await response.json();
-      if (response.ok) {
-        Swal.fire({
-          title: 'Success',
-          text: `Coupon ${isActive ? 'activated' : 'deactivated'} successfully!`,
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end',
-          timerProgressBar:true
-        });
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        Swal.fire('Error', result.message || 'Failed to update coupon status', 'error');
-      }
-    } catch (error) {
-      Swal.fire('Error', 'An error occurred while updating the coupon status', 'error');
-    }
-  }
-
-  // Initialize Inline Validation
-  document.addEventListener('DOMContentLoaded', () => {
-    addInlineValidation('create');
-    addInlineValidation('edit');
-    document.getElementById('create-coupon-form').addEventListener('submit', createCoupon);
-    document.getElementById('edit-coupon-form').addEventListener('submit', updateCoupon);
-  });
-</script>
+  
+  <script src="/assets/js/admin/coupon.js"></script>
 </body>
 </html>

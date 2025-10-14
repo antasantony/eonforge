@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eon Forge - About Us</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind theme to match brand -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            playfair: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            ink: '#191919',       // primary text
+            gold: '#d4af37',      // accent
+            paper: '#ffffff',     // backgrounds
+            grayish: '#6b7280',   // secondary text
+          },
+          borderRadius: {
+            xl: '0.75rem',
+          },
+          keyframes: {
+            fadeIn: { from: { opacity: 0, transform: 'translateY(12px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
+          },
+          animation: {
+            'fade-in': 'fadeIn .45s ease-out both',
+          },
+        },
+      },
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- Font Awesome (icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- SweetAlert2 (vanilla JS) -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="bg-paper text-ink font-inter">
+  <!-- Static Header -->
+  <%- include("../../views/partials/user/header") %>
+
+  <!-- Hero -->
+  <header class="container mx-auto px-4 pt-10 pb-6 text-center animate-fade-in">
+    <h1 class="font-playfair text-4xl md:text-5xl font-semibold tracking-tight">
+      About <span class="text-gold">Eon Forge</span>
+    </h1>
+    <p class="mt-3 text-base md:text-lg text-grayish max-w-3xl mx-auto leading-relaxed">
+      Meticulously crafted watches designed to endure. Modern precision meets timeless elegance.
+    </p>
+  </header>
+
+  <!-- Story + Mission -->
+  <main class="container mx-auto px-4 pb-12">
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <article class="bg-paper border border-neutral-200 rounded-xl p-6 md:p-8 animate-fade-in">
+        <h2 class="font-playfair text-2xl font-semibold mb-3 flex items-center">
+          <i class="fa-solid fa-feather mr-3 text-gold"></i> Our Story
+        </h2>
+        <p class="text-grayish leading-relaxed">
+          EON FORGE began with a simple idea: a watch should be more than a timekeeper—
+          it should be a companion for life’s defining moments. From our first prototype to our latest collection,
+          we have stayed true to our purpose: crafting pieces that feel as good as they look, and last for years.
+        </p>
+        <p class="text-grayish leading-relaxed mt-4">
+          Each model is assembled with care and calibrated for accuracy. We source responsibly and build with
+          integrity, ensuring that every watch carries our commitment to excellence.
+        </p>
+      </article>
+
+      <article class="bg-paper border border-neutral-200 rounded-xl p-6 md:p-8 animate-fade-in">
+        <h2 class="font-playfair text-2xl font-semibold mb-3 flex items-center">
+          <i class="fa-solid fa-bullseye mr-3 text-gold"></i> Our Mission
+        </h2>
+        <p class="text-grayish leading-relaxed">
+          To elevate everyday rituals through purposeful design and enduring quality. We believe luxury is
+          the harmony of function and feeling—measured not only in materials, but in meaning.
+        </p>
+        <ul class="mt-5 space-y-3">
+          <li class="flex items-start">
+            <i class="fa-solid fa-check text-gold mt-1 mr-3"></i>
+            <span>Precision engineering and reliable movements</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fa-solid fa-check text-gold mt-1 mr-3"></i>
+            <span>Responsible sourcing and mindful production</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fa-solid fa-check text-gold mt-1 mr-3"></i>
+            <span>Attentive support—before and after purchase</span>
+          </li>
+        </ul>
+      </article>
+    </section>
+
+    <!-- Values -->
+    <section class="mt-8 bg-paper border border-neutral-200 rounded-xl p-6 md:p-8 animate-fade-in">
+      <h2 class="font-playfair text-2xl font-semibold mb-6 flex items-center">
+        <i class="fa-solid fa-heart mr-3 text-gold"></i> Our Values
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div class="border border-neutral-200 rounded-xl p-5 transition-transform hover:scale-105 hover:shadow-md">
+          <div class="w-10 h-10 rounded-md bg-gold/10 flex items-center justify-center mb-3">
+            <i class="fa-solid fa-hammer text-gold"></i>
+          </div>
+          <h3 class="font-semibold mb-1">Craftsmanship</h3>
+          <p class="text-grayish text-sm leading-relaxed">
+            Every surface finished with care. Every component chosen for longevity.
+          </p>
+        </div>
+        <div class="border border-neutral-200 rounded-xl p-5 transition-transform hover:scale-105 hover:shadow-md">
+          <div class="w-10 h-10 rounded-md bg-gold/10 flex items-center justify-center mb-3">
+            <i class="fa-solid fa-leaf text-gold"></i>
+          </div>
+          <h3 class="font-semibold mb-1">Sustainability</h3>
+          <p class="text-grayish text-sm leading-relaxed">
+            Thoughtful materials and minimized waste across our supply chain.
+          </p>
+        </div>
+        <div class="border border-neutral-200 rounded-xl p-5 transition-transform hover:scale-105 hover:shadow-md">
+          <div class="w-10 h-10 rounded-md bg-gold/10 flex items-center justify-center mb-3">
+            <i class="fa-solid fa-headset text-gold"></i>
+          </div>
+          <h3 class="font-semibold mb-1">Customer First</h3>
+          <p class="text-grayish text-sm leading-relaxed">
+            We listen, refine, and support—so your experience is exceptional.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="mt-8 animate-fade-in" id="stats-section">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div class="bg-paper border border-neutral-200 rounded-xl p-6 text-center">
+          <div class="w-10 h-10 mx-auto mb-3 rounded-md bg-gold/10 flex items-center justify-center">
+            <i class="fa-solid fa-calendar-check text-gold"></i>
+          </div>
+          <div class="text-2xl font-semibold" data-count="5">0+</div>
+          <div class="text-grayish text-sm">Years in Business</div>
+        </div>
+        <div class="bg-paper border border-neutral-200 rounded-xl p-6 text-center">
+          <div class="w-10 h-10 mx-auto mb-3 rounded-md bg-gold/10 flex items-center justify-center">
+            <i class="fa-solid fa-users text-gold"></i>
+          </div>
+          <div class="text-2xl font-semibold" data-count="25000">0+</div>
+          <div class="text-grayish text-sm">Happy Customers</div>
+        </div>
+        <div class="bg-paper border border-neutral-200 rounded-xl p-6 text-center">
+          <div class="w-10 h-10 mx-auto mb-3 rounded-md bg-gold/10 flex items-center justify-center">
+            <i class="fa-solid fa-gem text-gold"></i>
+          </div>
+          <div class="text-2xl font-semibold" data-count="1200">0+</div>
+          <div class="text-grayish text-sm">Watches Crafted</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA with FAQ -->
+    <section class="mt-10 mb-14 text-center animate-fade-in">
+      <div class="border-2 border-gold rounded-xl p-7">
+        <h3 class="font-playfair text-2xl font-semibold">Have Questions?</h3>
+        <p class="text-grayish mt-2">
+          We’re here to help you choose the perfect watch.
+        </p>
+        <button
+          type="button"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg bg-gold text-ink font-semibold px-5 py-2.5 transition-transform hover:-translate-y-0.5"
+          onclick="openContact()"
+        >
+          <i class="fa-solid fa-envelope"></i>
+          Contact Us
+        </button>
+        <!-- FAQ Accordion -->
+        <div class="mt-6">
+          <h4 class="font-playfair text-xl font-semibold mb-4">Frequently Asked Questions</h4>
+          <div class="space-y-3">
+            <div class="border border-neutral-200 rounded-lg">
+              <button class="w-full text-left px-4 py-3 flex justify-between items-center font-semibold" onclick="toggleFAQ(this)">
+                What is the warranty on your watches?
+                <i class="fa-solid fa-chevron-down text-gold"></i>
+              </button>
+              <div class="hidden px-4 pb-3 text-grayish text-sm">
+                Our watches come with a 2-year warranty covering manufacturing defects. Contact our support team for details.
+              </div>
+            </div>
+            <div class="border border-neutral-200 rounded-lg">
+              <button class="w-full text-left px-4 py-3 flex justify-between items-center font-semibold" onclick="toggleFAQ(this)">
+                How long does shipping take?
+                <i class="fa-solid fa-chevron-down text-gold"></i>
+              </button>
+              <div class="hidden px-4 pb-3 text-grayish text-sm">
+                Shipping typically takes 3-7 business days, depending on your location. Free shipping is available on orders over $100.
+              </div>
+            </div>
+            <div class="border border-neutral-200 rounded-lg">
+              <button class="w-full text-left px-4 py-3 flex justify-between items-center font-semibold" onclick="toggleFAQ(this)">
+                Can I return a watch?
+                <i class="fa-solid fa-chevron-down text-gold"></i>
+              </button>
+              <div class="hidden px-4 pb-3 text-grayish text-sm">
+                Yes, we offer a 30-day return policy for unworn watches in original condition. See our returns page for more information.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Static Footer -->
+   
+   <%- include("../../views/partials/user/footer") %>
+
+  <script>
+    // Contact Modal
+    function openContact() {
+      const email = 'support@eonforge.com';
+      const phone = '+1 (555) 123-4567';
+      Swal.fire({
+        title: 'Contact Eon Forge',
+        html: `
+          <div class="text-left space-y-2">
+            <p><i class="fa-solid fa-envelope text-[#d4af37] mr-2"></i><strong>Email:</strong> ${email}</p>
+            <p><i class="fa-solid fa-phone text-[#d4af37] mr-2"></i><strong>Phone:</strong> ${phone}</p>
+          </div>
+        `,
+        confirmButtonText: 'Close',
+        confirmButtonColor: '#d4af37',
+        customClass: { popup: 'rounded-xl', confirmButton: 'rounded-lg px-6 py-2' }
+      });
+    }
+
+    // FAQ Accordion Toggle
+    function toggleFAQ(button) {
+      const content = button.nextElementSibling;
+      const icon = button.querySelector('i');
+      content.classList.toggle('hidden');
+      icon.classList.toggle('fa-chevron-down');
+      icon.classList.toggle('fa-chevron-up');
+    }
+
+    // Stats Counter Animation
+    function animateCounter(element, target, duration) {
+      let start = 0;
+      const increment = target / (duration / 16); // 60 FPS
+      const update = () => {
+        start += increment;
+        if (start >= target) {
+          element.textContent = Math.floor(target) + '+';
+        } else {
+          element.textContent = Math.floor(start) + '+';
+          requestAnimationFrame(update);
+        }
+      };
+      requestAnimationFrame(update);
+    }
+
+    // Intersection Observer for Stats
+    document.addEventListener('DOMContentLoaded', () => {
+      const statsSection = document.getElementById('stats-section');
+      const counters = document.querySelectorAll('[data-count]');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            counters.forEach(counter => {
+              const target = parseInt(counter.getAttribute('data-count'));
+              animateCounter(counter, target, 2000); // 2-second animation
+            });
+            observer.unobserve(statsSection);
+          }
+        });
+      }, { threshold: 0.5 });
+      observer.observe(statsSection);
+    });
+  </script>
+</body>
+</html>

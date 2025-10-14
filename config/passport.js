@@ -2,6 +2,8 @@ const passport = require("passport")
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/userSchema")
 const env = require("dotenv").config();
+const { generateReferralCode, applyReferral } =require('../helpers/refferal');
+
 
 
 
@@ -27,16 +29,14 @@ passport.use(new GoogleStrategy({
             if (existingUser) {
                 return done(null, false, { message: "Email already used with another account" })
             } else {
-                // const fullName = profile.displayName.trim();
-                // const nameParts = fullName.split(" ");
-                // const firstName = nameParts[0];
-                // const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+               
 
                 user = new User({
                     firstName,
                     lastName,
                     email: profile.emails[0].value,
                     googleId: profile.id,
+                    referralCode: generateReferralCode(firstName,lastName)
                 });
                 const googleId = user.googleId
                 console.log('googleId from passport', googleId)

@@ -64,6 +64,55 @@
     </script>
 
     <style>
+        /* Enhanced Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: #333333;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            border-left: 4px solid #666666;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 50;
+            font-size: 0.875rem;
+            font-weight: 500;
+            max-width: 300px;
+            transform: translateY(10px);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Success toast */
+        .toast.success {
+            background-color: #333333;
+            border-left-color: #10b981; /* Emerald green */
+        }
+
+        /* Error toast */
+        .toast.error {
+            background-color: #333333;
+            border-left-color: #ef4444; /* Red */
+        }
+
+        /* Warning toast */
+        .toast.warning {
+            background-color: #333333;
+            border-left-color: #f59e0b; /* Amber */
+        }
+
+        /* Info toast */
+        .toast.info {
+            background-color: #333333;
+            border-left-color: #3b82f6; /* Blue */
+        }
+
         .gradient-bg {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
         }
@@ -140,9 +189,7 @@
 
         .btn-return {
             background: #ede9fe;
-            /* light purple */
             color: #7c3aed;
-            /* deep purple */
             border: 2px solid #ddd6fe;
             font-weight: 500;
             padding: 0.5rem 1rem;
@@ -158,11 +205,8 @@
         .btn-return:hover {
             background: #ddd6fe;
             border-color: #a78bfa;
-            /* brighter purple */
             transform: translateY(-1px);
         }
-
-
 
         .order-item-hover {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -202,6 +246,20 @@
             min-height: 100px;
             max-height: 200px;
         }
+
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #d4af37;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -229,7 +287,7 @@
         <div class="text-center mb-12 animate-fade-in">
             <h1 class="text-4xl md:text-5xl font-playfair font-bold text-primary mb-4">Order Details</h1>
             <p class="text-text-secondary text-lg max-w-2xl mx-auto">
-                Order <span class="font-semibold text-accent">#<%= orderId || 'N/A' %></span> placed on
+                Order <span class="font-semibold text-accent">#ORD-<%= order.orderId.slice(1,8) || 'N/A' %></span> placed on
                 <%const date=new Date(order.createdOn)%>
                     <span class="font-semibold">
                         <%=date.getDate()%>/<%=date.getMonth()+1%>/<%=date.getFullYear()%>
@@ -327,11 +385,13 @@
                                         <p class="text-lg font-semibold text-primary">₹<%= (item.total ||
                                                 0).toLocaleString() %>
                                         </p>
-                                        <% if (item.discountedPrice) { %>
-                                            <p class="text-xs text-green-600">Saved ₹<%= ((item.price -
-                                                    item.discountedPrice) * item.quantity).toLocaleString() %>
+                                        
+                                      
+                                        <% if (item.discount>0) { %>
+                                            <p class="text-xs text-green-600">Saved ₹<%= item.discount%>
                                             </p>
                                             <% } %>
+                                            
                                     </div>
 
                                     <!-- Action Buttons -->
@@ -543,6 +603,21 @@
     </div>
 
     <script>
+        // Enhanced Toast notification functionality
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
         let currentOrderId = null;
         let currentItemId = null;
 
@@ -553,8 +628,6 @@
             // Set global variables
             currentOrderId = orderId;
             currentItemId = itemId;
-
-
 
             document.getElementById('modalProductName').textContent = productName;
             document.getElementById('cancelModal').classList.remove('hidden');
@@ -574,57 +647,32 @@
         }
 
         async function submitCancellation() {
-    const reason = document.getElementById('cancelReason').value.trim();
-    if (!reason) {
-        await Swal.fire({
-            icon: 'warning',
-            title: 'Missing Reason',
-            text: 'Please provide a reason for cancellation.',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#3085d6'
-        });
-        return;
-    }
+            const reason = document.getElementById('cancelReason').value.trim();
+            if (!reason) {
+                showToast('Please provide a reason for cancellation.', 'warning');
+                return;
+            }
 
-    try {
-        const response = await fetch(`/cancel-order-item/${currentOrderId}/${currentItemId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason })
-        });
+            try {
+                const response = await fetch(`/cancel-order-item/${currentOrderId}/${currentItemId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
 
-        const data = await response.json();
-        if (data.success) {
-            await Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Item cancelled successfully.',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#3085d6'
-            });
-            closeCancelModal();
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Failed',
-                text: data.message || 'Failed to cancel item.',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#3085d6'
-            });
+                const data = await response.json();
+                if (data.success) {
+                    showToast('Item cancelled successfully.', 'success');
+                    closeCancelModal();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(data.message || 'Failed to cancel item.', 'error');
+                }
+            } catch (err) {
+                console.error('Cancellation error:', err);
+                showToast('Server error. Please try again.', 'error');
+            }
         }
-    } catch (err) {
-        console.error('Cancellation error:', err);
-        await Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Server error',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#3085d6'
-        });
-    }
-}
-
 
         document.addEventListener('DOMContentLoaded', () => {
             const orderItems = document.querySelectorAll('.order-item-hover');
@@ -633,12 +681,9 @@
             });
         });
 
-        // return functionallity
-
+        // Return functionality
         function openReturnModal(orderId, itemId) {
-
             console.log('item return in order detals', itemId)
-
 
             currentOrderId = orderId;
             currentItemId = itemId;
@@ -649,9 +694,6 @@
 
             document.getElementById('returnReason').value = '';
             document.getElementById('returnConfirmBtn').disabled = true;
-
-            // Optional: display product name in the modal
-            document.getElementById('returnProductName').textContent = productName || '';
         }
 
         function closeReturnModal() {
@@ -665,12 +707,11 @@
             }, 300);
         }
 
-
         async function confirmReturnOrder() {
             const reason = document.getElementById('returnReason').value.trim();
 
             if (!currentOrderId || !currentItemId || !reason) {
-                alert('Missing order/item ID or reason');
+                showToast('Missing order/item ID or reason', 'error');
                 return;
             }
 
@@ -687,61 +728,36 @@
 
                 const data = await response.json();
 
-               if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Return Requested',
-                text: 'Your return request has been submitted!',
-                confirmButtonColor: '#3085d6'
-            }).then(() => {
-                location.reload();
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Failed',
-                text: 'Unable to submit return request.',
-                confirmButtonColor: '#d33'
-            });
-        }
-
-               
+                if (data.success) {
+                    showToast('Your return request has been submitted!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast('Unable to submit return request.', 'error');
+                }
             } catch (err) {
-               Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Something went wrong!'
-        });
+                console.error('Return error:', err);
+                showToast('Something went wrong! Please try again.', 'error');
             }
-             closeReturnModal();
+            closeReturnModal();
         }
-
 
         // Enable return confirm button only if reason is provided
         document.getElementById('returnReason').addEventListener('input', function () {
             document.getElementById('returnConfirmBtn').disabled = this.value.trim() === '';
         });
 
+        // Track order function
+        function trackOrder(orderId, itemId) {
+            showToast('Tracking information loading...', 'info');
+            // Add your tracking logic here
+            console.log('Tracking order:', orderId, 'item:', itemId);
+        }
 
-        // Wishlist functionality
+        // Enhanced wishlist functionality
         document.addEventListener('DOMContentLoaded', function () {
             const wishlistButtons = document.querySelectorAll('.wishlist-btn');
-
-            // Function to show toast notifications
-            function showToast(message, isSuccess = true) {
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                toast.textContent = message;
-                toast.style.backgroundColor = isSuccess ? '#333' : '#ef4444';
-                document.body.appendChild(toast);
-
-                setTimeout(() => toast.classList.add('show'), 10);
-
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    setTimeout(() => document.body.removeChild(toast), 300);
-                }, 3000);
-            }
 
             // Toggle wishlist status
             async function toggleWishlist(productId, button) {
@@ -765,22 +781,23 @@
                         if (result.action === 'added') {
                             button.classList.add('active');
                             icon.classList.remove('far');
-                            icon.classList.add('fas', 'text-red-600'); // filled red heart
-                            showToast('Added to wishlist!');
+                            icon.classList.add('fas', 'text-red-600');
+                            showToast('Added to wishlist!', 'success');
                         } else {
                             button.classList.remove('active');
                             icon.classList.remove('fas', 'text-red-600');
-                            icon.classList.add('far'); // outlined heart
-                            showToast('Removed from wishlist');
+                            icon.classList.add('far');
+                            showToast('Removed from wishlist', 'success');
                         }
                     } else {
-                        showToast(result.message || 'Error updating wishlist', false);
+                        showToast(result.message || 'Error updating wishlist', 'error');
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    showToast('Please login to manage wishlist', false);
+                    showToast('Please login to manage wishlist', 'error');
                 }
             }
+
             // Add event listeners to wishlist buttons
             wishlistButtons.forEach(button => {
                 button.addEventListener('click', async function (e) {
@@ -790,7 +807,24 @@
                 });
             });
         });
+
+        // Close modals on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeCancelModal();
+                closeReturnModal();
+            }
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'cancelModal') {
+                closeCancelModal();
+            }
+            if (e.target.id === 'returnModal') {
+                closeReturnModal();
+            }
+        });
     </script>
 </body>
-
 </html>

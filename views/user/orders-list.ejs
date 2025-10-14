@@ -64,6 +64,55 @@
     </script>
 
     <style>
+        /* Enhanced Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: #333333;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            border-left: 4px solid #666666;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-size: 0.875rem;
+            font-weight: 500;
+            max-width: 300px;
+            transform: translateY(10px);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Success toast */
+        .toast.success {
+            background-color: #333333;
+            border-left-color: #10b981; /* Emerald green */
+        }
+
+        /* Error toast */
+        .toast.error {
+            background-color: #333333;
+            border-left-color: #ef4444; /* Red */
+        }
+
+        /* Warning toast */
+        .toast.warning {
+            background-color: #333333;
+            border-left-color: #f59e0b; /* Amber */
+        }
+
+        /* Info toast */
+        .toast.info {
+            background-color: #333333;
+            border-left-color: #3b82f6; /* Blue */
+        }
+
         .gradient-bg {
             background: linear-gradient(135deg, #fefdfb 0%, #f8f7f4 100%);
         }
@@ -264,15 +313,43 @@
                 <input type="text" name="search" id="orderSearch" placeholder="Search by Order ID..."
                     value="<%= typeof search !== 'undefined' ? search : '' %>"
                     class="w-full px-4 py-3 pr-20 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-sm">
-                <button type="submit" class="absolute right-12 top-1/2 transform -translate-y-1/2 text-text-secondary">
+                <button type="submit" class="absolute right-12 top-1/2 transform -translate-y-1/2 text-text-secondary" aria-label="Search orders">
                     <i class="fas fa-search"></i>
                 </button>
                 <% if (search) { %>
-                    <a href="/orders" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-text-secondary">
+                    <a href="/orders" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-text-secondary" aria-label="Clear search">
                         <i class="fas fa-times cursor-pointer"></i>
                     </a>
                     <% } %>
             </form>
+        </div>
+        <!-- add status filter and sort controls -->
+        <div class="mb-6">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                <div class="flex-1 sm:flex-none sm:w-64">
+                    <label for="statusFilter" class="sr-only">Filter by status</label>
+                    <select id="statusFilter" class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                        <option value="">All statuses</option>
+                        <option>Pending</option>
+                        <option>Processing</option>
+                        <option>Shipped</option>
+                        <option>Delivered</option>
+                        <option>Cancelled</option>
+                        <option>Return Request</option>
+                        <option>Returned</option>
+                        <option>Rejected</option>
+                    </select>
+                </div>
+                <div class="flex-1 sm:flex-none sm:w-64">
+                    <label for="sortBy" class="sr-only">Sort orders</label>
+                    <select id="sortBy" class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                        <option value="totalDesc">Total: High to Low</option>
+                        <option value="totalAsc">Total: Low to High</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <!-- Order List -->
@@ -284,29 +361,19 @@
                 <% (orders || []).forEach((order, index) => { %>
                     <div class="order-card bg-warm-gray rounded-xl p-6 premium-shadow animate-slide-up"
                         style="animation-delay: <%= index * 0.1 %>s">
-                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                            <!-- Product Image Collage -->
-                            <div class="sm:col-span-3">
-                                <% if (order.orderItems && order.orderItems.length > 0) { %>
-                                    <% const validItems = order.orderItems.filter(item => item.variantData?.productImage?.length > 0).slice(0, 4); %>
-                                    <% if (validItems.length > 0) { %>
-                                        <div class="grid <%= validItems.length === 1 ? 'grid-cols-1' : validItems.length === 2 ? 'grid-cols-2' : 'grid-cols-2' %> gap-2 max-w-[150px] sm:max-w-[200px]">
-                                            <% validItems.forEach(item => { %>
-                                                <div class="aspect-square">
-                                                    <img src="<%= item.variantData.productImage[0] %>" alt="Product Image" class="collage-image" loading="lazy">
-                                                </div>
-                                            <% }); %>
-                                        </div>
-                                    <% } else { %>
-                                        <p class="text-sm text-text-secondary">No images available</p>
-                                    <% } %>
-                                <% } else { %>
-                                    <p class="text-sm text-text-secondary">No products</p>
-                                <% } %>
-                            </div>
+                       <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+
+                           
+                            
                             <!-- Order Details -->
                             <div class="sm:col-span-4">
-                                <h3 class="text-lg font-semibold text-primary">Order #<%= order.orderId %></h3>
+                                 <!-- add copy order id action -->
+                                <h3 class="text-lg font-semibold text-primary flex items-center gap-2">
+                                    #ORD-<%= order.orderId.slice(1,8) %>
+                                    <button type="button" class="btn-secondary !px-2 !py-1" aria-label="Copy Order ID" onclick="copyOrderId('<%= order.orderId %>')">
+                                        <i class="fas fa-copy text-xs"></i>
+                                    </button>
+                                </h3>
                                 <% const orderDate = new Date(order.createdOn); %>
                                 <p class="text-sm text-text-secondary">Placed on <%= orderDate.toLocaleDateString() %> at <%= orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></p>
                                 <p class="text-sm text-text-secondary">Total: ₹<%= (order.totalPrice || 0).toLocaleString() %></p>
@@ -323,24 +390,137 @@
                             </div>
                             <!-- Action Buttons -->
                             <div class="sm:col-span-3 flex justify-end gap-2">
-                                <a href="/order-details?orderId=<%= order.orderId %>" class="btn-primary">
+                                <a href="/order-details?orderId=<%= order.orderId %>" class="btn-primary" aria-label="View order">
                                     <i class="fas fa-eye"></i> View
                                 </a>
-                                <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-secondary">
+                                <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-secondary" aria-label="Download invoice">
                                     <i class="fas fa-download"></i> Invoice
                                 </button>
                                 <% if (order.status !== 'Cancelled' && order.status !== 'Delivered' && order.status !== 'Return Request' && order.status !== 'Returned' && order.status !== 'Rejected') { %>
-                                    <button onclick="showCancelModal('<%= order.orderId %>')" class="btn-danger">
+                                    <button onclick="showCancelModal('<%= order.orderId %>')" class="btn-danger" aria-label="Cancel order">
                                         <i class="fas fa-times"></i> Cancel
                                     </button>
                                 <% } else if (order.status === 'Delivered') { 
                                     const showReturn = order.orderItems.some(item => item.status === 'Delivered');
                                     if (showReturn) { %>
-                                        <button onclick="showReturnModal('<%= order.orderId %>')" class="btn-danger">
+                                        <button onclick="showReturnModal('<%= order.orderId %>')" class="btn-danger" aria-label="Return order">
                                             <i class="fas fa-undo"></i> Return
                                         </button>
                                     <% } %>
                                 <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Responsive per-item details table for each order -->
+                        <div class="mt-6">
+                            <!-- mobile toggle for items -->
+                            <div class="flex items-center justify-between md:justify-start gap-3 mb-3">
+                                <h4 class="text-base font-semibold text-primary flex items-center">
+                                    <i class="fas fa-box-open text-accent mr-2"></i> Items in this order
+                                </h4>
+                                <button type="button" class="btn-secondary md:hidden" onclick="toggleItems('<%= order.orderId %>')" aria-controls="items-mobile-<%= order.orderId %>">
+                                    <i class="fas fa-list mr-1"></i>
+                                    Items (<%= (order.orderItems || []).length %>)
+                                </button>
+                            </div>
+
+                            <!-- Mobile cards -->
+                            <!-- start collapsed on mobile; toggled by button -->
+                            <div id="items-mobile-<%= order.orderId %>" class="hidden md:hidden space-y-3">
+                                <% (order.orderItems || []).forEach((item) => { 
+                                    const qty = item.stock ?? 1;
+                                    const reg = Number(item.regularPrice ?? item.mrp ?? item.price ?? item.unitPrice ?? item.variantData?.price ?? 0);
+                                    const fin = Number(item.finalAmount ?? item.total ?? item.sellingPrice ?? item.price ?? 0);
+                                %>
+                                    <div class="rounded-lg border border-gray-200 bg-white p-4">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                                                <% if (item.variantData?.productImage?.length) { %>
+                                                    <img src="<%= item.variantData.productImage[0] %>" alt="Product" class="w-full h-full object-cover" loading="lazy">
+                                                <% } %>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium text-primary">
+                                                    <%= item.product.productName  ?? 'Product' %>
+                                                </p>
+                                                <p class="text-xs text-text-secondary">
+                                                    Brand: <%= item.product.brand.brandName ?? item.productBrand ?? item.variantData?.brand ?? '—' %>
+                                                </p>
+                                                <p class="text-xs text-text-secondary">
+                                                    Color: <%= item.variantData?.colorName ?? item.variantData?.color ?? '—' %>
+                                                </p>
+                                                <div class="mt-2 grid grid-cols-3 gap-2 text-sm">
+                                                    <div>
+                                                        <p class="text-text-secondary">Qty</p>
+                                                        <p class="font-semibold"><%= qty %></p>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-text-secondary">Regular</p>
+                                                        <p class="font-semibold">₹<%= reg.toLocaleString() %></p>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-text-secondary">Final</p>
+                                                        <p class="font-semibold text-green-700">₹<%= (fin * (qty ? 1 : 1)).toLocaleString() %></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+
+                            <!-- Desktop table -->
+                            <div class="hidden md:block overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                                <table class="w-full text-sm" aria-label="Order items">
+                                    <thead class="bg-gray-50">
+                                        <tr class="text-left">
+                                            <th class="px-4 py-3 font-semibold text-text-secondary">Product</th>
+                                            <th class="px-4 py-3 font-semibold text-text-secondary">Brand</th>
+                                            <th class="px-4 py-3 font-semibold text-text-secondary">Color</th>
+                                            <th class="px-4 py-3 font-semibold text-text-secondary">Qty</th>
+                                            <th class="px-4 py-3 font-semibold text-text-secondary">Regular Price</th>
+                                            <th class="px-4 py-3 font-semibold text-text-secondary">Final Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% (order.orderItems || []).forEach((item) => { 
+                                            const qty = Number(item.stock ?? item.stock ?? 1);
+                                            const reg = Number(item.regularPrice ?? item.mrp ?? item.price ?? item.unitPrice ?? item.variantData?.price ?? 0);
+                                            const finUnit = Number(item.finalAmount ?? item.total ?? item.sellingPrice ?? item.price ?? 0);
+                                            const finTotal = finUnit * (qty || 1);
+                                        %>
+                                            <tr class="border-t border-gray-100 hover:bg-gray-50">
+                                                <td class="px-4 py-3">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-12 h-12 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                                                            <% if (item.variantData?.productImage?.length) { %>
+                                                                <img src="<%= item.variantData.productImage[0] %>" alt="Product" class="w-full h-full object-cover" loading="lazy">
+                                                            <% } %>
+                                                        </div>
+                                                        <span class="font-medium text-primary">
+                                                            <%= item.product.productName  ?? 'Product' %>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <%= item.product.brand.brandName ?? item.product.brand ?? item.variantData?.brand ?? '—' %>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <%= item.variantData.colorName ?? item.variantData?.color?.name ?? item.variantData?.color ?? '—' %>
+                                                </td>
+                                                <td class="px-4 py-3 font-semibold">
+                                                    <%= qty %>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    ₹<%= reg.toLocaleString() %>
+                                                </td>
+                                                <td class="px-4 py-3 font-semibold text-green-700">
+                                                    ₹<%= finTotal.toLocaleString() %>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -429,6 +609,21 @@
     </div>
 
     <script>
+        // Enhanced Toast notification functionality
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
         // Data from controller
         const orders = <%- JSON.stringify(orders || []) %>;
 
@@ -471,107 +666,125 @@
         }
 
         function confirmCancelOrder() {
-    const orderId = document.getElementById('cancelOrderId').textContent;
-    const reason = document.getElementById('cancelReason').value;
+            const orderId = document.getElementById('cancelOrderId').textContent;
+            const reason = document.getElementById('cancelReason').value;
+            
+            // Validation - show toast if no reason provided
+            if (!reason || reason.trim() === '') {
+                showToast('Please provide a reason for cancellation.', 'warning');
+                return;
+            }
 
-    fetch('/cancel-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, reason })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Order Cancelled',
-                text: 'Your order was cancelled successfully!',
-                confirmButtonColor: '#3085d6'
-            }).then(() => {
-                location.reload();
+            const cancelConfirmBtn = document.querySelector('#cancelModal .btn-danger');
+            const prevHTML = cancelConfirmBtn.innerHTML;
+            cancelConfirmBtn.disabled = true;
+            cancelConfirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Processing...';
+
+            fetch('/cancel-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Order cancelled successfully!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast('Unable to cancel this order.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Something went wrong! Please try again.', 'error');
+            })
+            .finally(() => {
+                cancelConfirmBtn.disabled = false;
+                cancelConfirmBtn.innerHTML = prevHTML;
             });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Failed',
-                text: 'Unable to cancel this order.',
-                confirmButtonColor: '#d33'
-            });
+
+            closeCancelModal();
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Something went wrong!'
-        });
-    });
 
-    closeCancelModal();
-}
+        function confirmReturnOrder() {
+            const orderId = document.getElementById('returnOrderId').textContent;
+            const reason = document.getElementById('returnReason').value;
 
-function confirmReturnOrder() {
-    const orderId = document.getElementById('returnOrderId').textContent;
-    const reason = document.getElementById('returnReason').value;
+            // Validation - show toast if no reason provided
+            if (!reason || reason.trim() === '') {
+                showToast('Please provide a reason for return.', 'warning');
+                return;
+            }
 
-    fetch('/return-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, reason })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Return Requested',
-                text: 'Your return request has been submitted!',
-                confirmButtonColor: '#3085d6'
-            }).then(() => {
-                location.reload();
+            const returnConfirmBtn = document.getElementById('returnConfirmBtn');
+            const prevHTML = returnConfirmBtn.innerHTML;
+            returnConfirmBtn.disabled = true;
+            returnConfirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Processing...';
+
+            fetch('/return-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Return request submitted successfully!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast('Unable to submit return request.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Something went wrong! Please try again.', 'error');
+            })
+            .finally(() => {
+                returnConfirmBtn.disabled = false;
+                returnConfirmBtn.innerHTML = prevHTML;
             });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Failed',
-                text: 'Unable to submit return request.',
-                confirmButtonColor: '#d33'
-            });
+
+            closeReturnModal();
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Something went wrong!'
-        });
-    });
-
-    closeReturnModal();
-}
-
 
         // Enable return confirm button only if reason is provided
         document.getElementById('returnReason').addEventListener('input', function () {
             document.getElementById('returnConfirmBtn').disabled = this.value.trim() === '';
         });
-
-        // Download Invoice
+        
         function downloadInvoice(orderId) {
             window.location.href = `/invoice?orderId=${orderId}`;
         }
 
-        // Search Orders
-        document.getElementById('orderSearch').addEventListener('input', function (e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const orderList = document.getElementById('orderList');
-            orderList.innerHTML = '';
+        function toggleItems(orderId) {
+            const el = document.getElementById(`items-mobile-${orderId}`);
+            if (!el) return;
+            el.classList.toggle('hidden');
+        }
 
-            const filteredOrders = orders.filter(order => order.orderId.toLowerCase().includes(searchTerm));
-            if (filteredOrders.length === 0) {
-                orderList.innerHTML = `
+        function copyOrderId(orderId) {
+            navigator.clipboard.writeText(orderId).then(() => {
+                showToast('Order ID copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy Order ID', 'error');
+            });
+        }
+
+        const allOrders = orders || [];
+        const orderListEl = document.getElementById('orderList');
+        const statusFilterEl = document.getElementById('statusFilter');
+        const sortByEl = document.getElementById('sortBy');
+        const searchEl = document.getElementById('orderSearch');
+
+        function renderOrders(list) {
+            orderListEl.innerHTML = '';
+            if (!list || list.length === 0) {
+                orderListEl.innerHTML = `
                     <div class="text-center py-12">
                         <i class="fas fa-shopping-bag text-4xl text-accent mb-4"></i>
                         <p class="text-lg text-text-secondary">No orders found.</p>
@@ -583,32 +796,94 @@ function confirmReturnOrder() {
                 return;
             }
 
-            filteredOrders.forEach((order, index) => {
+            function getQty(item){ return Number(item.quantity ?? item.qty ?? 1) }
+            function getReg(item){ return Number(item.regularPrice ?? item.mrp ?? item.price ?? item.unitPrice ?? (item.variantData?.price ?? 0)) }
+            function getFinUnit(item){ return Number(item.finalAmount ?? item.total ?? item.sellingPrice ?? item.price ?? 0) }
+            function getColor(item){ return item.color ?? item.variantData?.color?.name ?? item.variantData?.color ?? '—' }
+            function getBrand(item){ return item.brand ?? item.productBrand ?? item.variantData?.brand ?? '—' }
+            function getName(item){ return item.productName ?? item.name ?? item.variantData?.name ?? 'Product' }
+            function getImg(item){ return (item.variantData?.productImage?.length ? item.variantData.productImage[0] : '') }
+
+            list.forEach((order, index) => {
                 const orderDiv = document.createElement('div');
                 orderDiv.className = 'order-card bg-warm-gray rounded-xl p-6 premium-shadow animate-slide-up';
                 orderDiv.style.animationDelay = `${index * 0.1}s`;
                 const orderDate = new Date(order.createdOn);
+
+                const itemsMobile = (order.orderItems || []).map(item => {
+                    const qty = getQty(item);
+                    const reg = getReg(item);
+                    const fin = getFinUnit(item);
+                    const img = getImg(item);
+                    return `
+                        <div class="rounded-lg border border-gray-200 bg-white p-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                                    ${img ? `<img src="${img}" alt="Product" class="w-full h-full object-cover" loading="lazy">` : ``}
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-primary">${getName(item)}</p>
+                                    <p class="text-xs text-text-secondary">Brand: ${getBrand(item)}</p>
+                                    <p class="text-xs text-text-secondary">Color: ${getColor(item)}</p>
+                                    <div class="mt-2 grid grid-cols-3 gap-2 text-sm">
+                                        <div><p class="text-text-secondary">Qty</p><p class="font-semibold">${qty}</p></div>
+                                        <div><p class="text-text-secondary">Regular</p><p class="font-semibold">₹${reg.toLocaleString()}</p></div>
+                                        <div><p class="text-text-secondary">Final</p><p class="font-semibold text-green-700">₹${(fin * (qty || 1)).toLocaleString()}</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const itemsDesktopRows = (order.orderItems || []).map(item => {
+                    const qty = getQty(item);
+                    const reg = getReg(item);
+                    const finUnit = getFinUnit(item);
+                    const finTotal = finUnit * (qty || 1);
+                    const img = getImg(item);
+                    return `
+                        <tr class="border-t border-gray-100 hover:bg-gray-50">
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                                        ${img ? `<img src="${img}" alt="Product" class="w-full h-full object-cover" loading="lazy">` : ``}
+                                    </div>
+                                    <span class="font-medium text-primary">${getName(item)}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">${getBrand(item)}</td>
+                            <td class="px-4 py-3">${getColor(item)}</td>
+                            <td class="px-4 py-3 font-semibold">${qty}</td>
+                            <td class="px-4 py-3">₹${reg.toLocaleString()}</td>
+                            <td class="px-4 py-3 font-semibold text-green-700">₹${finTotal.toLocaleString()}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                const validItems = (order.orderItems || []).filter(item => item.variantData?.productImage?.length > 0);
+                const gridCols = validItems.length === 1 ? 'grid-cols-1' : 'grid-cols-2';
+
                 orderDiv.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
                         <div class="sm:col-span-3">
-                            ${order.orderItems && order.orderItems.length > 0 ? `
-                                ${order.orderItems.filter(item => item.variantData?.productImage?.length > 0).length > 0 ? `
-                                    <div class="grid ${order.orderItems.filter(item => item.variantData?.productImage?.length > 0).length === 1 ? 'grid-cols-1' : order.orderItems.filter(item => item.variantData?.productImage?.length > 0).length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-2 max-w-[150px] sm:max-w-[200px]">
-                                        ${order.orderItems.filter(item => item.variantData?.productImage?.length > 0).slice(0, 4).map(item => `
-                                            <div class="aspect-square">
-                                                <img src="${item.variantData.productImage[0]}" alt="Product Image" class="collage-image" loading="lazy">
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                ` : `
-                                    <p class="text-sm text-text-secondary">No images available</p>
-                                `}
-                            ` : `
-                                <p class="text-sm text-text-secondary">No products</p>
-                            `}
+                            ${validItems.length > 0 ? `
+                                <div class="grid ${gridCols} gap-2 max-w-[150px] sm:max-w-[200px]">
+                                    ${validItems.slice(0, 4).map(item => `
+                                        <div class="aspect-square">
+                                            <img src="${item.variantData.productImage[0]}" alt="Product Image" class="collage-image" loading="lazy">
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : `<p class="text-sm text-text-secondary">No images available</p>`}
                         </div>
                         <div class="sm:col-span-4">
-                            <h3 class="text-lg font-semibold text-primary">Order #${order.orderId}</h3>
+                            <h3 class="text-lg font-semibold text-primary flex items-center gap-2">
+                                #ORD-${order.orderId.slice(1,8)}
+                                <button type="button" class="btn-secondary !px-2 !py-1" aria-label="Copy Order ID" onclick="copyOrderId('${order.orderId}')">
+                                    <i class="fas fa-copy text-xs"></i>
+                                </button>
+                            </h3>
                             <p class="text-sm text-text-secondary">Placed on ${orderDate.toLocaleDateString()} at ${orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                             <p class="text-sm text-text-secondary">Total: ₹${(order.totalPrice || 0).toLocaleString()}</p>
                         </div>
@@ -622,34 +897,104 @@ function confirmReturnOrder() {
                             </span>
                         </div>
                         <div class="sm:col-span-3 flex justify-end gap-2">
-                            <a href="/order-details?orderId=${order.orderId}" class="btn-primary">
+                            <a href="/order-details?orderId=${order.orderId}" class="btn-primary" aria-label="View order">
                                 <i class="fas fa-eye"></i> View
                             </a>
-                            <button onclick="downloadInvoice('${order.orderId}')" class="btn-secondary">
+                            <button onclick="downloadInvoice('${order.orderId}')" class="btn-secondary" aria-label="Download invoice">
                                 <i class="fas fa-download"></i> Invoice
                             </button>
                             ${order.status !== 'Cancelled' && order.status !== 'Delivered' && order.status !== 'Return Request' && order.status !== 'Returned' && order.status !== 'Rejected' ? `
-                                <button onclick="showCancelModal('${order.orderId}')" class="btn-danger">
+                                <button onclick="showCancelModal('${order.orderId}')" class="btn-danger" aria-label="Cancel order">
                                     <i class="fas fa-times"></i> Cancel
                                 </button>
                             ` : order.status === 'Delivered' ? `
-                                <button onclick="showReturnModal('${order.orderId}')" class="btn-danger">
+                                <button onclick="showReturnModal('${order.orderId}')" class="btn-danger" aria-label="Return order">
                                     <i class="fas fa-undo"></i> Return
                                 </button>
                             ` : ''}
                         </div>
                     </div>
+
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between md:justify-start gap-3 mb-3">
+                            <h4 class="text-base font-semibold text-primary flex items-center">
+                                <i class="fas fa-box-open text-accent mr-2"></i> Items in this order
+                            </h4>
+                            <button type="button" class="btn-secondary md:hidden" onclick="toggleItems('${order.orderId}')" aria-controls="items-mobile-${order.orderId}">
+                                <i class="fas fa-list mr-1"></i>
+                                Items ${(order.orderItems || []).length}
+                            </button>
+                        </div>
+
+                        <div id="items-mobile-${order.orderId}" class="hidden md:hidden space-y-3">
+                            ${itemsMobile}
+                        </div>
+
+                        <div class="hidden md:block overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                            <table class="w-full text-sm" aria-label="Order items">
+                                <thead class="bg-gray-50">
+                                    <tr class="text-left">
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Product</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Brand</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Color</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Qty</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Regular Price</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Final Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${itemsDesktopRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 `;
-                orderList.appendChild(orderDiv);
+
+                orderListEl.appendChild(orderDiv);
             });
+        }
+
+        function applyFilters() {
+            const term = (searchEl?.value || '').toLowerCase();
+            const status = (statusFilterEl?.value || '').toLowerCase();
+            const sortBy = (sortByEl?.value || 'newest');
+
+            let filtered = allOrders.filter(o => o.orderId.toLowerCase().includes(term));
+            if (status) {
+                filtered = filtered.filter(o => (o.status || '').toLowerCase() === status);
+            }
+
+            filtered.sort((a, b) => {
+                if (sortBy === 'newest') return new Date(b.createdOn) - new Date(a.createdOn);
+                if (sortBy === 'oldest') return new Date(a.createdOn) - new Date(b.createdOn);
+                if (sortBy === 'totalDesc') return (b.totalPrice || 0) - (a.totalPrice || 0);
+                if (sortBy === 'totalAsc') return (a.totalPrice || 0) - (b.totalPrice || 0);
+                return 0;
+            });
+
+            renderOrders(filtered);
+        }
+
+        if (searchEl) searchEl.addEventListener('input', applyFilters);
+        if (statusFilterEl) statusFilterEl.addEventListener('change', applyFilters);
+        if (sortByEl) sortByEl.addEventListener('change', applyFilters);
+
+        // Close modals on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeCancelModal();
+                closeReturnModal();
+            }
         });
 
-        // Initialize animations
-        document.addEventListener('DOMContentLoaded', () => {
-            const orderCards = document.querySelectorAll('.order-card');
-            orderCards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-            });
+        // Close modals when clicking outside
+        document.addEventListener('click', function (e) {
+            if (e.target.id === 'cancelModal') {
+                closeCancelModal();
+            }
+            if (e.target.id === 'returnModal') {
+                closeReturnModal();
+            }
         });
     </script>
 </body>

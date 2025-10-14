@@ -94,7 +94,7 @@
     </div>
     <!-- Order ID -->
     <div class="mb-8">
-      <h2 class="text-2xl font-semibold text-gray-800">Order ID: <%= order.orderId %>
+      <h2 class="text-2xl font-semibold text-gray-800">ORD-<%= order.orderId.slice(1,8) %>
       </h2>
       <p class="text-sm text-gray-600">Placed on <%= new Date(order.createdOn).toLocaleDateString() %>
       </p>
@@ -444,7 +444,7 @@
   async function sendVerify(orderId, itemId, approved) {
     try {
       const res = await fetch(`/admin/orders/${orderId}/${itemId}/return`, {
-        method: 'POST',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ approved })
       });

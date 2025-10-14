@@ -34,16 +34,142 @@
     .sidebar-menu a.active {
       background-color: rgba(255, 255, 255, 0.1);
     }
+    
+    /* Mobile Sidebar Overlay */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 40;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Sidebar styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 16rem;
+      height: 100vh;
+      background-color: #4361ee;
+      color: white;
+      z-index: 50;
+      transition: transform 0.3s ease;
+      transform: translateX(-100%);
+      overflow-y: auto;
+    }
+    
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    
+    @media (min-width: 1024px) {
+      .sidebar {
+        transform: translateX(0);
+      }
+    }
+    
+    /* Main content adjustment */
+    .main-content {
+      margin-left: 0;
+      transition: margin-left 0.3s ease;
+    }
+    
+    @media (min-width: 1024px) {
+      .main-content {
+        margin-left: 16rem;
+      }
+    }
   </style>
 </head>
 <body class="font-sans bg-gray-50 text-gray-900 overflow-x-hidden">
+  <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
   <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <%- include("../../views/partials/admin/sidebar") %>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header px-5 py-5 flex items-center justify-between">
+        <div class="flex items-center">
+          <i class="fas fa-clock text-3xl"></i>
+          <h2 class="text-white text-2xl font-semibold ml-3">Eon Forge</h2>
+        </div>
+        <button class="lg:hidden text-white" id="closeSidebar">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <ul class="sidebar-menu p-0">
+        <li class="mb-1">
+          <a href="adminDashboard" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-tachometer-alt mr-4 text-xl"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="orders" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-shopping-cart mr-4 text-xl"></i>
+            <span>Orders</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="addProducts" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-box mr-4 text-xl"></i>
+            <span>Products</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="users" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-users mr-4 text-xl"></i>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="category" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-tags mr-4 text-xl"></i>
+            <span>Category</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="brands" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-copyright mr-4 text-xl"></i>
+            <span>Brands</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="coupon" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-ticket-alt mr-4 text-xl"></i>
+            <span>Coupons</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="sales-report" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20 active">
+            <i class="fas fa-chart-bar mr-4 text-xl"></i>
+            <span>Sales Report</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
     <!-- Main Content -->
-    <div class="flex-1 ml-64 min-h-screen">
-      <header class="bg-white py-4 px-6 flex justify-end items-center shadow sticky top-0 z-40">
-        <div class="account-wrapper relative">
+    <div class="main-content flex-1 min-h-screen w-full">
+       <header class="bg-white py-4 px-6 flex justify-between items-center shadow sticky top-0 z-40">
+        <div class="flex items-center">
+          <button class="lg:hidden bg-transparent border-none cursor-pointer text-xl text-gray-700 mr-4" id="openSidebar">
+            <i class="fas fa-bars"></i>
+          </button>
+         
+        </div>
+        <div class="account-wrapper relative group ml-auto">
           <button class="bg-transparent border-none cursor-pointer text-xl text-gray-700" title="Account">
             <i class="fas fa-user"></i>
           </button>
@@ -58,44 +184,47 @@
         </div>
       </header>
       
-      <main class="p-6">
-        <div class="flex justify-between items-center mb-6">
+      <main class="p-4 lg:p-6">
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
           <h1 class="text-2xl font-semibold text-gray-800">Sales Report</h1>
-          <div class="flex items-center space-x-4">
-            <select id="report-period" class="px-4 py-2 rounded border border-gray-300 bg-white">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+            <select id="report-period" class="px-4 py-2 rounded border border-gray-300 bg-white focus:ring-2 focus:ring-primary w-full sm:w-auto">
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
               <option value="yearly">Yearly</option>
               <option value="custom">Custom Range</option>
             </select>
-            <div id="custom-date-range" class="hidden flex space-x-2">
-              <input type="date" id="start-date" class="px-4 py-2 rounded border border-gray-300" value="<%= new Date().toISOString().split('T')[0] %>">
-              <input type="date" id="end-date" class="px-4 py-2 rounded border border-gray-300" value="<%= new Date().toISOString().split('T')[0] %>">
+            <div id="custom-date-range" class="hidden flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+              <input type="date" id="start-date" class="px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary w-full sm:w-auto" value="<%= new Date().toISOString().split('T')[0] %>">
+              <input type="date" id="end-date" class="px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary w-full sm:w-auto" value="<%= new Date().toISOString().split('T')[0] %>">
             </div>
-            <button id="generate-report" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark">
+            <button id="generate-report" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition-colors w-full sm:w-auto">
               Generate Report
             </button>
           </div>
         </div>
         
-       <!-- Summary Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 mb-6">
-          
-          <!-- Total Sales Count -->
-          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
+          <!-- Total Orders -->
+          <div class="bg-white rounded-xl p-5 shadow-md flex items-center hover:-translate-y-1 transition-transform group relative">
             <div class="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center mr-4 text-white text-xl">
               <i class="fas fa-shopping-cart"></i>
             </div>
             <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-1">Total Sales Count</h3>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">Total Orders</h3>
               <p class="text-2xl font-semibold text-gray-800">
-                <span id="total-sales-count"><%= salesData.totalSalesCount || '0' %></span>
+                <span id="total-orders"><%= salesData.totalSalesCount || '0' %></span>
               </p>
+            </div>
+            <div class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-white text-xs rounded px-2 py-1">
+              Total number of orders
             </div>
           </div>
         
           <!-- Total Items Sold -->
-          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
+          <div class="bg-white rounded-xl p-5 shadow-md flex items-center hover:-translate-y-1 transition-transform group relative">
             <div class="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center mr-4 text-white text-xl">
               <i class="fas fa-cubes"></i>
             </div>
@@ -105,23 +234,29 @@
                 <span id="total-items-sold"><%= salesData.totalItemsSold || '0' %></span>
               </p>
             </div>
+            <div class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-white text-xs rounded px-2 py-1">
+              Total quantity of items sold
+            </div>
           </div>
         
-          <!-- Total Order Amount -->
-          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
+          <!-- Gross Sales -->
+          <div class="bg-white rounded-xl p-5 shadow-md flex items-center hover:-translate-y-1 transition-transform group relative">
             <div class="w-14 h-14 rounded-xl bg-green-600 flex items-center justify-center mr-4 text-white text-xl">
               <i class="fas fa-indian-rupee-sign"></i>
             </div>
             <div>
-              <h3 class="text-sm font-medium text-gray-500 mb-1">Total Order Amount</h3>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">Gross Sales</h3>
               <p class="text-2xl font-semibold text-gray-800">
-                ₹<span id="total-order-amount"><%= salesData.totalOrderAmount || '0.00' %></span>
+                ₹<span id="gross-sales"><%= salesData.grossSales || '0.00' %></span>
               </p>
+            </div>
+            <div class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-white text-xs rounded px-2 py-1">
+              Total order amount before discounts
             </div>
           </div>
         
           <!-- Total Discount -->
-          <div class="bg-white rounded-xl p-5 shadow-sm flex items-center hover:-translate-y-1 transition-transform">
+          <div class="bg-white rounded-xl p-5 shadow-md flex items-center hover:-translate-y-1 transition-transform group relative">
             <div class="w-14 h-14 rounded-xl bg-orange-500 flex items-center justify-center mr-4 text-white text-xl">
               <i class="fas fa-tags"></i>
             </div>
@@ -131,63 +266,82 @@
                 ₹<span id="total-discount"><%= salesData.totalDiscount || '0.00' %></span>
               </p>
             </div>
+            <div class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-white text-xs rounded px-2 py-1">
+              Total discounts applied
+            </div>
           </div>
         
+          <!-- Net Revenue -->
+          <div class="bg-white rounded-xl p-5 shadow-md flex items-center hover:-translate-y-1 transition-transform group relative">
+            <div class="w-14 h-14 rounded-xl bg-teal-600 flex items-center justify-center mr-4 text-white text-xl">
+              <i class="fas fa-indian-rupee-sign"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-500 mb-1">Net Revenue</h3>
+              <p class="text-2xl font-semibold text-gray-800">
+                ₹<span id="net-revenue"><%= salesData.netRevenue || '0.00' %></span>
+              </p>
+            </div>
+            <div class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-white text-xs rounded px-2 py-1">
+              Total revenue after discounts
+            </div>
+          </div>
         </div>
+        
         <!-- Sales Report Table -->
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div class="p-5 flex justify-between items-center">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+          <div class="p-4 lg:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 class="text-lg font-semibold">Sales Details</h2>
-            <div class="space-x-2">
-              <button id="download-pdf" class="px-4 py-2 bg-success text-white rounded hover:bg-blue-400">
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+              <button id="download-pdf" class="px-4 py-2 bg-success text-white rounded hover:bg-blue-400 transition-colors w-full sm:w-auto">
                 <i class="fas fa-file-pdf mr-2"></i> Download PDF
               </button>
-              <button id="download-excel" class="px-4 py-2 bg-info text-white rounded hover:bg-blue-600">
+              <button id="download-excel" class="px-4 py-2 bg-info text-white rounded hover:bg-blue-600 transition-colors w-full sm:w-auto">
                 <i class="fas fa-file-excel mr-2"></i> Download Excel
               </button>
             </div>
           </div>
-          <div class="max-h-[400px] overflow-y-auto">
+          <div class="overflow-x-auto">
             <table class="w-full border-collapse">
               <thead>
-                <tr class="sticky top-0 bg-white shadow-sm">
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Order ID</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Date</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Customer</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Order Amount</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Discount</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Coupon Discount</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Final Amount</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Payment Method</th>
+                <tr class="bg-gray-100">
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Order ID</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Date</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Customer</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Order Amount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Discount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Coupon Discount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Final Amount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Payment Method</th>
                 </tr>
               </thead>
-              <tbody>
-  <% if (salesData.orders && salesData.orders.length > 0) { %>
-    <% salesData.orders.forEach(sale => { %>
-      <tr>
-        <td class="px-4 py-3 text-gray-700">ORD<%= sale.orderId %></td>
-        <td class="px-4 py-3 text-gray-700"><%= sale.date %></td>
-        <td class="px-4 py-3 text-gray-700"><%= sale.customer %></td>
-        <td class="px-4 py-3 text-gray-700">₹<%= sale.orderAmount.toFixed(2) %></td>
-        <td class="px-4 py-3 text-gray-700">₹<%= sale.discount.toFixed(2) %></td>
-        <td class="px-4 py-3 text-gray-700">₹<%= sale.couponDiscount || 'N/A' %></td>
-        <td class="px-4 py-3 text-gray-700">₹<%= sale.finalAmount || 'N/A' %></td>
-        <td class="px-4 py-3 text-gray-700"><%= sale.paymentMethod || 'N/A' %></td>
-      </tr>
-    <% }) %>
-  <% } else { %>
-    <tr>
-      <td colspan="6" class="px-4 py-3 text-center text-gray-500">No sales data available for the selected period.</td>
-    </tr>
-  <% } %>
-</tbody>
-
+              <tbody id="sales-table-body">
+                <% if (salesData.orders && salesData.orders.length > 0) { %>
+                  <% salesData.orders.forEach(sale => { %>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap">#ORD<%= sale.orderId %></td>
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap"><%= sale.date %></td>
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap"><%= sale.customer %></td>
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹<%= sale.orderAmount.toFixed(2) %></td>
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹<%= sale.discount.toFixed(2) %></td>
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹<%= sale.couponDiscount || 'N/A' %></td>
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹<%= sale.finalAmount || 'N/A' %></td>
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap"><%= sale.paymentMethod || 'N/A' %></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="8" class="px-4 py-3 text-center text-gray-500">No sales data available for the selected period.</td>
+                  </tr>
+                <% } %>
+              </tbody>
             </table>
           </div>
         </div>
       </main>
     </div>
   </div>
+  
   <script src="/assets/js/admin/salesReport.js"></script>
 </body>
 </html>

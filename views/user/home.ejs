@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WatchFactory - Premium Watches Collection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script>
     tailwind.config = {
       theme: {
@@ -12,24 +18,52 @@
             'dark-gray': '#4b5563',
             'medium-gray': '#d1d5db',
             cream: '#f5f5f4'
+          },
+          fontFamily: {
+            'montserrat': ['Montserrat', 'sans-serif']
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.5s ease-out',
+            'pulse-gentle': 'pulse 2s infinite'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            }
           }
         }
       }
     }
   </script>
   <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+    }
+    
     .carousel-slide {
       display: none;
+      opacity: 0;
+      transition: opacity 0.7s ease-in-out;
     }
+    
     .carousel-slide.active {
-      display: block;
+      display: flex;
+      opacity: 1;
     }
+    
     .carousel-container {
       position: relative;
       width: 100%;
       height: 610px;
       overflow: hidden;
     }
+    
     .carousel-slide img {
       width: 100%;
       height: 100%;
@@ -38,89 +72,160 @@
       top: 0;
       left: 0;
     }
+    
+    .product-card:hover .product-actions {
+      bottom: 0;
+      opacity: 1;
+    }
+    
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 4px;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .brand-card {
+      transition: all 0.3s ease;
+    }
+    
+    .brand-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .budget-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .budget-btn:hover {
+      transform: scale(1.05);
+    }
+    
+    .section-title {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 2rem;
+    }
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background-color: #d97706;
+    }
+    
+    .wishlist-btn.active i {
+      color: #e74c3c;
+    }
+    
+    .quick-view-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1001;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .quick-view-modal.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .quick-view-content {
+      background-color: white;
+      width: 90%;
+      max-width: 1000px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 8px;
+      position: relative;
+    }
+    
+    .close-modal {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 10;
+    }
   </style>
 </head>
 
 <body class="font-montserrat text-black leading-relaxed">
+  <!-- Header -->
   <%- include("../../views/partials/user/header") %>
+  
   <main>
+    <!-- Hero Carousel -->
     <div class="carousel-container relative overflow-hidden">
-  <div class="carousel-slide active flex items-center justify-between h-96 md:h-[600px] px-22 transition-opacity duration-700 ease-in-out">
-    <img src="https://watchfactory.in/cdn/shop/files/gempages_457431224189715652-5352407d-10b5-4d9b-a422-c603207b8198.jpg?v=15513708604711106711" alt="Smart Watches">
-  </div>
-  <div class="carousel-slide hidden flex items-center justify-between h-96 md:h-[600px] px-22 transition-opacity duration-700 ease-in-out">
-    <img src="https://watchfactory.in/cdn/shop/files/gempages_457431224189715652-54f6b979-6aa0-4649-b15e-a14ca6726bec.jpg?v=10362259913100082229" alt="Smart Watches">
-  </div>
+      <div class="carousel-slide active flex items-center justify-between h-96 md:h-[600px] px-22 transition-opacity duration-700 ease-in-out">
+        <img src="https://watchfactory.in/cdn/shop/files/gempages_457431224189715652-5352407d-10b5-4d9b-a422-c603207b8198.jpg?v=15513708604711106711" alt="Smart Watches" class="animate-fade-in">
+      </div>
+      <div class="carousel-slide hidden flex items-center justify-between h-96 md:h-[600px] px-22 transition-opacity duration-700 ease-in-out">
+        <img src="https://watchfactory.in/cdn/shop/files/gempages_457431224189715652-54f6b979-6aa0-4649-b15e-a14ca6726bec.jpg?v=10362259913100082229" alt="Smart Watches" class="animate-fade-in">
+      </div>
 
-  <!-- Navigation Buttons -->
-  <button id="prevBtn" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 focus:outline-none">
-    ❮
-  </button>
-  <button id="nextBtn" class="absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 focus:outline-none">
-    ❯
-  </button>
+      <!-- Navigation Buttons -->
+      <button id="prevBtn" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 focus:outline-none transition-all duration-300 hover:scale-110">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button id="nextBtn" class="absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 focus:outline-none transition-all duration-300 hover:scale-110">
+        <i class="fas fa-chevron-right"></i>
+      </button>
 
-  <!-- Indicators -->
-  <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-    <span class="indicator w-3 h-3 bg-white rounded-full cursor-pointer"></span>
-    <span class="indicator w-3 h-3 bg-gray-400 rounded-full cursor-pointer"></span>
-  </div>
-</div>
+      <!-- Indicators -->
+      <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        <span class="indicator w-3 h-3 bg-white rounded-full cursor-pointer transition-all duration-300"></span>
+        <span class="indicator w-3 h-3 bg-gray-400 rounded-full cursor-pointer transition-all duration-300"></span>
+      </div>
+    </div>
 
-<script>
-  const slides = document.querySelectorAll('.carousel-slide');
-  const indicators = document.querySelectorAll('.indicator');
-  let currentIndex = 0;
-
-  const showSlide = (index) => {
-    slides.forEach((slide, i) => {
-      slide.classList.toggle('hidden', i !== index);
-    });
-
-    indicators.forEach((dot, i) => {
-      dot.classList.toggle('bg-white', i === index);
-      dot.classList.toggle('bg-gray-400', i !== index);
-    });
-
-    currentIndex = index;
-  };
-
-  document.getElementById('prevBtn').addEventListener('click', () => {
-    const newIndex = (currentIndex - 1 + slides.length) % slides.length;
-    showSlide(newIndex);
-  });
-
-  document.getElementById('nextBtn').addEventListener('click', () => {
-    const newIndex = (currentIndex + 1) % slides.length;
-    showSlide(newIndex);
-  });
-
-  indicators.forEach((dot, i) => {
-    dot.addEventListener('click', () => showSlide(i));
-  });
-
-  showSlide(currentIndex); 
-</script>
-
-
-    <section class="py-15">
+    <!-- Brands Section -->
+    <section class="py-15 bg-white animate-slide-up">
       <div class="max-w-7xl mx-auto px-4">
         <div class="text-center mb-10">
-          <h2 class="text-2xl md:text-3xl pt-20 font-semibold mb-2.5">CHOOSE FROM LARGE COLLECTION OF RECOGNIZED BRANDS</h2>
+          <h2 class="text-2xl md:text-3xl pt-20 font-semibold mb-2.5 section-title">CHOOSE FROM LARGE COLLECTION OF RECOGNIZED BRANDS</h2>
           <p class="text-base text-dark-gray">A SINGLE, RELIABLE DESTINATION FOR YOUR PREFERRED WATCH</p>
         </div>
         <div class="mb-12">
           <div class="flex justify-between items-center mb-5 border-b border-medium-gray pb-2.5">
             <h3 class="text-lg font-semibold">POPULAR BRANDS</h3>
             <a href="/shop"
-               class="text-sm text-dark-gray transition-colors hover:text-accent">View all watches <i class="fas fa-arrow-right ml-1"></i></a>
+               class="text-sm text-dark-gray transition-colors hover:text-accent flex items-center group">
+              View all watches <i class="fas fa-arrow-right ml-1 transition-transform group-hover:translate-x-1"></i>
+            </a>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
             <% brands.forEach(brand => { %>
               <a href="/filter?search=&page=1&brand=<%=brand.brandName%>&minPrice=1705&maxPrice=680000&sort=featured%>"
-                 “[Calendar date: 2025-06-25]” class="bg-white border border-medium-gray rounded p-5 flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-lg">
+                 class="brand-card bg-white border border-medium-gray rounded-lg p-5 flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-lg h-24">
                 <img src="<%= brand.brandImage[0] %>" alt="<%= brand.brandName %>"
-                     class="max-w-full max-h-15">
+                     class="max-w-full max-h-12 object-contain">
               </a>
             <% }) %>
           </div>
@@ -128,78 +233,427 @@
       </div>
     </section>
 
-    <section class="py-20">
+    <!-- New Arrivals Section -->
+    <section class="py-20 bg-gray-50">
       <div class="max-w-7xl mx-auto px-4">
         <div class="text-center mb-10">
-          <h2 class="text-2xl md:text-3xl font-semibold mb-2.5">NEW ARRIVALS</h2>
+          <h2 class="text-2xl md:text-3xl font-semibold mb-2.5 section-title">NEW ARRIVALS</h2>
           <p class="text-base text-dark-gray">The latest additions to our collection</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           <% products.forEach(watch => { %>
-            <a href="/product-detail/<%= watch._id %>">
-              <div
-                class="bg-white rounded-lg overflow-hidden shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg group">
+            <div class="product-card bg-white rounded-lg overflow-hidden shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg group relative">
+              <a href="/product-detail/<%= watch._id %>">
                 <div class="relative overflow-hidden pt-[100%]">
                   <img src="<%= watch.colorVariants[0].productImage[0] %>"
                        alt="<%= watch.productName %>"
-                       class="absolute top-0 left-0 w-full h-full object-contain transition-transform duration-500">
-                  <div
-                    class="absolute -bottom-15 left-0 w-full flex justify-center gap-2.5 px-4 py-4 bg-white/90 transition-all duration-300 group-hover:bottom-0">
-                    <button
-                      class="bg-white border border-medium-gray rounded-full w-10 h-10 flex items-center justify-center cursor-pointer transition-colors hover:bg-black hover:text-white wishlist-btn"
-                      data-product-id="<%= watch._id %>"
-                      data-product-name="<%= watch.productName %>"
-                      data-product-image="<%= watch.colorVariants[0].productImage[0] %>"
-                      data-product-price="<%= watch.colorVariants[0].offerPrice %>"
-                      data-product-brand="<%= watch.brand.brandName %>"
-                      data-product-color="<%= watch.colorVariants[0].colorName %>">
-                      <i class="far fa-heart"></i>
-                    </button>
-                    <button
-                      class="bg-white border border-medium-gray rounded-full w-10 h-10 flex items-center justify-center cursor-pointer transition-colors hover:bg-black hover:text-white"
-                      data-product-id="<%= watch._id %>">
-                      <i class="fas fa-eye"></i>
-                    </button>
-                  </div>
+                       class="absolute top-0 left-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105">
                 </div>
-                <div class="p-5">
-                  <h4 class="text-sm font-semibold mb-1">
-                    <%= watch.productName %>
-                  </h4>
-                  <h1 class="text-xs font-normal mb-2.5 text-dark-gray h-10 overflow-hidden line-clamp-2">
-                    <%= watch.brand.brandName %>
-                  </h1>
+              </a>
+             
+              <div class="p-5">
+                <h4 class="text-sm font-semibold mb-1 truncate">
+                  <%= watch.productName %>
+                </h4>
+                <p class="text-xs font-normal mb-2.5 text-dark-gray h-10 overflow-hidden line-clamp-2">
+                  <%= watch.brand.brandName %>
+                </p>
+                <div class="flex justify-between items-center">
                   <p class="text-base font-semibold text-accent">₹<%= watch.colorVariants[0].offerPrice %></p>
+                  <% if (watch.colorVariants[0].originalPrice && watch.colorVariants[0].originalPrice > watch.colorVariants[0].offerPrice) { %>
+                    <p class="text-xs text-dark-gray line-through">₹<%= watch.colorVariants[0].originalPrice %></p>
+                  <% } %>
                 </div>
               </div>
-            </a>
+            </div>
           <% }); %>
+        </div>
+        <div class="text-center mt-12">
+          <a href="/shop" class="inline-block px-8 py-3 bg-black text-white text-sm font-medium transition-colors hover:bg-accent rounded-md">
+            VIEW ALL PRODUCTS
+          </a>
         </div>
       </div>
     </section>
 
-    <section class="py-15 bg-cream">
+    <!-- Budget Section -->
+    <section class="py-15 ">
       <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-center text-2xl md:text-3xl font-semibold mb-10">SHOP BY BUDGET</h2>
+        <h2 class="text-center text-2xl md:text-3xl font-semibold mb-10 section-title">SHOP BY BUDGET</h2>
         <div class="flex justify-center gap-5 flex-wrap mb-10">
           <a href="/shop?maxPrice=20000"
-             class="inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">UPTO ₹20,000</a>
+             class="budget-btn inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">
+            UPTO ₹20,000
+          </a>
           <a href="/shop?maxPrice=40000"
-             class="inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">UPTO ₹40,000</a>
+             class="budget-btn inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">
+            UPTO ₹40,000
+          </a>
           <a href="/shop?maxPrice=60000"
-             class="inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">UPTO ₹60,000</a>
+             class="budget-btn inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">
+            UPTO ₹60,000
+          </a>
           <a href="/shop?minPrice=60000"
-             class="inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">ABOVE ₹60,000</a>
+             class="budget-btn inline-block px-8 py-3 bg-white text-black border border-black rounded-full text-sm font-medium transition-colors hover:bg-black hover:text-white">
+            ABOVE ₹60,000
+          </a>
         </div>
-        <div class="text-center">
-          <a href="/offers"
-             class="inline-block px-8 py-3 bg-black text-white text-sm font-medium transition-colors hover:bg-accent">DISCOVER ALL OFFERS</a>
-        </div>
+        
       </div>
     </section>
   </main>
 
+  <!-- Quick View Modal -->
+  <div class="quick-view-modal">
+    <div class="quick-view-content animate-slide-up">
+      <button class="close-modal">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="product-images">
+            <img id="quick-view-image" src="" alt="" class="w-full rounded-lg">
+            <div class="grid grid-cols-4 gap-2 mt-4">
+              <!-- Thumbnails would go here -->
+            </div>
+          </div>
+          <div class="product-details">
+            <h2 id="quick-view-title" class="text-2xl font-bold mb-2"></h2>
+            <p id="quick-view-brand" class="text-gray-600 mb-4"></p>
+            <p id="quick-view-price" class="text-2xl text-accent font-bold mb-4"></p>
+            <p id="quick-view-description" class="text-gray-700 mb-6"></p>
+            <div class="flex space-x-4 mb-6">
+              <button class="add-to-cart-quick bg-black text-white px-6 py-3 rounded-md hover:bg-accent transition-colors flex-1">
+                <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
+              </button>
+              <button class="wishlist-quick bg-white border border-gray-300 px-6 py-3 rounded-md hover:bg-gray-100 transition-colors">
+                <i class="far fa-heart"></i>
+              </button>
+            </div>
+            <div class="border-t border-gray-200 pt-4">
+              <div class="flex items-center mb-2">
+                <i class="fas fa-shield-alt text-gray-500 mr-2"></i>
+                <span class="text-sm">2 Year Warranty</span>
+              </div>
+              <div class="flex items-center mb-2">
+                <i class="fas fa-truck text-gray-500 mr-2"></i>
+                <span class="text-sm">Free Shipping</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-undo text-gray-500 mr-2"></i>
+                <span class="text-sm">30 Day Returns</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
   <%- include("../../views/partials/user/footer") %>
-  <script src="/assets/js/user/home.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Carousel functionality
+      const slides = document.querySelectorAll('.carousel-slide');
+      const indicators = document.querySelectorAll('.indicator');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      let currentIndex = 0;
+      const slideInterval = 5000;
+      let autoSlide;
+
+      function showSlide(index) {
+        if (index >= slides.length) index = 0;
+        if (index < 0) index = slides.length - 1;
+
+        slides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === index);
+        });
+
+        indicators.forEach((indicator, i) => {
+          indicator.classList.toggle('bg-white', i === index);
+          indicator.classList.toggle('bg-gray-400', i !== index);
+        });
+
+        currentIndex = index;
+      }
+
+      function nextSlide() {
+        showSlide(currentIndex + 1);
+      }
+
+      function prevSlide() {
+        showSlide(currentIndex - 1);
+      }
+
+      function startAutoSlide() {
+        autoSlide = setInterval(nextSlide, slideInterval);
+      }
+
+      function stopAutoSlide() {
+        clearInterval(autoSlide);
+      }
+
+      nextBtn.addEventListener('click', () => {
+        nextSlide();
+        stopAutoSlide();
+        startAutoSlide();
+      });
+
+      prevBtn.addEventListener('click', () => {
+        prevSlide();
+        stopAutoSlide();
+        startAutoSlide();
+      });
+
+      indicators.forEach((indicator, i) => {
+        indicator.addEventListener('click', () => {
+          showSlide(i);
+          stopAutoSlide();
+          startAutoSlide();
+        });
+      });
+
+      const carousel = document.querySelector('.carousel-container');
+      carousel.addEventListener('mouseenter', stopAutoSlide);
+      carousel.addEventListener('mouseleave', startAutoSlide);
+
+      showSlide(currentIndex);
+      startAutoSlide();
+
+      // Wishlist functionality
+      const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+      
+      wishlistButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const icon = this.querySelector('i');
+          
+          if (icon.classList.contains('far')) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            this.classList.add('active');
+            showNotification('Product added to wishlist!');
+            
+            // Save to localStorage
+            const productData = {
+              id: this.getAttribute('data-product-id'),
+              name: this.getAttribute('data-product-name'),
+              image: this.getAttribute('data-product-image'),
+              price: this.getAttribute('data-product-price'),
+              brand: this.getAttribute('data-product-brand'),
+              color: this.getAttribute('data-product-color')
+            };
+            
+            let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            wishlist.push(productData);
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+          } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            this.classList.remove('active');
+            showNotification('Product removed from wishlist!');
+            
+            // Remove from localStorage
+            const productId = this.getAttribute('data-product-id');
+            let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            wishlist = wishlist.filter(item => item.id !== productId);
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+          }
+        });
+      });
+
+      // Quick View functionality
+      const quickViewButtons = document.querySelectorAll('.quick-view-btn');
+      const quickViewModal = document.querySelector('.quick-view-modal');
+      const closeModal = document.querySelector('.close-modal');
+      
+      quickViewButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const productId = this.getAttribute('data-product-id');
+          
+          // In a real application, you would fetch product details from the server
+          // For now, we'll use mock data
+          const product = {
+            title: 'Premium Luxury Watch',
+            brand: 'Rolex',
+            price: '₹45,999',
+            description: 'This premium luxury watch features a stainless steel case, sapphire crystal, and automatic movement. Perfect for both casual and formal occasions.',
+            image: 'https://watchfactory.in/cdn/shop/files/gempages_457431224189715652-5352407d-10b5-4d9b-a422-c603207b8198.jpg?v=15513708604711106711'
+          };
+          
+          document.getElementById('quick-view-title').textContent = product.title;
+          document.getElementById('quick-view-brand').textContent = product.brand;
+          document.getElementById('quick-view-price').textContent = product.price;
+          document.getElementById('quick-view-description').textContent = product.description;
+          document.getElementById('quick-view-image').src = product.image;
+          
+          quickViewModal.classList.add('active');
+        });
+      });
+      
+      closeModal.addEventListener('click', () => {
+        quickViewModal.classList.remove('active');
+      });
+      
+      // Close modal when clicking outside content
+      quickViewModal.addEventListener('click', (e) => {
+        if (e.target === quickViewModal) {
+          quickViewModal.classList.remove('active');
+        }
+      });
+
+      // Add to Cart functionality
+      const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+      
+      addToCartButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const productId = this.getAttribute('data-product-id');
+          
+          // Add to cart logic
+          let cart = JSON.parse(localStorage.getItem('cart')) || [];
+          const existingItem = cart.find(item => item.id === productId);
+          
+          if (existingItem) {
+            existingItem.quantity += 1;
+          } else {
+            cart.push({
+              id: productId,
+              quantity: 1
+            });
+          }
+          
+          localStorage.setItem('cart', JSON.stringify(cart));
+          showNotification('Product added to cart!');
+          
+          // Update cart count in header if exists
+          updateCartCount();
+        });
+      });
+      
+      // Add to cart from quick view
+      const addToCartQuick = document.querySelector('.add-to-cart-quick');
+      if (addToCartQuick) {
+        addToCartQuick.addEventListener('click', () => {
+          // Similar logic as above
+          showNotification('Product added to cart!');
+          quickViewModal.classList.remove('active');
+          updateCartCount();
+        });
+      }
+
+      // Wishlist from quick view
+      const wishlistQuick = document.querySelector('.wishlist-quick');
+      if (wishlistQuick) {
+        wishlistQuick.addEventListener('click', function() {
+          const icon = this.querySelector('i');
+          
+          if (icon.classList.contains('far')) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            showNotification('Product added to wishlist!');
+          } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            showNotification('Product removed from wishlist!');
+          }
+        });
+      }
+
+      // Notification function
+      function showNotification(message) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+
+        // Add to DOM
+        document.body.appendChild(notification);
+
+        // Trigger animation
+        setTimeout(() => {
+          notification.classList.add('show');
+        }, 10);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+          notification.classList.remove('show');
+          
+          setTimeout(() => {
+            if (document.body.contains(notification)) {
+              document.body.removeChild(notification);
+            }
+          }, 300);
+        }, 3000);
+      }
+
+      // Update cart count in header
+      function updateCartCount() {
+        const cartCount = document.querySelector('.cart-count');
+        if (cartCount) {
+          const cart = JSON.parse(localStorage.getItem('cart')) || [];
+          const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+          cartCount.textContent = totalItems;
+          
+          // Add animation
+          cartCount.classList.add('animate-pulse-gentle');
+          setTimeout(() => {
+            cartCount.classList.remove('animate-pulse-gentle');
+          }, 1000);
+        }
+      }
+
+      // Initialize cart count
+      updateCartCount();
+
+      // Check if products are in wishlist and update heart icons
+      function initializeWishlistIcons() {
+        const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+        wishlistButtons.forEach(button => {
+          const productId = button.getAttribute('data-product-id');
+          const isInWishlist = wishlist.some(item => item.id === productId);
+          
+          if (isInWishlist) {
+            const icon = button.querySelector('i');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            button.classList.add('active');
+          }
+        });
+      }
+      
+      initializeWishlistIcons();
+
+      // Animation on Scroll
+      const animateOnScroll = () => {
+        const elements = document.querySelectorAll('.product-card, .brand-card');
+        
+        elements.forEach((element) => {
+          const elementPosition = element.getBoundingClientRect().top;
+          const windowHeight = window.innerHeight;
+          
+          if (elementPosition < windowHeight - 100) {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+          }
+        });
+      };
+      
+      // Set initial styles for animation
+      document.querySelectorAll('.product-card, .brand-card').forEach((element) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        element.style.transition = 'all 0.5s ease';
+      });
+      
+      // Run animation on load and scroll
+      window.addEventListener('load', animateOnScroll);
+      window.addEventListener('scroll', animateOnScroll);
+    });
+  </script>
 </body>
 </html>

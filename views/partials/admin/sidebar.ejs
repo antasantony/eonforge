@@ -1,64 +1,61 @@
-<aside class="w-64 bg-primary text-white fixed h-screen py-5 z-50">
-  <div class="sidebar-header px-5 pb-5 flex items-center justify-center">
-    <i class="fas fa-clock text-3xl"></i>
-    <h2 class="text-white text-2xl font-semibold ml-3">Eon Forge</h2>
-  </div>
-  <ul class="sidebar-menu p-0">
-    <li class="mb-1">
-      <a href="adminDashboard" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20 ">
-        <i class="fas fa-tachometer-alt mr-4 text-xl"></i>
-        <span>Dashboard</span>
-      </a>
-    </li>
-    <li class="mb-1">
-      <a href="orders" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
-        <i class="fas fa-shopping-cart mr-4 text-xl"></i>
-        <span>Orders</span>
-      </a>
-    </li>
-    <li class="mb-1">
-      <a href="addProducts" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
-        <i class="fas fa-box-open mr-4 text-xl"></i>
-        <span>Products</span>
-      </a>
-    </li>
-    <li class="mb-1">
-      <a href="users" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
-        <i class="fas fa-users mr-4 text-xl"></i>
-        <span>Users Management</span>
-      </a>
-    </li>
-    <li class="mb-1">
-      <a href="category" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
-        <i class="fas fa-tags mr-4 text-xl"></i>
-        <span>Categories</span>
-      </a>
-    </li>
-    <li class="mb-1">
-      <a href="brands" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
-        <i class="fas fa-copyright mr-4 text-xl"></i>
-        <span>Brands</span>
-      </a>
-    </li>
-    <li class="mb-1">
-      <a href="coupon" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
-        <i class="fas fa-ticket-alt mr-4 text-xl"></i>
-        <span>Coupons</span>
-      </a>
-    </li>
-    <li class="mb-1">
-      <a href="sales-report" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
-        <i class="fas fa-chart-line mr-4 text-xl"></i>
-        <span>Sales Report</span>
-      </a>
-
-    </li>
-    <li class="mb-1">
-      <a href="#" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
-        <i class="fas fa-credit-card mr-4 text-xl"></i>
-        <span>Payments</span>
-      </a>
-    </li>
-    
-  </ul>
-</aside>
+ <aside class="w-64 bg-primary text-white fixed h-screen py-5 z-50 transition-all duration-300 transform -translate-x-full lg:translate-x-0" id="sidebar">
+      <div class="sidebar-header px-5 pb-5 flex items-center justify-between">
+        <div class="flex items-center">
+          <i class="fas fa-clock text-3xl"></i>
+          <h2 class="text-white text-2xl font-semibold ml-3">Eon Forge</h2>
+        </div>
+        <button class="lg:hidden text-white" id="closeSidebar">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <ul class="sidebar-menu p-0">
+        <li class="mb-1">
+          <a href="adminDashboard" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-tachometer-alt mr-4 text-xl"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="orders" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-shopping-cart mr-4 text-xl"></i>
+            <span>Orders</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="addProducts" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-box mr-4 text-xl"></i>
+            <span>Products</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="users" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-users mr-4 text-xl"></i>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="category" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-tags mr-4 text-xl"></i>
+            <span>Category</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="brands" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-copyright mr-4 text-xl"></i>
+            <span>Brands</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="coupon" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-ticket-alt mr-4 text-xl"></i>
+            <span>Coupons</span>
+          </a>
+        </li>
+        <li class="mb-1">
+          <a href="sales-report" class="flex items-center px-6 py-4 text-white no-underline hover:bg-white/20">
+            <i class="fas fa-chart-bar mr-4 text-xl"></i>
+            <span>Sales Report</span>
+          </a>
+        </li>
+      </ul>
+    </aside>

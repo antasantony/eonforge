@@ -111,10 +111,10 @@
         return;
     }
 
-    // Show loading state
-    // submitButton.textContent = "Processing...";
-    // submitButton.disabled = true;
-    // submitButton.classList.add("opacity-70", "cursor-not-allowed");
+   // Show loading state
+    submitButton.textContent = "Processing...";
+    submitButton.disabled = true;
+    submitButton.classList.add("opacity-70", "cursor-not-allowed");
 
     try {
         const response = await fetch('/update-email', {

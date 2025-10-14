@@ -47,20 +47,47 @@
     .my-btn:hover {
       opacity: 0.9;
     }
+    
+    /* Mobile sidebar styles */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 40;
+      display: none;
+    }
+    
+    .sidebar-overlay.active {
+      display: block;
+    }
+    
+    /* Responsive table styles */
+    @media (max-width: 768px) {
+      .responsive-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
   </style>
 </head>
 <body class="font-sans bg-gray-50 text-gray-900 overflow-x-hidden">
+   <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="flex min-h-screen">
     <!-- Sidebar -->
-     <%-include("../../views/partials/admin/sidebar")%>
+      <%- include("../../views/partials/admin/sidebar") %>
     <!-- Main Content -->
-    <div class="flex-1 ml-64 min-h-screen">
-      <header class="bg-white py-4 px-6 flex items-center shadow sticky top-0 z-40">
-        <button class="menu-toggle mr-4 text-xl md:hidden">
-          <i class="fas fa-bars"></i>
+    <div class="flex-1 lg:ml-64 min-h-screen w-full">
+      <header class="bg-white py-4 px-4 lg:px-6 flex items-center shadow sticky top-0 z-40">
+        <button class="lg:hidden mr-4 text-gray-700" id="openSidebar">
+          <i class="fas fa-bars text-xl"></i>
         </button>
         
-        <form action="/admin/users" method="get" class="search-container flex items-center bg-gray-50 rounded-full px-4 py-2 w-full max-w-md ml-4">
+        <form action="/admin/users" method="get" class="search-container flex items-center bg-gray-50 rounded-full px-4 py-2 w-full max-w-md ml-0 lg:ml-4">
           <input 
             type="text" 
             name="search" 
@@ -93,43 +120,39 @@
         </div>
       </header>
       
-      <main class="p-6">
+      <main class="p-4 lg:p-6">
         <div class="page-header mb-6">
           <h1 class="text-2xl font-semibold text-gray-800">User Management</h1>
         </div>
         
         <!-- User Management Table -->
         <div class="user-management bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-          <div class="user-table-container overflow-x-auto">
+          <div class="user-table-container overflow-x-auto responsive-table">
             <table id="users-table" class="w-full border-collapse">
               <thead>
-                <tr class="sticky top-0 bg-white shadow-sm">
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">
-                    <input type="checkbox" id="select-all-users">
-                  </th>
-                  <!-- <th class="px-4 py-3 text-left font-semibold text-gray-500">User ID</th> -->
+                <tr class="bg-gray-50">
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500">No.</th>
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">Name</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Email</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500">Joined Date</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 hidden md:table-cell">Email</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 hidden sm:table-cell">Joined Date</th>
                   <th class="px-4 py-3 text-left font-semibold text-gray-500">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <%for(let i=0;i<data.length;i++){%>
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-gray-50 border-b">
                   <td class="px-4 py-3"><%=(currentPage-1)*limit+i+1 %></td>
-                  <!-- <td class="px-4 py-3"></td> -->
                   <td class="px-4 py-3"><%=data[i].firstName+' '+data[i].lastName%></td>
-                  <td class="px-4 py-3"><%=data[i].email%></td>
-                  <td class="px-4 py-3"><%=data[i].createdOn.toString().slice(4,15)%></td>
+                  <td class="px-4 py-3 hidden md:table-cell"><%=data[i].email%></td>
+                  <td class="px-4 py-3 hidden sm:table-cell"><%=data[i].createdOn.toString().slice(4,15)%></td>
                   <td class="px-4 py-3 user-actions-cell">
                     <%if(data[i].isBlocked===false){%>
-                      <button class="my-btn" onclick="blockCustomer('<%=data[i]._id%>')"> 
-                        <i class="fas fa-ban"></i> Block 
+                      <button class="my-btn text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2" onclick="blockCustomer('<%=data[i]._id%>')"> 
+                        <i class="fas fa-ban"></i> <span class="hidden sm:inline">Block</span>
                       </button>                   
                     <% }else{%>
-                      <button class="my-btn success" onclick="unblockCustomer('<%=data[i]._id%>')">
-                        <i class="fas fa-lock"></i> Unblock 
+                      <button class="my-btn success text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2" onclick="unblockCustomer('<%=data[i]._id%>')">
+                        <i class="fas fa-lock"></i> <span class="hidden sm:inline">Unblock</span>
                       </button>
                     <%}%>
                   </td>
