@@ -6,10 +6,10 @@ const ExcelJS = require('exceljs');
 const loadSalesReport = async (req, res) => {
   try {
     // === 1. Overall Totals ===
-    const totalSalesCount = await Order.countDocuments({ status: 'Delivered' });
+    const totalSalesCount = await Order.countDocuments({ status:{$in:['Delivered','Return Request','Rejected']}});
 
     const revenueResult = await Order.aggregate([
-      { $match: { status: 'Delivered' } }, { $unwind: '$orderItems' },
+      { $match: {status:{$in:['Delivered','Return Request','Rejected']} } }, { $unwind: '$orderItems' },
       {
         $group: {
           _id: null, totalOrderAmount:
@@ -42,7 +42,7 @@ const loadSalesReport = async (req, res) => {
     const orderList = await Order.find({ status:{$in:['Delivered','Return Request','Rejected']}})
       .populate("userId", "firstName lastName email ")
       .sort({ createdOn: -1 })
-      .select("orderId userId createdOn totalPrice totalAmount finalAmount couponCode couponDiscount paymentMethod orderItems");
+      .select("orderId userId createdOn totalPrice totalAmount finalAmount status couponCode couponDiscount paymentMethod orderItems");
 
        const grossSales = orderList.reduce((sum, order) => sum + order.orderItems.reduce((a, b) => a + b.price * b.stock, 0), 0);
     
@@ -52,6 +52,7 @@ const loadSalesReport = async (req, res) => {
     // Format data for report
     const formattedOrders = orderList.map(order => ({
       orderId: order.orderId.slice(1, 8),
+      status:order.status,
       customer: order.userId ? `${order.userId.firstName} ${order.userId.lastName}` : "Guest",
       date: order.createdOn ? order.createdOn.toLocaleDateString("en-IN") : "N/A",
       orderAmount: order.orderItems.reduce((a, b) => a + ((b.price + b.discount) * b.stock), 0),
@@ -91,7 +92,7 @@ const filterSalesReport=async (req,res) => {
      console.log('type',req.query)
 
     // Build query
-   const matchQuery = { status: 'Delivered' };
+   const matchQuery = { status:{$in:['Delivered','Return Request','Rejected']}};
 
 const now = new Date();
 
@@ -150,6 +151,7 @@ if (period === 'custom' && startDate && endDate) {
     // Format orders for table
     const salesData = orders.map(order => ({
       orderId: order.orderId,
+      status:order.status,
       customerName: order.userId ? `${order.userId.firstName} ${order.userId.lastName}` : 'Guest',
       date: order.createdOn.toLocaleDateString(),
       orderAmount:  order.orderItems.reduce((a, b) => a + ((b.price + b.discount) * b.stock), 0),
@@ -220,10 +222,10 @@ const downloadSalesReport = async (req, res) => {
     const salesData = orders.map(order => ({
       orderId: order.orderId,
       customerName: order.userId ? `${order.userId.firstName} ${order.userId.lastName}` : 'Guest',
-      date: order.createdOn.toLocaleDateString(),
+      date: order.createdOn,
       orderAmount:  order.orderItems.reduce((a, b) => a + ((b.price + b.discount) * b.stock), 0),
       discount: order.orderItems.reduce((a, b) => a + b.discount * b.stock, 0),
-      couponCode: order.couponDiscount || 'N/A',
+      couponCode: order.couponDiscount || '0.00',
       finalAmount: order.finalAmount || 0,
       paymentMethod: order.paymentMethod || 'N/A'
     }));

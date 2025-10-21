@@ -3,6 +3,7 @@ const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const Brand = require('../../models/brandSchema');
 const Wishlist = require('../../models/wishlistSchema');
+const Cart = require('../../models/cartSchema');
 const { generateReferralCode, applyReferral } =require('../../helpers/refferal');
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer")
@@ -51,13 +52,24 @@ const loadHomePage = async (req, res) => {
     //     isBlocked: false
     //   }).lean();
     // }
+    const cart = await Cart.findOne({ userId });
+console.log('cart detail', cart);
+
+let cartCount = 0;
+
+if (cart && cart.items) {
+  cartCount = cart.items.length;
+}
+
+console.log('cart detail count', cartCount);
 
     return res.render('home', {
       isLoggedIn,
       user,
       products: productData,
       brands,
-      categories
+      categories,
+      cartCount
     });
   } catch (err) {
     console.error("Error in loadHomePage:", err);
@@ -472,8 +484,17 @@ const loadShopPage = async (req, res) => {
    console.log('the category is get in this page are you sure',filteredProducts)
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
+    const cart = await Cart.findOne({ userId });
+console.log('cart detail', cart);
+
+let cartCount = 0;
+
+if (cart && cart.items) {
+  cartCount = cart.items.length;
+}
  
     res.render('shop', {
+      cartCount,
       isLoggedIn,
       user,
       products: filteredProducts,
@@ -615,8 +636,18 @@ products.forEach(product => {
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
 
+
+    
+        const cart=await Cart.findOne({userId})
+                         let cartCount = 0;
+                        
+                        if (cart && cart.items) {
+                          cartCount = cart.items.length;
+                        }
+
     res.render('shop', {
       user,
+      cartCount,
       isLoggedIn,
       search,
       products: filteredProducts,

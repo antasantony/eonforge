@@ -224,16 +224,20 @@
                         <li>Blocked or out-of-stock items in cart</li>
                     </ul>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                    <a href="/checkout" class="btn-primary">
-                        <i class="fas fa-redo"></i>
-                        <span>Retry Payment</span>
-                    </a>
-                    <a href="/cart" class="btn-secondary">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Go Back to Cart</span>
-                    </a>
-                </div>
+               <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
+                   <!-- Retry Payment Button -->
+                   <button id="retryPaymentBtn" class="btn-primary flex items-center gap-2 px-5 py-3">
+                     <span>Retry Payment</span>
+                     <i class="fas fa-redo"></i>
+                   </button>
+                 
+                   <!-- View Orders Button -->
+                   <a href="/orders" class="btn-secondary flex items-center gap-2 px-5 py-3">
+                     <i class="fas fa-box"></i>
+                     <span>View Your Orders</span>
+                   </a>
+                 </div>
+                 
                 <div class="text-center lg:text-left">
                     <a href="/contact" class="btn-tertiary">
                         <i class="fas fa-headset"></i>
@@ -243,5 +247,114 @@
             </div>
         </div>
     </main>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('retryPaymentBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('retryPaymentBtn');
+  const razorpayOrderId = new URLSearchParams(window.location.search).get('razorpayOrderId');
+
+  try {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrying...';
+
+    // 🔁 Request new Razorpay order
+    const res = await fetch('/payment/retry-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ razorpayOrderId })
+    });
+
+    const data = await res.json();
+    const newRazorpayOrderId=data.order_id;
+    
+
+    console.log('anything data:',data)
+    console.log('anything orderId:',data.order_id)
+    if (!res.ok || !data.success) throw new Error(data.message || 'Failed to retry order');
+
+    // 🧾 Razorpay checkout options
+   // 🧾 Razorpay checkout options
+const options = {
+  key: data.key_id,
+  amount: data.amount,
+  currency: data.currency,
+  name: 'Eon Forge',
+  description: 'Retry Payment',
+  order_id: data.order_id,
+  handler: async function (response) {
+     
+    try {
+      // ✅ verify payment
+      const verifyRes = await fetch('/payment/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature,
+        
+        cartItems: data.cartItems,
+        address: {
+           addressType: data.address.addressType,
+           street: data.address.street,
+           city: data.address.city,
+           state: data.address.state,
+           pin: data.address.pin,
+           country: data.address.country,
+           phone: data.address.phone,
+           isDefault: data.address.isDefault
+         },
+        paymentMethod: data.paymentMethod,
+        subtotal: data.subtotal,
+        deliveryFee: data.deliveryFee,
+        coupon: data.coupon,
+        totalAmount: data.totalAmount
+         })
+
+      });
+
+      const verifyData = await verifyRes.json();
+      console.log('verifydata:', verifyData);
+
+      if (verifyRes.ok && verifyData.success) {
+        window.location.href = `/place-order?razorpayOrderId=${newRazorpayOrderId}`;
+      }
+    } catch (err) {
+      console.error('Verification error:', err);
+      window.location.href = `/payment-failure?razorpayOrderId=${newRazorpayOrderId}&error=${encodeURIComponent(err.message)}`;
+    }
+  },
+  modal: {
+    ondismiss: function () {
+      console.log('Payment modal closed by user');
+       window.location.reload(); 
+    }
+  }
+};
+
+const rzp = new Razorpay(options);
+
+// 🧩 ⬇️ Add this listener here before opening the payment modal
+rzp.on('payment.failed', function (response) {
+
+  window.location.href = `/payment-failure?razorpayOrderId=${newRazorpayOrderId}&error=${encodeURIComponent(response.error.description)}`;
+});
+
+// 🧾 Open Razorpay payment modal
+rzp.open();
+
+
+  } catch (err) {
+    console.error('catch error',err);
+    
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-redo"></i> Retry Payment';
+  }
+});
+
+</script>
+
+
 </body>
 </html>

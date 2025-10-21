@@ -1,10 +1,23 @@
-
+const Cart = require('../../models/cartSchema');
+const User = require('../../models/userSchema');
 
 const about = async (req,res) => {
    try {
-    let user=null;
+    const userId = req.session.userId;
+    const isLoggedIn = !!userId;
+    let user = null;
+    if (isLoggedIn) user = await User.findById(userId).lean();
+
+    const cart=await Cart.findOne({userId})
+                     let cartCount = 0;
+                    
+                    if (cart && cart.items) {
+                      cartCount = cart.items.length;
+                    }
+
     res.render('about',{
-        user
+        user,
+        cartCount
     })
    } catch (error) {
     console.log('about page error:',error)
@@ -13,9 +26,21 @@ const about = async (req,res) => {
 
 const contact = async (req,res) => {
     try {
-        let user=null;
+      const userId = req.session.userId;
+    const isLoggedIn = !!userId;
+    let user = null;
+    if (isLoggedIn) user = await User.findById(userId).lean();
+
+    const cart=await Cart.findOne({userId})
+                     let cartCount = 0;
+                    
+                    if (cart && cart.items) {
+                      cartCount = cart.items.length;
+                    }
+
         res.render('contact',{
-            user
+            user,
+            cartCount
         })
     } catch (error) {
         console.log('contact page error:',error)
@@ -24,9 +49,21 @@ const contact = async (req,res) => {
 }
 const privacyPolicy = async (req,res) => {
     try {
-        let user=null;
+       const userId = req.session.userId;
+    const isLoggedIn = !!userId;
+    let user = null;
+    if (isLoggedIn) user = await User.findById(userId).lean();
+
+    const cart=await Cart.findOne({userId})
+                     let cartCount = 0;
+                    
+                    if (cart && cart.items) {
+                      cartCount = cart.items.length;
+                    }
+
         res.render('privacyPolicy',{
-            user
+            user,
+            cartCount
         })
     } catch (error) {
         console.log('Privacy Policy page error:',error)

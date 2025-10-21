@@ -89,28 +89,24 @@
             transform: translateY(0);
         }
 
-        /* Success toast */
         .toast.success {
             background-color: #333333;
-            border-left-color: #10b981; /* Emerald green */
+            border-left-color: #10b981;
         }
 
-        /* Error toast */
         .toast.error {
             background-color: #333333;
-            border-left-color: #ef4444; /* Red */
+            border-left-color: #ef4444;
         }
 
-        /* Warning toast */
         .toast.warning {
             background-color: #333333;
-            border-left-color: #f59e0b; /* Amber */
+            border-left-color: #f59e0b;
         }
 
-        /* Info toast */
         .toast.info {
             background-color: #333333;
-            border-left-color: #3b82f6; /* Blue */
+            border-left-color: #3b82f6;
         }
 
         .gradient-bg {
@@ -278,10 +274,21 @@
             font-weight: 600;
             display: inline-block;
         }
+
+        .reason-radio {
+            accent-color: #d4af37;
+        }
+
+        .reason-radio:checked + label {
+            background-color: #f4e4a6;
+            border-color: #d4af37;
+        }
     </style>
 </head>
 
 <body class="gradient-bg font-inter min-h-screen">
+    <%- include('../../views/partials/user/header') %>
+
     <!-- Breadcrumb -->
     <nav class="bg-white/70 px-4 py-4 border-b border-gray-100">
         <div class="max-w-7xl mx-auto">
@@ -313,22 +320,26 @@
                 <input type="text" name="search" id="orderSearch" placeholder="Search by Order ID..."
                     value="<%= typeof search !== 'undefined' ? search : '' %>"
                     class="w-full px-4 py-3 pr-20 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-sm">
-                <button type="submit" class="absolute right-12 top-1/2 transform -translate-y-1/2 text-text-secondary" aria-label="Search orders">
+                <button type="submit" class="absolute right-12 top-1/2 transform -translate-y-1/2 text-text-secondary"
+                    aria-label="Search orders">
                     <i class="fas fa-search"></i>
                 </button>
                 <% if (search) { %>
-                    <a href="/orders" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-text-secondary" aria-label="Clear search">
-                        <i class="fas fa-times cursor-pointer"></i>
-                    </a>
-                    <% } %>
+                <a href="/orders" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-text-secondary"
+                    aria-label="Clear search">
+                    <i class="fas fa-times cursor-pointer"></i>
+                </a>
+                <% } %>
             </form>
         </div>
-        <!-- add status filter and sort controls -->
+
+        <!-- Status Filter and Sort Controls -->
         <div class="mb-6">
             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                 <div class="flex-1 sm:flex-none sm:w-64">
                     <label for="statusFilter" class="sr-only">Filter by status</label>
-                    <select id="statusFilter" class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                    <select id="statusFilter"
+                        class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent">
                         <option value="">All statuses</option>
                         <option>Pending</option>
                         <option>Processing</option>
@@ -342,7 +353,8 @@
                 </div>
                 <div class="flex-1 sm:flex-none sm:w-64">
                     <label for="sortBy" class="sr-only">Sort orders</label>
-                    <select id="sortBy" class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                    <select id="sortBy"
+                        class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent">
                         <option value="newest">Newest first</option>
                         <option value="oldest">Oldest first</option>
                         <option value="totalDesc">Total: High to Low</option>
@@ -359,201 +371,221 @@
             </h2>
             <div id="orderList" class="space-y-6">
                 <% (orders || []).forEach((order, index) => { %>
-                    <div class="order-card bg-warm-gray rounded-xl p-6 premium-shadow animate-slide-up"
-                        style="animation-delay: <%= index * 0.1 %>s">
-                       <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-
-                           
-                            
-                            <!-- Order Details -->
-                            <div class="sm:col-span-4">
-                                 <!-- add copy order id action -->
-                                <h3 class="text-lg font-semibold text-primary flex items-center gap-2">
-                                    #ORD-<%= order.orderId.slice(1,8) %>
-                                    <button type="button" class="btn-secondary !px-2 !py-1" aria-label="Copy Order ID" onclick="copyOrderId('<%= order.orderId %>')">
-                                        <i class="fas fa-copy text-xs"></i>
-                                    </button>
-                                </h3>
-                                <% const orderDate = new Date(order.createdOn); %>
-                                <p class="text-sm text-text-secondary">Placed on <%= orderDate.toLocaleDateString() %> at <%= orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></p>
-                                <p class="text-sm text-text-secondary">Total: ₹<%= (order.totalPrice || 0).toLocaleString() %></p>
-                            </div>
-                            <!-- Status -->
-                            <div class="sm:col-span-2">
-                                <span class="status-badge 
-                                    <%= order.status === 'Delivered' ? 'bg-green-100 text-green-600' :
-                                        order.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
-                                        order.status === 'Returned' ? 'bg-gray-100 text-gray-600' :
-                                        'bg-accent-light text-accent' %>">
-                                    <%= order.status %>
-                                </span>
-                            </div>
-                            <!-- Action Buttons -->
-                            <div class="sm:col-span-3 flex justify-end gap-2">
-                                <a href="/order-details?orderId=<%= order.orderId %>" class="btn-primary" aria-label="View order">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                                <button onclick="downloadInvoice('<%= order.orderId %>')" class="btn-secondary" aria-label="Download invoice">
-                                    <i class="fas fa-download"></i> Invoice
+                <div class="order-card bg-warm-gray rounded-xl p-6 premium-shadow animate-slide-up"
+                    style="animation-delay: <%= index * 0.1 %>s">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center py-4 border-b border-gray-200">
+                        <!-- Order Details -->
+                        <div class="sm:col-span-4 flex flex-col gap-1">
+                            <h3 class="text-lg font-semibold text-primary flex items-center gap-2">
+                                #ORD-<%= order.orderId.slice(1,8) %>
+                                <button type="button" class="btn-secondary !px-2 !py-1" aria-label="Copy Order ID"
+                                    onclick="copyOrderId('<%= order.orderId %>')">
+                                    <i class="fas fa-copy text-xs"></i>
                                 </button>
-                                <% if (order.status !== 'Cancelled' && order.status !== 'Delivered' && order.status !== 'Return Request' && order.status !== 'Returned' && order.status !== 'Rejected') { %>
-                                    <button onclick="showCancelModal('<%= order.orderId %>')" class="btn-danger" aria-label="Cancel order">
-                                        <i class="fas fa-times"></i> Cancel
-                                    </button>
-                                <% } else if (order.status === 'Delivered') { 
-                                    const showReturn = order.orderItems.some(item => item.status === 'Delivered');
-                                    if (showReturn) { %>
-                                        <button onclick="showReturnModal('<%= order.orderId %>')" class="btn-danger" aria-label="Return order">
-                                            <i class="fas fa-undo"></i> Return
-                                        </button>
-                                    <% } %>
-                                <% } %>
-                            </div>
+                            </h3>
+                            <%
+                                const orderDate = new Date(order.createdOn);
+                                const now = new Date();
+                                const oneDayInMs = 24 * 60 * 60 * 1000;
+                                const isWithinOneDay = (now - orderDate) < oneDayInMs;
+                            %>
+                            <p class="text-sm text-text-secondary">
+                                Placed on <%= orderDate.toLocaleDateString() %> at <%= orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %>
+                            </p>
+                            <p class="text-sm text-text-secondary">
+                                Total: ₹<%= (order.totalPrice || 0).toLocaleString() %>
+                            </p>
                         </div>
 
-                        <!-- Responsive per-item details table for each order -->
-                        <div class="mt-6">
-                            <!-- mobile toggle for items -->
-                            <div class="flex items-center justify-between md:justify-start gap-3 mb-3">
-                                <h4 class="text-base font-semibold text-primary flex items-center">
-                                    <i class="fas fa-box-open text-accent mr-2"></i> Items in this order
-                                </h4>
-                                <button type="button" class="btn-secondary md:hidden" onclick="toggleItems('<%= order.orderId %>')" aria-controls="items-mobile-<%= order.orderId %>">
-                                    <i class="fas fa-list mr-1"></i>
-                                    Items (<%= (order.orderItems || []).length %>)
-                                </button>
-                            </div>
+                        <!-- Status -->
+                        <div class="sm:col-span-2 flex justify-start sm:justify-center">
+                            <span
+                                class="status-badge px-3 py-1 rounded-full text-sm <%= order.status === 'Delivered' ? 'bg-green-100 text-green-600' : order.status === 'Cancelled' ? 'bg-red-100 text-red-600' : order.status === 'Returned' ? 'bg-gray-100 text-gray-600' : 'bg-accent-light text-accent' %>">
+                                <%= order.status %>
+                            </span>
+                        </div>
 
-                            <!-- Mobile cards -->
-                            <!-- start collapsed on mobile; toggled by button -->
-                            <div id="items-mobile-<%= order.orderId %>" class="hidden md:hidden space-y-3">
-                                <% (order.orderItems || []).forEach((item) => { 
-                                    const qty = item.stock ?? 1;
-                                    const reg = Number(item.regularPrice ?? item.mrp ?? item.price ?? item.unitPrice ?? item.variantData?.price ?? 0);
-                                    const fin = Number(item.finalAmount ?? item.total ?? item.sellingPrice ?? item.price ?? 0);
-                                %>
-                                    <div class="rounded-lg border border-gray-200 bg-white p-4">
-                                        <div class="flex items-start gap-3">
-                                            <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
-                                                <% if (item.variantData?.productImage?.length) { %>
-                                                    <img src="<%= item.variantData.productImage[0] %>" alt="Product" class="w-full h-full object-cover" loading="lazy">
-                                                <% } %>
+                        <!-- Action Buttons -->
+                        <div class="sm:col-span-6 flex flex-wrap justify-end gap-2">
+                            <a href="/order-details?orderId=<%= order.orderId %>"
+                                class="btn-primary flex items-center gap-1 px-4 py-2">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <button onclick="downloadInvoice('<%= order.orderId %>')"
+                                class="btn-secondary flex items-center gap-1 px-4 py-2">
+                                <i class="fas fa-download"></i> Invoice
+                            </button>
+                            <% if (order.status !== 'Pending' && order.status !== 'Cancelled' && order.status !== 'Delivered' && order.status !== 'Return Request' && order.status !== 'Returned' && order.status !== 'Rejected') { %>
+                            <button onclick="showCancelModal('<%= order.orderId %>')"
+                                class="btn-danger flex items-center gap-1 px-4 py-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <% } else if (order.status === 'Delivered') { 
+                                const showReturn = order.orderItems.some(item => item.status === 'Delivered');
+                                if (showReturn) { %>
+                            <button onclick="showReturnModal('<%= order.orderId %>')"
+                                class="btn-danger flex items-center gap-1 px-4 py-2">
+                                <i class="fas fa-undo"></i> Return
+                            </button>
+                            <% } } else if (order.status === 'Pending') { %>
+                            <% if (isWithinOneDay) { %>
+                            <button id="retryPaymentBtn" data-order-id="<%= order.razorpayOrderId %>"
+                                class="btn-danger flex items-center gap-1 px-4 py-2" aria-label="Retry Payment">
+                                <i class="fas fa-redo"></i> Retry Payment
+                            </button>
+                            <% } else { %>
+                            <p class="text-sm text-red-500 flex items-center gap-1 px-4 py-2">
+                                <i class="fas fa-exclamation-triangle"></i> You can't retry payment now
+                            </p>
+                            <% } %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Responsive per-item details table for each order -->
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between md:justify-start gap-3 mb-3">
+                            <h4 class="text-base font-semibold text-primary flex items-center">
+                                <i class="fas fa-box-open text-accent mr-2"></i> Items in this order
+                            </h4>
+                            <button type="button" class="btn-secondary md:hidden"
+                                onclick="toggleItems('<%= order.orderId %>')"
+                                aria-controls="items-mobile-<%= order.orderId %>">
+                                <i class="fas fa-list mr-1"></i>
+                                Items (<%= (order.orderItems || []).length %>)
+                            </button>
+                        </div>
+
+                        <div id="items-mobile-<%= order.orderId.slice(1,8) %>" class="hidden md:hidden space-y-3">
+                            <% (order.orderItems || []).forEach((item) => { 
+                                const qty = item.stock ?? 1;
+                                const reg = Number(item.regularPrice ?? item.mrp ?? item.price ?? item.unitPrice ?? item.variantData?.price ?? 0);
+                                const fin = Number(item.finalAmount ?? item.total ?? item.sellingPrice ?? item.price ?? 0);
+                            %>
+                            <div class="rounded-lg border border-gray-200 bg-white p-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                                        <% if (item.variantData?.productImage?.length) { %>
+                                        <img src="<%= item.variantData.productImage[0] %>" alt="Product"
+                                            class="w-full h-full object-cover" loading="lazy">
+                                        <% } %>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-primary">
+                                            <%= item.product.productName ?? 'Product' %>
+                                        </p>
+                                        <p class="text-xs text-text-secondary">
+                                            Brand: <%= item.product.brand.brandName ?? item.productBrand ?? item.variantData?.brand ?? '—' %>
+                                        </p>
+                                        <p class="text-xs text-text-secondary">
+                                            Color: <%= item.variantData?.colorName ?? item.variantData?.color ?? '—' %>
+                                        </p>
+                                        <div class="mt-2 grid grid-cols-3 gap-2 text-sm">
+                                            <div>
+                                                <p class="text-text-secondary">Qty</p>
+                                                <p class="font-semibold"><%= qty %></p>
                                             </div>
-                                            <div class="flex-1">
-                                                <p class="text-sm font-medium text-primary">
-                                                    <%= item.product.productName  ?? 'Product' %>
-                                                </p>
-                                                <p class="text-xs text-text-secondary">
-                                                    Brand: <%= item.product.brand.brandName ?? item.productBrand ?? item.variantData?.brand ?? '—' %>
-                                                </p>
-                                                <p class="text-xs text-text-secondary">
-                                                    Color: <%= item.variantData?.colorName ?? item.variantData?.color ?? '—' %>
-                                                </p>
-                                                <div class="mt-2 grid grid-cols-3 gap-2 text-sm">
-                                                    <div>
-                                                        <p class="text-text-secondary">Qty</p>
-                                                        <p class="font-semibold"><%= qty %></p>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-text-secondary">Regular</p>
-                                                        <p class="font-semibold">₹<%= reg.toLocaleString() %></p>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-text-secondary">Final</p>
-                                                        <p class="font-semibold text-green-700">₹<%= (fin * (qty ? 1 : 1)).toLocaleString() %></p>
-                                                    </div>
-                                                </div>
+                                            <div>
+                                                <p class="text-text-secondary">Regular</p>
+                                                <p class="font-semibold">₹<%= reg.toLocaleString() %></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-text-secondary">Final</p>
+                                                <p class="font-semibold text-green-700">₹<%= (fin * (qty ? 1 : 1)).toLocaleString() %></p>
                                             </div>
                                         </div>
                                     </div>
-                                <% }); %>
+                                </div>
                             </div>
+                            <% }); %>
+                        </div>
 
-                            <!-- Desktop table -->
-                            <div class="hidden md:block overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                                <table class="w-full text-sm" aria-label="Order items">
-                                    <thead class="bg-gray-50">
-                                        <tr class="text-left">
-                                            <th class="px-4 py-3 font-semibold text-text-secondary">Product</th>
-                                            <th class="px-4 py-3 font-semibold text-text-secondary">Brand</th>
-                                            <th class="px-4 py-3 font-semibold text-text-secondary">Color</th>
-                                            <th class="px-4 py-3 font-semibold text-text-secondary">Qty</th>
-                                            <th class="px-4 py-3 font-semibold text-text-secondary">Regular Price</th>
-                                            <th class="px-4 py-3 font-semibold text-text-secondary">Final Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% (order.orderItems || []).forEach((item) => { 
-                                            const qty = Number(item.stock ?? item.stock ?? 1);
-                                            const reg = Number(item.regularPrice ?? item.mrp ?? item.price ?? item.unitPrice ?? item.variantData?.price ?? 0);
-                                            const finUnit = Number(item.finalAmount ?? item.total ?? item.sellingPrice ?? item.price ?? 0);
-                                            const finTotal = finUnit * (qty || 1);
-                                        %>
-                                            <tr class="border-t border-gray-100 hover:bg-gray-50">
-                                                <td class="px-4 py-3">
-                                                    <div class="flex items-center gap-3">
-                                                        <div class="w-12 h-12 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
-                                                            <% if (item.variantData?.productImage?.length) { %>
-                                                                <img src="<%= item.variantData.productImage[0] %>" alt="Product" class="w-full h-full object-cover" loading="lazy">
-                                                            <% } %>
-                                                        </div>
-                                                        <span class="font-medium text-primary">
-                                                            <%= item.product.productName  ?? 'Product' %>
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td class="px-4 py-3">
-                                                    <%= item.product.brand.brandName ?? item.product.brand ?? item.variantData?.brand ?? '—' %>
-                                                </td>
-                                                <td class="px-4 py-3">
-                                                    <%= item.variantData.colorName ?? item.variantData?.color?.name ?? item.variantData?.color ?? '—' %>
-                                                </td>
-                                                <td class="px-4 py-3 font-semibold">
-                                                    <%= qty %>
-                                                </td>
-                                                <td class="px-4 py-3">
-                                                    ₹<%= reg.toLocaleString() %>
-                                                </td>
-                                                <td class="px-4 py-3 font-semibold text-green-700">
-                                                    ₹<%= finTotal.toLocaleString() %>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="hidden md:block overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                            <table class="w-full text-sm" aria-label="Order items">
+                                <thead class="bg-gray-50">
+                                    <tr class="text-left">
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Product</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Brand</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Color</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Qty</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Regular Price</th>
+                                        <th class="px-4 py-3 font-semibold text-text-secondary">Final Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% (order.orderItems || []).forEach((item) => { 
+                                        const qty = Number(item.stock ?? item.quantity ?? 1);
+                                        const reg = Number(item.regularPrice ?? item.mrp ?? item.price ?? item.unitPrice ?? item.variantData?.price ?? 0);
+                                        const finUnit = Number(item.finalAmount ?? item.total ?? item.sellingPrice ?? item.price ?? 0);
+                                        const finTotal = finUnit * (qty || 1);
+                                    %>
+                                    <tr class="border-t border-gray-100 hover:bg-gray-50">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="w-12 h-12 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                                                    <% if (item.variantData?.productImage?.length) { %>
+                                                    <img src="<%= item.variantData.productImage[0] %>" alt="Product"
+                                                        class="w-full h-full object-cover" loading="lazy">
+                                                    <% } %>
+                                                </div>
+                                                <span class="font-medium text-primary">
+                                                    <%= item.product.productName ?? 'Product' %>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <%= item.product.brand.brandName ?? item.product.brand ?? item.variantData?.brand ?? '—' %>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <%= item.variantData.colorName ?? item.variantData?.color?.name ?? item.variantData?.color ?? '—' %>
+                                        </td>
+                                        <td class="px-4 py-3 font-semibold">
+                                            <%= qty %>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            ₹<%= reg.toLocaleString() %>
+                                        </td>
+                                        <td class="px-4 py-3 font-semibold text-green-700">
+                                            ₹<%= finTotal.toLocaleString() %>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
                 <% }); %>
                 <% if (!orders || orders.length === 0) { %>
-                    <div class="text-center py-12">
-                        <i class="fas fa-shopping-bag text-4xl text-accent mb-4"></i>
-                        <p class="text-lg text-text-secondary">No orders found.</p>
-                        <a href="/shop" class="btn-primary mt-4">
-                            <i class="fas fa-shopping-bag"></i> Start Shopping
-                        </a>
-                    </div>
+                <div class="text-center py-12">
+                    <i class="fas fa-shopping-bag text-4xl text-accent mb-4"></i>
+                    <p class="text-lg text-text-secondary">No orders found.</p>
+                    <a href="/shop" class="btn-primary mt-4">
+                        <i class="fas fa-shopping-bag"></i> Start Shopping
+                    </a>
+                </div>
                 <% } %>
             </div>
 
             <!-- Pagination -->
             <% if (totalPages > 1) { %>
-                <div class="mt-8 flex justify-center items-center space-x-2">
-                    <a href="/orders?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>"
-                        class="pagination-btn <%= currentPage === 1 ? 'disabled' : '' %>">
-                        <i class="fas fa-chevron-left mr-1"></i> Previous
-                    </a>
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <a href="/orders?page=<%= i %><%= search ? '&search=' + search : '' %>"
-                            class="pagination-btn <%= currentPage === i ? 'active' : '' %>">
-                            <%= i %>
-                        </a>
-                    <% } %>
-                    <a href="/orders?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>"
-                        class="pagination-btn <%= currentPage === totalPages ? 'disabled' : '' %>">
-                        Next <i class="fas fa-chevron-right ml-1"></i>
-                    </a>
-                </div>
+            <div class="mt-8 flex justify-center items-center space-x-2">
+                <a href="/orders?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>"
+                    class="pagination-btn <%= currentPage === 1 ? 'disabled' : '' %>">
+                    <i class="fas fa-chevron-left mr-1"></i> Previous
+                </a>
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="/orders?page=<%= i %><%= search ? '&search=' + search : '' %>"
+                    class="pagination-btn <%= currentPage === i ? 'active' : '' %>">
+                    <%= i %>
+                </a>
+                <% } %>
+                <a href="/orders?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>"
+                    class="pagination-btn <%= currentPage === totalPages ? 'disabled' : '' %>">
+                    Next <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
             <% } %>
         </div>
     </main>
@@ -563,20 +595,66 @@
         <div class="modal-content glass-effect rounded-2xl p-6 max-w-md w-full mx-4 premium-shadow">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-playfair font-bold text-primary">Cancel Order</h3>
-                <button onclick="closeCancelModal()" class="text-gray-500 hover:text-gray-700">
+                <button onclick="closeCancelModal()" class="text-gray-500 hover:text-gray-700" aria-label="Close modal">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            <p class="text-text-secondary mb-4">Are you sure you want to cancel Order #<span id="cancelOrderId"></span>?</p>
+            <p class="text-text-secondary mb-4">Please select a reason for cancelling  #ORD-<span
+                    id="cancelOrderId"></span>.</p>
             <div class="mb-4">
-                <label for="cancelReason" class="block text-sm font-medium text-primary mb-2">Reason for Cancellation (Optional)</label>
-                <textarea id="cancelReason"
-                    class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
-                    placeholder="Provide a reason if any"></textarea>
+                <label class="block text-sm font-medium text-primary mb-2">Reason for Cancellation</label>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="cancelReason" id="cancelReason1" value="Changed my mind"
+                            class="reason-radio" onchange="toggleCancelTextarea()">
+                        <label for="cancelReason1"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Changed
+                            my mind</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="cancelReason" id="cancelReason2" value="Ordered by mistake"
+                            class="reason-radio" onchange="toggleCancelTextarea()">
+                        <label for="cancelReason2"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Ordered
+                            by mistake</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="cancelReason" id="cancelReason3" value="Product not as described"
+                            class="reason-radio" onchange="toggleCancelTextarea()">
+                        <label for="cancelReason3"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Product
+                            not as described</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="cancelReason" id="cancelReason4" value="Found a better price elsewhere"
+                            class="reason-radio" onchange="toggleCancelTextarea()">
+                        <label for="cancelReason4"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Found
+                            a better price elsewhere</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="cancelReason" id="cancelReason5" value="Delivery issues"
+                            class="reason-radio" onchange="toggleCancelTextarea()">
+                        <label for="cancelReason5"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Delivery
+                            issues</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="cancelReason" id="cancelReasonOther" value="Other"
+                            class="reason-radio" onchange="toggleCancelTextarea()">
+                        <label for="cancelReasonOther"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Other</label>
+                    </div>
+                    <div id="cancelOtherTextarea" class="hidden mt-2">
+                        <textarea id="cancelOtherReason"
+                            class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
+                            placeholder="Please provide details"></textarea>
+                    </div>
+                </div>
             </div>
             <div class="flex justify-end space-x-3">
                 <button onclick="closeCancelModal()" class="btn-secondary">Close</button>
-                <button onclick="confirmCancelOrder()" class="btn-danger">
+                <button id="cancelConfirmBtn" onclick="confirmCancelOrder()" class="btn-danger" disabled>
                     <i class="fas fa-check mr-1"></i> Confirm
                 </button>
             </div>
@@ -588,51 +666,174 @@
         <div class="modal-content glass-effect rounded-2xl p-6 max-w-md w-full mx-4 premium-shadow">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-playfair font-bold text-primary">Return Order</h3>
-                <button onclick="closeReturnModal()" class="text-gray-500 hover:text-gray-700">
+                <button onclick="closeReturnModal()" class="text-gray-500 hover:text-gray-700" aria-label="Close modal">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            <p class="text-text-secondary mb-4">Please provide a reason for returning Order #<span id="returnOrderId"></span>.</p>
+            <p class="text-text-secondary mb-4">Please select a reason for returning
+                #ORD-<span
+                    id="returnOrderId"></span>.</p>
             <div class="mb-4">
-                <label for="returnReason" class="block text-sm font-medium text-primary mb-2">Reason for Return (Required)</label>
-                <textarea id="returnReason"
-                    class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
-                    placeholder="Provide a reason for return"></textarea>
+                <label class="block text-sm font-medium text-primary mb-2">Reason for Return</label>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="returnReason" id="returnReason1" value="Product not as described"
+                            class="reason-radio" onchange="toggleReturnTextarea()">
+                        <label for="returnReason1"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Product
+                            not as described</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="returnReason" id="returnReason2" value="Damaged or defective"
+                            class="reason-radio" onchange="toggleReturnTextarea()">
+                        <label for="returnReason2"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Damaged
+                            or defective</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="returnReason" id="returnReason3" value="Wrong item received"
+                            class="reason-radio" onchange="toggleReturnTextarea()">
+                        <label for="returnReason3"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Wrong
+                            item received</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="returnReason" id="returnReason4" value="Changed my mind"
+                            class="reason-radio" onchange="toggleReturnTextarea()">
+                        <label for="returnReason4"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Changed
+                            my mind</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="returnReason" id="returnReasonOther" value="Other"
+                            class="reason-radio" onchange="toggleReturnTextarea()">
+                        <label for="returnReasonOther"
+                            class="text-sm text-text-primary cursor-pointer p-2 rounded hover:bg-accent-light w-full">Other</label>
+                    </div>
+                    <div id="returnOtherTextarea" class="hidden mt-2">
+                        <textarea id="returnOtherReason"
+                            class="textarea-resize w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
+                            placeholder="Please provide details"></textarea>
+                    </div>
+                </div>
             </div>
             <div class="flex justify-end space-x-3">
                 <button onclick="closeReturnModal()" class="btn-secondary">Close</button>
-                <button onclick="confirmReturnOrder()" id="returnConfirmBtn" class="btn-danger">
+                <button id="returnConfirmBtn" onclick="confirmReturnOrder()" class="btn-danger" disabled>
                     <i class="fas fa-check mr-1"></i> Confirm
                 </button>
             </div>
         </div>
     </div>
 
+    <%- include("../../views/partials/user/footer") %>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-        // Enhanced Toast notification functionality
+        // Retry Payment Option
+        document.getElementById('retryPaymentBtn')?.addEventListener('click', async () => {
+            const btn = document.getElementById('retryPaymentBtn');
+            const razorpayOrderId = btn.dataset.orderId;
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrying...';
+
+                const res = await fetch('/payment/retry-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ razorpayOrderId })
+                });
+
+                const data = await res.json();
+                const newRazorpayOrderId = data.order_id;
+
+                if (!res.ok || !data.success) throw new Error(data.message || 'Failed to retry order');
+
+                const options = {
+                    key: data.key_id,
+                    amount: data.amount,
+                    currency: data.currency,
+                    name: 'Eon Forge',
+                    description: 'Retry Payment',
+                    order_id: data.order_id,
+                    handler: async function (response) {
+                        try {
+                            const verifyRes = await fetch('/payment/verify', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    cartItems: data.cartItems,
+                                    address: {
+                                        addressType: data.address.addressType,
+                                        street: data.address.street,
+                                        city: data.address.city,
+                                        state: data.address.state,
+                                        pin: data.address.pin,
+                                        country: data.address.country,
+                                        phone: data.address.phone,
+                                        isDefault: data.address.isDefault
+                                    },
+                                    paymentMethod: data.paymentMethod,
+                                    subtotal: data.subtotal,
+                                    deliveryFee: data.deliveryFee,
+                                    coupon: data.coupon,
+                                    totalAmount: data.totalAmount
+                                })
+                            });
+
+                            const verifyData = await verifyRes.json();
+                            if (verifyRes.ok && verifyData.success) {
+                                window.location.href = `/place-order?razorpayOrderId=${newRazorpayOrderId}`;
+                            }
+                        } catch (err) {
+                            window.location.href = `/payment-failure?razorpayOrderId=${newRazorpayOrderId}&error=${encodeURIComponent(err.message)}`;
+                        }
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            window.location.reload();
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (response) {
+                    window.location.href = `/payment-failure?razorpayOrderId=${newRazorpayOrderId}&error=${encodeURIComponent(response.error.description)}`;
+                });
+                rzp.open();
+            } catch (err) {
+                console.error('Error:', err);
+                showToast('Failed to retry payment.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-redo"></i> Retry Payment';
+            }
+        });
+
+        // Toast Notification
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.textContent = message;
             document.body.appendChild(toast);
-
             setTimeout(() => toast.classList.add('show'), 10);
-
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => document.body.removeChild(toast), 300);
             }, 3000);
         }
 
-        // Data from controller
-        const orders = <%- JSON.stringify(orders || []) %>;
-
         // Modal Functions
         function showCancelModal(orderId) {
             document.getElementById('cancelOrderId').textContent = orderId;
             document.getElementById('cancelModal').classList.remove('hidden');
             document.getElementById('cancelModal').classList.add('show');
-            document.getElementById('cancelReason').value = '';
+            document.querySelectorAll('input[name="cancelReason"]').forEach(radio => radio.checked = false);
+            document.getElementById('cancelOtherTextarea').classList.add('hidden');
+            document.getElementById('cancelOtherReason').value = '';
+            document.getElementById('cancelConfirmBtn').disabled = true;
         }
 
         function closeCancelModal() {
@@ -650,7 +851,9 @@
             document.getElementById('returnOrderId').textContent = orderId;
             document.getElementById('returnModal').classList.remove('hidden');
             document.getElementById('returnModal').classList.add('show');
-            document.getElementById('returnReason').value = '';
+            document.querySelectorAll('input[name="returnReason"]').forEach(radio => radio.checked = false);
+            document.getElementById('returnOtherTextarea').classList.add('hidden');
+            document.getElementById('returnOtherReason').value = '';
             document.getElementById('returnConfirmBtn').disabled = true;
         }
 
@@ -665,17 +868,53 @@
             }, 300);
         }
 
+        function toggleCancelTextarea() {
+            const otherRadio = document.getElementById('cancelReasonOther');
+            const textareaDiv = document.getElementById('cancelOtherTextarea');
+            const confirmBtn = document.getElementById('cancelConfirmBtn');
+            if (otherRadio.checked) {
+                textareaDiv.classList.remove('hidden');
+                confirmBtn.disabled = !document.getElementById('cancelOtherReason').value.trim();
+            } else {
+                textareaDiv.classList.add('hidden');
+                confirmBtn.disabled = !document.querySelector('input[name="cancelReason"]:checked');
+            }
+        }
+
+        function toggleReturnTextarea() {
+            const otherRadio = document.getElementById('returnReasonOther');
+            const textareaDiv = document.getElementById('returnOtherTextarea');
+            const confirmBtn = document.getElementById('returnConfirmBtn');
+            if (otherRadio.checked) {
+                textareaDiv.classList.remove('hidden');
+                confirmBtn.disabled = !document.getElementById('returnOtherReason').value.trim();
+            } else {
+                textareaDiv.classList.add('hidden');
+                confirmBtn.disabled = !document.querySelector('input[name="returnReason"]:checked');
+            }
+        }
+
         function confirmCancelOrder() {
             const orderId = document.getElementById('cancelOrderId').textContent;
-            const reason = document.getElementById('cancelReason').value;
-            
-            // Validation - show toast if no reason provided
-            if (!reason || reason.trim() === '') {
-                showToast('Please provide a reason for cancellation.', 'warning');
+            const selectedReason = document.querySelector('input[name="cancelReason"]:checked')?.value;
+            const otherReason = document.getElementById('cancelOtherReason').value.trim();
+            let reason = selectedReason;
+
+            if (!selectedReason) {
+                showToast('Please select a reason for cancellation.', 'warning');
                 return;
             }
 
-            const cancelConfirmBtn = document.querySelector('#cancelModal .btn-danger');
+            if (selectedReason === 'Other' && !otherReason) {
+                showToast('Please provide details for the cancellation.', 'warning');
+                return;
+            }
+
+            if (selectedReason === 'Other') {
+                reason = otherReason;
+            }
+
+            const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
             const prevHTML = cancelConfirmBtn.innerHTML;
             cancelConfirmBtn.disabled = true;
             cancelConfirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Processing...';
@@ -685,37 +924,45 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId, reason })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Order cancelled successfully!', 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showToast('Unable to cancel this order.', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Something went wrong! Please try again.', 'error');
-            })
-            .finally(() => {
-                cancelConfirmBtn.disabled = false;
-                cancelConfirmBtn.innerHTML = prevHTML;
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Order cancelled successfully!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('Unable to cancel this order.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Something went wrong! Please try again.', 'error');
+                })
+                .finally(() => {
+                    cancelConfirmBtn.disabled = false;
+                    cancelConfirmBtn.innerHTML = prevHTML;
+                });
 
             closeCancelModal();
         }
 
         function confirmReturnOrder() {
             const orderId = document.getElementById('returnOrderId').textContent;
-            const reason = document.getElementById('returnReason').value;
+            const selectedReason = document.querySelector('input[name="returnReason"]:checked')?.value;
+            const otherReason = document.getElementById('returnOtherReason').value.trim();
+            let reason = selectedReason;
 
-            // Validation - show toast if no reason provided
-            if (!reason || reason.trim() === '') {
-                showToast('Please provide a reason for return.', 'warning');
+            if (!selectedReason) {
+                showToast('Please select a reason for return.', 'warning');
                 return;
+            }
+
+            if (selectedReason === 'Other' && !otherReason) {
+                showToast('Please provide details for the return.', 'warning');
+                return;
+            }
+
+            if (selectedReason === 'Other') {
+                reason = otherReason;
             }
 
             const returnConfirmBtn = document.getElementById('returnConfirmBtn');
@@ -728,34 +975,48 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId, reason })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Return request submitted successfully!', 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showToast('Unable to submit return request.', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Something went wrong! Please try again.', 'error');
-            })
-            .finally(() => {
-                returnConfirmBtn.disabled = false;
-                returnConfirmBtn.innerHTML = prevHTML;
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Return request submitted successfully!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('Unable to submit return request.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Something went wrong! Please try again.', 'error');
+                })
+                .finally(() => {
+                    returnConfirmBtn.disabled = false;
+                    returnConfirmBtn.innerHTML = prevHTML;
+                });
 
             closeReturnModal();
         }
 
-        // Enable return confirm button only if reason is provided
-        document.getElementById('returnReason').addEventListener('input', function () {
-            document.getElementById('returnConfirmBtn').disabled = this.value.trim() === '';
+        // Enable confirm buttons based on input
+        document.getElementById('cancelOtherReason')?.addEventListener('input', function () {
+            if (document.getElementById('cancelReasonOther').checked) {
+                document.getElementById('cancelConfirmBtn').disabled = !this.value.trim();
+            }
         });
-        
+
+        document.getElementById('returnOtherReason')?.addEventListener('input', function () {
+            if (document.getElementById('returnReasonOther').checked) {
+                document.getElementById('returnConfirmBtn').disabled = !this.value.trim();
+            }
+        });
+
+        document.querySelectorAll('input[name="cancelReason"]').forEach(radio => {
+            radio.addEventListener('change', toggleCancelTextarea);
+        });
+
+        document.querySelectorAll('input[name="returnReason"]').forEach(radio => {
+            radio.addEventListener('change', toggleReturnTextarea);
+        });
+
         function downloadInvoice(orderId) {
             window.location.href = `/invoice?orderId=${orderId}`;
         }
@@ -775,7 +1036,7 @@
             });
         }
 
-        const allOrders = orders || [];
+        const allOrders = <%- JSON.stringify(orders || []) %>;
         const orderListEl = document.getElementById('orderList');
         const statusFilterEl = document.getElementById('statusFilter');
         const sortByEl = document.getElementById('sortBy');
@@ -796,13 +1057,13 @@
                 return;
             }
 
-            function getQty(item){ return Number(item.quantity ?? item.qty ?? 1) }
-            function getReg(item){ return Number(item.regularPrice ?? item.mrp ?? item.price ?? item.unitPrice ?? (item.variantData?.price ?? 0)) }
-            function getFinUnit(item){ return Number(item.finalAmount ?? item.total ?? item.sellingPrice ?? item.price ?? 0) }
-            function getColor(item){ return item.color ?? item.variantData?.color?.name ?? item.variantData?.color ?? '—' }
-            function getBrand(item){ return item.brand ?? item.productBrand ?? item.variantData?.brand ?? '—' }
-            function getName(item){ return item.productName ?? item.name ?? item.variantData?.name ?? 'Product' }
-            function getImg(item){ return (item.variantData?.productImage?.length ? item.variantData.productImage[0] : '') }
+            function getQty(item) { return Number(item.quantity ?? item.qty ?? item.stock ?? 1); }
+            function getReg(item) { return Number(item.regularPrice ?? item.mrp ?? item.price ?? item.unitPrice ?? (item.variantData?.price ?? 0)); }
+            function getFinUnit(item) { return Number(item.finalAmount ?? item.total ?? item.sellingPrice ?? item.price ?? 0); }
+            function getColor(item) { return item.color ?? item.variantData?.color?.name ?? item.variantData?.color ?? '—'; }
+            function getBrand(item) { return item.brand ?? item.productBrand ?? item.variantData?.brand ?? '—'; }
+            function getName(item) { return item.productName ?? item.name ?? item.variantData?.name ?? 'Product'; }
+            function getImg(item) { return (item.variantData?.productImage?.length ? item.variantData.productImage[0] : ''); }
 
             list.forEach((order, index) => {
                 const orderDiv = document.createElement('div');
@@ -861,15 +1122,12 @@
                     `;
                 }).join('');
 
-                const validItems = (order.orderItems || []).filter(item => item.variantData?.productImage?.length > 0);
-                const gridCols = validItems.length === 1 ? 'grid-cols-1' : 'grid-cols-2';
-
                 orderDiv.innerHTML = `
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
                         <div class="sm:col-span-3">
-                            ${validItems.length > 0 ? `
-                                <div class="grid ${gridCols} gap-2 max-w-[150px] sm:max-w-[200px]">
-                                    ${validItems.slice(0, 4).map(item => `
+                            ${(order.orderItems || []).filter(item => item.variantData?.productImage?.length > 0).length > 0 ? `
+                                <div class="grid ${order.orderItems.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-2 max-w-[150px] sm:max-w-[200px]">
+                                    ${(order.orderItems || []).filter(item => item.variantData?.productImage?.length > 0).slice(0, 4).map(item => `
                                         <div class="aspect-square">
                                             <img src="${item.variantData.productImage[0]}" alt="Product Image" class="collage-image" loading="lazy">
                                         </div>
@@ -889,10 +1147,7 @@
                         </div>
                         <div class="sm:col-span-2">
                             <span class="status-badge 
-                                ${order.status === 'Delivered' ? 'bg-green-100 text-green-600' :
-                                    order.status === 'Cancelled' ? 'bg-red-100 text-red-600' :
-                                    order.status === 'Returned' ? 'bg-gray-100 text-gray-600' :
-                                    'bg-accent-light text-accent'}">
+                                ${order.status === 'Delivered' ? 'bg-green-100 text-green-600' : order.status === 'Cancelled' ? 'bg-red-100 text-red-600' : order.status === 'Returned' ? 'bg-gray-100 text-gray-600' : 'bg-accent-light text-accent'}">
                                 ${order.status}
                             </span>
                         </div>
@@ -922,7 +1177,7 @@
                             </h4>
                             <button type="button" class="btn-secondary md:hidden" onclick="toggleItems('${order.orderId}')" aria-controls="items-mobile-${order.orderId}">
                                 <i class="fas fa-list mr-1"></i>
-                                Items ${(order.orderItems || []).length}
+                                Items (${(order.orderItems || []).length})
                             </button>
                         </div>
 
@@ -979,7 +1234,6 @@
         if (statusFilterEl) statusFilterEl.addEventListener('change', applyFilters);
         if (sortByEl) sortByEl.addEventListener('change', applyFilters);
 
-        // Close modals on escape key
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeCancelModal();
@@ -987,7 +1241,6 @@
             }
         });
 
-        // Close modals when clicking outside
         document.addEventListener('click', function (e) {
             if (e.target.id === 'cancelModal') {
                 closeCancelModal();

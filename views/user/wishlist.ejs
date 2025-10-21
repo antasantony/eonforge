@@ -189,19 +189,25 @@
 </head>
 
 <body class="gradient-bg font-inter min-h-screen">
+     <%- include("../../views/partials/user/header") %>
     <!-- Breadcrumb -->
-    <nav class="bg-white/70 px-4 py-4 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex items-center space-x-3 text-sm">
-                <a href="/" class="text-text-secondary hover:text-accent transition-colors font-medium flex items-center space-x-1">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </a>
-                <i class="fas fa-chevron-right text-xs text-gray-300"></i>
-                <span class="text-primary font-semibold">Wishlist</span>
+    <nav class="bg-white/80 backdrop-blur-sm px-4 py-4 border-b border-gray-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex items-center space-x-3 text-sm">
+                    <a href="/"
+                        class="text-text-secondary hover:text-accent transition-colors font-medium flex items-center space-x-1">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                    <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                    <a href="/shop" class="text-text-secondary hover:text-accent transition-colors font-medium">Shop</a>
+                    <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                    <span class="text-primary font-semibold truncate">
+                      Wishlist
+                    </span>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -328,6 +334,7 @@
         </div>
     </main>
 
+    <%- include("../../views/partials/user/footer") %>
     <script>
         // Enhanced Toast notification functionality
         function showToast(message, type = 'success') {
@@ -421,7 +428,13 @@
                                 credentials: 'include',
                                 body: JSON.stringify({ productId, variantId })
                             });
+                              
 
+                             const cartCountBadge = document.getElementById('cartCountBadge');
+                                   if (cartCountBadge) {
+                                       cartCountBadge.textContent = cartData.cartCount; // backend sends it
+                                       cartCountBadge.classList.remove('hidden');
+                                   }
                             const removeData = await removeRes.json();
 
                             if (removeData.success) {

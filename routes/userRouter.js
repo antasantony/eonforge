@@ -6,6 +6,7 @@ const profileController = require('../controllers/user/profileController');
 const productController = require('../controllers/user/productController');
 const cartController = require('../controllers/user/cartController');
 const checkoutController=require('../controllers/user/checkoutController');
+const orderController=require('../controllers/user/orderController');
 const paymentController =require('../controllers/user/paymentController');
 const infoPageController = require('../controllers/user/infoPageController');
 const passport = require('passport');
@@ -102,23 +103,26 @@ router.post('/checkout-address',userAuth, checkoutController.addAddress);
 router.put('/checkout-edit-address', checkoutController.editAddress);
 router.post('/checkout-delete-address', checkoutController.deleteAddress);
 // Online payment  //
-
-
 router.post('/place-order',userAuth,checkoutController.placeOrder);
-router.get('/place-order',userAuth,checkoutController.loadPlaceOrder)
-router.get('/payment-failure',userAuth,checkoutController.paymentFailure)
-router.get('/order-details',userAuth,checkoutController.orderDetails)
-router.get('/orders',userAuth,checkoutController.orders);
-router.patch('/cancel-order-item/:orderId/:itemId',userAuth,checkoutController.cancelOrderItem)
-router.post('/return-order-item',userAuth, checkoutController.returnOrderItem);
+router.get('/place-order',userAuth,checkoutController.loadPlaceOrder);
 
-router.post('/cancel-order', checkoutController.cancelOrder)
-router.post('/return-order', checkoutController.returnOrder);
+// ========== Order management  ============ //
+router.get('/order-details',userAuth,orderController.orderDetails)
+router.get('/orders',userAuth,orderController.orders);
+router.patch('/cancel-order-item/:orderId/:itemId',userAuth,orderController.cancelOrderItem)
+router.post('/return-order-item',userAuth, orderController.returnOrderItem);
 
-router.get('/invoice',checkoutController.loadInvoice);
-router.get('/download-invoice',checkoutController.downloadInvoice)
+router.post('/cancel-order', orderController.cancelOrder);
+router.post('/return-order', orderController.returnOrder);
 
-//=========== product detail page ============//
+router.get('/invoice',orderController.loadInvoice);
+router.get('/download-invoice',orderController.downloadInvoice)
+
+
+
+
+
+//=========== product detail page ============ //
 
 router.get('/product-detail/:id', productController.loadProductDetail)
 
@@ -133,5 +137,8 @@ router.post('/wallet/verify-add-funds',userAuth, productController.verifyAddFund
 
 router.post('/payment/create-order',paymentController.createRazorpayOrder);
 router.post('/payment/verify', paymentController.verifyAndPlaceOrder);
+router.get('/payment-failure',userAuth,paymentController.paymentFailure)
+router.post('/payment/retry-order',userAuth,paymentController.retryRazorpayOrder);
+
 
 module.exports = router;

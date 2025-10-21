@@ -687,19 +687,26 @@
                                 <span>Please enter a valid 6-digit PIN code</span>
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label for="phone" class="block text-text-primary font-semibold text-sm">
-                                <i class="fas fa-phone-alt text-accent mr-2"></i>Phone Number
-                            </label>
-                            <input type="tel" id="phone" name="phone" class="w-full p-3 border-2 border-gray-200 rounded-xl input-focus" placeholder="e.g., 9876543210" pattern="[0-9]{10}" 
-                                oninvalid="this.setCustomValidity('Please enter a 10-digit phone number (e.g., 9876543210)')"
-                                oninput="this.setCustomValidity('')">
-                            <p class="text-text-secondary text-xs mt-1">Enter exactly 10 digits</p>
-                            <div id="phoneError" class="form-error hidden">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <span>Please enter a valid 10-digit phone number</span>
-                            </div>
-                        </div>
+                  <div class="space-y-2">
+                      <label for="phone" class="block text-text-primary font-semibold text-sm">
+                        <i class="fas fa-phone-alt text-accent mr-2"></i>Phone Number
+                      </label>
+                        <div class="flex">
+                        <span class="inline-flex items-center px-3 rounded-l-xl border-2 border-gray-200 bg-gray-100 text-gray-700">+91</span>
+                        <input  type="tel" id="phone" name="phone" class="w-full p-3 border-2 border-gray-200 border-l-0 rounded-r-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300"
+                        placeholder="e.g., 9876543210"
+                        pattern="[0-9]{10}"
+                        oninvalid="this.setCustomValidity('Please enter a 10-digit phone number (e.g., 9876543210)')"
+                        oninput="this.setCustomValidity('')">
+                      </div>                    
+                      <p class="text-text-secondary text-xs mt-1">Enter exactly 10 digits</p>
+                    
+                      <div id="phoneError" class="form-error hidden">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter a valid 10-digit phone number</span>
+                      </div>
+                     </div>
+
                     </div>
 
                     <!-- Country -->
@@ -707,13 +714,9 @@
                         <label for="country" class="block text-text-primary font-semibold text-sm">
                             <i class="fas fa-globe text-accent mr-2"></i>Country
                         </label>
-                        <select id="country" name="country" class="w-full p-3 border-2 border-gray-200 rounded-xl input-focus">
-                            <option value="India">India</option>
-                            <option value="United States">United States</option>
-                            <option value="Canada">Canada</option>
-                            <option value="United Kingdom">United Kingdom</option>
-                            <option value="Australia">Australia</option>
-                        </select>
+                        <input id="country" name="country"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                value="India" readonly>
                         <div id="countryError" class="form-error hidden">
                             <i class="fas fa-exclamation-circle"></i>
                             <span>Please select a country</span>
@@ -1412,116 +1415,128 @@ async function submitCheckout() {
             } else  {
                     console.log('Sending to /payment/create-order:', { totalAmount });
 
+console.log('Sending to /payment/create-order:', { totalAmount });
+
 const res = await fetch('/payment/create-order', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        cartItems,
-        address: selectedAddress,
-        paymentMethod: selectedPaymentMethod,
-        subtotal,
-        deliveryFee,
-        coupon: selectedCoupon,
-        totalAmount
-    })
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    cartItems,
+    address: selectedAddress,
+    paymentMethod: selectedPaymentMethod,
+    subtotal,
+    deliveryFee,
+    coupon: selectedCoupon,
+    totalAmount
+  })
 });
 
 if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || 'Failed to create Razorpay order');
+  const errorData = await res.json();
+  throw new Error(errorData.message || 'Failed to create Razorpay order');
 }
 
 const razorpayData = await res.json();
+
+if (!razorpayData.success || !razorpayData.order) {
+  throw new Error('Invalid Razorpay order response');
+}
+
+const razorpayOrderId = razorpayData.order.id; // Razorpay order ID
+const dbOrderId = razorpayData.order.orderId;  // Your DB order ID
+
 console.log('Razorpay Order Response:', razorpayData);
+console.log('Razorpay Order orderId:', razorpayOrderId);
 
-if (!razorpayData.success || !razorpayData.order || !razorpayData.order.amount) {
-    throw new Error('Invalid Razorpay order response');
-}
-
-if (razorpayData.order.amount !== Math.round(totalAmount * 100)) {
-    throw new Error('Razorpay order amount does not match cart total');
-}
-const dbOrderId = razorpayData.order.orderId;
+// ✅ Step 2: Configure Razorpay options
 const options = {
-    key: razorpayKeyId,
-    amount: razorpayData.order.amount,
-    currency: 'INR',
-    name: 'Eon Forge',
-    description: 'Checkout Payment for Order',
-    order_id: razorpayData.order.id,
-    prefill: {
-        name: userName || 'Customer',
-        email: 'customer@example.com',
-        contact: selectedAddress?.phone || ''
-    },
-    handler: async function (response) {
-        console.log('Razorpay Payment Response:', response);
-        try {
-            const confirmRes = await fetch('/payment/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_signature: response.razorpay_signature,
-                     orderId: dbOrderId,
-                    cartItems,
-                    address: selectedAddress,
-                    paymentMethod: selectedPaymentMethod,
-                    subtotal,
-                    deliveryFee,
-                    coupon: selectedCoupon,
-                    totalAmount,
-                    
-                })
+  key: razorpayKeyId,
+  amount: razorpayData.order.amount,
+  currency: 'INR',
+  name: 'Eon Forge',
+  description: 'Checkout Payment for Order',
+  order_id: razorpayOrderId,
+  prefill: {
+    name: userName || 'Customer',
+    email: 'customer@example.com',
+    contact: selectedAddress?.phone || ''
+  },
+  handler: async function (response) {
+    // ✅ Payment success — verify with backend
+    try {
+      const confirmRes = await fetch('/payment/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+          cartItems,
+          address: selectedAddress,
+          paymentMethod: selectedPaymentMethod,
+          subtotal,
+          deliveryFee,
+          coupon: selectedCoupon,
+          totalAmount
+              })
             });
 
-            const confirmData = await confirmRes.json();
-            if (!confirmRes.ok || !confirmData.success) {
-                throw new Error(confirmData.message || 'Payment verification failed');
-            }
+      const confirmData = await confirmRes.json();
+        console.log('confirm data what',confirmData)
 
-            showToast('Payment successful! Order placed successfully.', 'success');
-            setTimeout(() => {
-                window.location.href = `/place-order`;
-            }, 2000);
-        } catch (error) {
-            console.error('Error in payment verification:', error);
-            showToast(error.message || 'There was an error processing your order. Please try again.', 'error');
-            checkoutBtn.disabled = false;
-            checkoutBtn.innerHTML = '<span>Place Order</span><i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-300"></i>';
-        }
-    },
-    theme: { color: '#d4af37' },
-    method: {
-        upi: selectedPaymentMethod === 'upi',
-        netbanking: selectedPaymentMethod === 'netbanking',
-        card: selectedPaymentMethod === 'card'
-    },
-    modal: {
-    ondismiss: function () {
-        console.warn("Payment popup closed by user.");
-        window.location.href = `/payment-failure?orderId=${encodeURIComponent(dbOrderId)}`;
+      if (!confirmRes.ok || !confirmData.success) {
+        throw new Error(confirmData.message || 'Payment verification failed');
+      }
+
+      showToast('✅ Payment successful! Order placed successfully.', 'success');
+      setTimeout(() => {
+        window.location.href = `/place-order?razorpayOrderId=${encodeURIComponent(razorpayOrderId)}`;
+      }, 1500);
+    } catch (error) {
+      console.error('Error in payment verification:', error);
+      showToast(error.message || 'There was an error processing your order.', 'error');
+      window.location.href = `/payment-failure?razorpayOrderId=${encodeURIComponent(razorpayOrderId)}&error=${encodeURIComponent(error.message)}`;
     }
-}
+  },
+  theme: { color: '#d4af37' },
+  modal: {
+    ondismiss: function () {
+      window.location.reload(); 
+    }
+  }
 };
 
+// ✅ Step 3: Create Razorpay instance
 const rzp = new Razorpay(options);
 
+// ✅ Step 4: Handle payment failure
 rzp.on('payment.failed', async function (response) {
-    console.error('Payment Failure:', response.error);
-    console.log('dbOrderId:', dbOrderId); // Debug log
+  console.error('❌ Payment failed:', response);
 
-    // Redirect to payment-failure with orderId and error
-    window.location.href = `/payment-failure?orderId=${encodeURIComponent(dbOrderId)}&error=${encodeURIComponent(response.error.description || 'Payment failed')}`;
+  // Inform backend that payment failed
+  await fetch('/payment/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      razorpay_order_id: response.error.metadata.order_id,
+      razorpay_payment_id: null,
+      razorpay_signature: null,
+      status: 'Pending',
+      cartItems,
+      address: selectedAddress,
+      paymentMethod: selectedPaymentMethod,
+      subtotal,
+      deliveryFee,
+      coupon: selectedCoupon,
+      totalAmount
+      })
+  })     ;
 
-    showToast(response.error.description || 'Something went wrong. Please try again.', 'error');
-
-    checkoutBtn.disabled = false;
-    checkoutBtn.innerHTML = '<span>Place Order</span><i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-300"></i>';
+  // Redirect to failure page
+  window.location.href = `/payment-failure?razorpayOrderId=${encodeURIComponent(razorpayOrderId)}&error=${encodeURIComponent(response.error.description || 'Payment failed')}`;
 });
 
-
+// ✅ Step 5: Open Razorpay modal
 rzp.open();
 
 
@@ -1561,5 +1576,76 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.id === 'couponModal') closeCouponModal();
     });
 });
+
+(function () {
+    const API_BASE = 'https://photon.komoot.io/api/?q=';
+    const DEBOUNCE_MS = 300;
+    let currentTimeout = null;
+
+    function setupAutocomplete(input, suggestionBox) {
+        if (!input || !suggestionBox) return;
+
+        input.addEventListener('input', () => {
+            const query = input.value.trim();
+            if (query.length < 2) {
+                suggestionBox.classList.add('hidden');
+                return;
+            }
+
+            if (currentTimeout) clearTimeout(currentTimeout);
+            currentTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`${API_BASE}${encodeURIComponent(query)}&limit=5`);
+                    const data = await res.json();
+                    const features = data.features || [];
+                    suggestionBox.innerHTML = '';
+
+                    if (!features.length) {
+                        suggestionBox.classList.add('hidden');
+                        return;
+                    }
+
+                    features.forEach((f) => {
+                        const props = f.properties || {};
+                        const text = [props.name, props.city, props.state, props.country].filter(Boolean).join(', ');
+                        const li = document.createElement('li');
+                        li.textContent = text;
+                        li.className = 'p-2 hover:bg-gray-100 cursor-pointer text-sm';
+                        li.addEventListener('click', () => {
+                            input.value = props.name || text;
+                            suggestionBox.classList.add('hidden');
+                            document.getElementById('city').value = props.city || '';
+                            document.getElementById('state').value = props.state || '';
+                            document.getElementById('country').value = props.country || 'India';
+                            document.getElementById('pinCode').value = props.postcode || '';
+                        });
+                        suggestionBox.appendChild(li);
+                    });
+
+                    suggestionBox.classList.remove('hidden');
+                } catch (err) {
+                    console.error('Error fetching suggestions:', err);
+                    showToast('Unable to fetch address suggestions. Please try again.', 'error');
+                }
+            }, DEBOUNCE_MS);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !suggestionBox.contains(e.target)) {
+                suggestionBox.classList.add('hidden');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const streetInput = document.getElementById('street');
+        const suggestionBox = document.createElement('ul');
+        suggestionBox.id = 'photonSuggestionContainer';
+        suggestionBox.className = 'absolute left-0 top-full mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg hidden z-50 max-h-60 overflow-y-auto';
+        streetInput.parentElement.classList.add('relative'); // Ensure parent is positioned
+        streetInput.parentElement.appendChild(suggestionBox);
+        setupAutocomplete(streetInput, suggestionBox);
+    });
+})();
 </script>
 </html>

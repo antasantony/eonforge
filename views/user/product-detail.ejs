@@ -810,6 +810,11 @@
 
                             if (response.ok) {
                                 // Use enhanced toast instead of toastr
+                                const cartCountBadge = document.getElementById('cartCountBadge');
+                                   if (cartCountBadge) {
+                                       cartCountBadge.textContent = data.cartCount; // backend sends it
+                                       cartCountBadge.classList.remove('hidden');
+                                   }
                                 showToast('Product added to cart successfully!', 'success');
   
                                 // Update button to show success

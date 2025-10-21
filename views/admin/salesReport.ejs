@@ -310,9 +310,10 @@
                   <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Customer</th>
                   <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Order Amount</th>
                   <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Discount</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Coupon Discount</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Final Amount</th>
-                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Payment Method</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Coupon<br>Discount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap"> Final<br>Amount</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Payment<br>Method</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-500 whitespace-nowrap">Status</th>
                 </tr>
               </thead>
               <tbody id="sales-table-body">
@@ -324,9 +325,10 @@
                       <td class="px-4 py-3 text-gray-700 whitespace-nowrap"><%= sale.customer %></td>
                       <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹<%= sale.orderAmount.toFixed(2) %></td>
                       <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹<%= sale.discount.toFixed(2) %></td>
-                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹<%= sale.couponDiscount || 'N/A' %></td>
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹<%= sale.couponDiscount || '0.00' %></td>
                       <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹<%= sale.finalAmount || 'N/A' %></td>
                       <td class="px-4 py-3 text-gray-700 whitespace-nowrap"><%= sale.paymentMethod || 'N/A' %></td>
+                      <td class="px-4 py-3 text-gray-700 whitespace-nowrap"><%= sale.status %></td>
                     </tr>
                   <% }) %>
                 <% } else { %>

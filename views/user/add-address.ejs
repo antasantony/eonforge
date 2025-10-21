@@ -41,42 +41,20 @@
 
     <style>
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideUp {
-            from {
-                transform: translateY(10px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         @keyframes scaleIn {
-            from {
-                transform: scale(0.95);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
-        /* Enhanced Toast notification */
         .toast {
             position: fixed;
             bottom: 1rem;
@@ -101,29 +79,10 @@
             transform: translateY(0);
         }
 
-        /* Success toast */
-        .toast.success {
-            background-color: #333333;
-            border-left-color: #10b981; /* Emerald green */
-        }
-
-        /* Error toast */
-        .toast.error {
-            background-color: #333333;
-            border-left-color: #ef4444; /* Red */
-        }
-
-        /* Warning toast */
-        .toast.warning {
-            background-color: #333333;
-            border-left-color: #f59e0b; /* Amber */
-        }
-
-        /* Info toast */
-        .toast.info {
-            background-color: #333333;
-            border-left-color: #3b82f6; /* Blue */
-        }
+        .toast.success { background-color: #333333; border-left-color: #10b981; }
+        .toast.error { background-color: #333333; border-left-color: #ef4444; }
+        .toast.warning { background-color: #333333; border-left-color: #f59e0b; }
+        .toast.info { background-color: #333333; border-left-color: #3b82f6; }
 
         .glassmorphism {
             background: rgba(255, 255, 255, 0.25);
@@ -242,7 +201,6 @@
 </head>
 
 <body class="gradient-bg min-h-screen">
-    <!-- Toast Container -->
     <div id="toastContainer"></div>
 
     <div class="gradient-bg py-12">
@@ -269,8 +227,8 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="addressGrid">
-                <% if (address && address.address.length> 0) { %>
-                    <% address.address.forEach((addr, index)=> { %>
+                <% if (address && address.address.length > 0) { %>
+                    <% address.address.forEach((addr, index) => { %>
                         <div class="address-card bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
                             <div class="flex justify-between items-start mb-4">
                                 <div class="flex items-center space-x-3">
@@ -291,17 +249,25 @@
                                                 class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                 <i class="fas fa-check-circle mr-1"></i>Default
                                             </span>
-                                            <% } else { %>
-                                                <span
-                                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-text-secondary">
-                                                    Secondary
-                                                </span>
-                                                <% } %>
+                                        <% } else { %>
+                                            <span
+                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-text-secondary">
+                                                Secondary
+                                            </span>
+                                        <% } %>
                                     </div>
                                 </div>
                                 <div class="flex space-x-1">
                                     <button
-                                        onclick="openEditAddressModal('<%=address._id %>', '<%= addr.street %>', '<%= addr.city %>', '<%= addr.state %>', '<%= addr.pin %>', '<%= addr.country %>', '<%= addr.type %>', '<%= addr.phone  %>')"
+                                        data-id="<%= address._id %>"
+                                        data-street="<%= addr.street %>"
+                                        data-city="<%= addr.city %>"
+                                        data-state="<%= addr.state %>"
+                                        data-pin="<%= addr.pin %>"
+                                        data-country="<%= addr.country %>"
+                                        data-type="<%= addr.type %>"
+                                        data-phone="<%= addr.phone %>"
+                                        onclick="handleEditClick(this)"
                                         class="p-2 text-accent hover:bg-accent/10 rounded-lg transition duration-300">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -325,7 +291,7 @@
                                     <p class="text-text-secondary"><i class="fas fa-phone-alt mr-2"></i>
                                         <%= addr.phone %>
                                     </p>
-                                    <% } %>
+                                <% } %>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-100">
                                 <button class="w-full btn-map">
@@ -333,24 +299,23 @@
                                 </button>
                             </div>
                         </div>
-                        <% }) %>
-                            <% } else { %>
-                                <div id="emptyState" class="hidden col-span-3 text-center py-12">
-                                    <div
-                                        class="w-24 h-24 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <i class="fas fa-map-marker-alt text-accent text-3xl"></i>
-                                    </div>
-                                    <h4 class="text-xl font-playfair font-semibold text-primary mb-2">No addresses yet
-                                    </h4>
-                                    <p class="text-text-secondary mb-6">Add an address to get started</p>
-                                    <button onclick="openAddAddressModal()" class="btn-primary">
-                                        Add Address
-                                    </button>
-                                </div>
-                                <script>
-                                    document.getElementById('emptyState').classList.remove('hidden');
-                                </script>
-                                <% } %>
+                    <% }) %>
+                <% } else { %>
+                    <div id="emptyState" class="hidden col-span-3 text-center py-12">
+                        <div
+                            class="w-24 h-24 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-map-marker-alt text-accent text-3xl"></i>
+                        </div>
+                        <h4 class="text-xl font-playfair font-semibold text-primary mb-2">No addresses yet</h4>
+                        <p class="text-text-secondary mb-6">Add an address to get started</p>
+                        <button onclick="openAddAddressModal()" class="btn-primary">
+                            Add Address
+                        </button>
+                    </div>
+                    <script>
+                        document.getElementById('emptyState').classList.remove('hidden');
+                    </script>
+                <% } %>
             </div>
 
             <div id="addAddressModal"
@@ -367,8 +332,7 @@
 
                     <form id="addAddressForm" class="space-y-6" enctype="application/x-www-form-urlencoded">
                         <div class="space-y-2">
-                            <label class="block text-text-primary font-semibold text-sm uppercase tracking-wide">Address
-                                Type</label>
+                            <label class="block text-text-primary font-semibold text-sm uppercase tracking-wide">Address Type</label>
                             <div class="grid grid-cols-3 gap-3">
                                 <label
                                     class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-accent transition duration-300">
@@ -396,13 +360,20 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="space-y-2">
+                        <div class="space-y-2 relative">
                             <label for="street" class="block text-text-primary font-semibold text-sm">
                                 <i class="fas fa-road text-accent mr-2"></i>Street Address
                             </label>
-                            <input type="text" id="street" name="street"
+                            <input 
+                                type="text" 
+                                id="street" 
+                                name="street" 
+                                data-autocomplete="true"
                                 class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
                                 placeholder="Enter street address">
+                            <ul id="photonSuggestionContainerAdd"
+                                class="absolute left-0 top-full mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg hidden z-50 max-h-60 overflow-y-auto">
+                            </ul>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="space-y-2">
@@ -411,7 +382,7 @@
                                 </label>
                                 <input type="text" id="city" name="city"
                                     class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
-                                    placeholder="Enter city">
+                                    placeholder="Select from suggestions" readonly>
                             </div>
                             <div class="space-y-2">
                                 <label for="state" class="block text-text-primary font-semibold text-sm">
@@ -419,7 +390,7 @@
                                 </label>
                                 <input type="text" id="state" name="state"
                                     class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
-                                    placeholder="Enter state">
+                                    placeholder="Select from suggestions" readonly>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -429,17 +400,19 @@
                                 </label>
                                 <input type="text" id="pin" name="pin"
                                     class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
-                                    placeholder="Enter pin code">
+                                    placeholder="Select from suggestions" readonly>
                             </div>
                             <div class="space-y-2">
                                 <label for="phone" class="block text-text-primary font-semibold text-sm">
                                     <i class="fas fa-phone-alt text-accent mr-2"></i>Phone Number
                                 </label>
-                                <input type="tel" id="phone" name="phone"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
-                                    placeholder="e.g., 9876543210" pattern="[0-9]{10}"
-                                    oninvalid="this.setCustomValidity('Please enter a 10-digit phone number (e.g., 9876543210)')"
-                                    oninput="this.setCustomValidity('')">
+                                <div class="flex">
+                                    <span class="inline-flex items-center px-3 rounded-l-xl border-2 border-gray-200 bg-gray-100 text-gray-700">+91</span>
+                                    <input type="tel" id="phone" name="phone"
+                                        class="w-full p-4 border-2 border-gray-200 border-l-0 rounded-r-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                        placeholder="9876543210" pattern="[0-9]{10}"
+                                       >
+                                </div>
                                 <p class="text-text-secondary text-xs mt-1">Enter exactly 10 digits</p>
                             </div>
                         </div>
@@ -447,15 +420,9 @@
                             <label for="country" class="block text-text-primary font-semibold text-sm">
                                 <i class="fas fa-globe text-accent mr-2"></i>Country
                             </label>
-                            <select id="country" name="country"
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus">
-                                <option value="">Select country</option>
-                                <option value="India">India</option>
-                                <option value="United States">United States</option>
-                                <option value="Canada">Canada</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                                <option value="Australia">Australia</option>
-                            </select>
+                            <input id="country" name="country"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                value="India" readonly>
                         </div>
                         <div class="flex items-center space-x-3 p-4 bg-warm-gray rounded-xl">
                             <input type="checkbox" id="isDefault" name="isDefault"
@@ -491,8 +458,7 @@
                     <form id="editAddressForm" class="space-y-6" enctype="application/x-www-form-urlencoded">
                         <input type="hidden" id="editAddressId" name="id">
                         <div class="space-y-2">
-                            <label class="block text-text-primary font-semibold text-sm uppercase tracking-wide">Address
-                                Type</label>
+                            <label class="block text-text-primary font-semibold text-sm uppercase tracking-wide">Address Type</label>
                             <div class="grid grid-cols-3 gap-3">
                                 <label
                                     class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-accent transition duration-300">
@@ -520,13 +486,20 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="space-y-2">
+                        <div class="space-y-2 relative">
                             <label for="editStreet" class="block text-text-primary font-semibold text-sm">
                                 <i class="fas fa-road text-accent mr-2"></i>Street Address
                             </label>
-                            <input type="text" id="editStreet" name="street"
+                            <input 
+                                type="text" 
+                                id="editStreet" 
+                                name="street" 
+                                data-autocomplete="true"
                                 class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
                                 placeholder="Enter street address">
+                            <ul id="photonSuggestionContainerEdit"
+                                class="absolute left-0 top-full mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg hidden z-50 max-h-60 overflow-y-auto">
+                            </ul>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="space-y-2">
@@ -535,7 +508,7 @@
                                 </label>
                                 <input type="text" id="editCity" name="city"
                                     class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
-                                    placeholder="Enter city">
+                                    placeholder="Select from suggestions" readonly>
                             </div>
                             <div class="space-y-2">
                                 <label for="editState" class="block text-text-primary font-semibold text-sm">
@@ -543,27 +516,29 @@
                                 </label>
                                 <input type="text" id="editState" name="state"
                                     class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
-                                    placeholder="Enter state">
+                                    placeholder="Select from suggestions" readonly>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="space-y-2">
-                                <label for="editpin" class="block text-text-primary font-semibold text-sm">
+                                <label for="editPin" class="block text-text-primary font-semibold text-sm">
                                     <i class="fas fa-mail-bulk text-accent mr-2"></i>Pin Code
                                 </label>
-                                <input type="text" id="editpin" name="pin"
+                                <input type="text" id="editPin" name="pin"
                                     class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
-                                    placeholder="Enter pin code">
+                                    placeholder="Select from suggestions" readonly>
                             </div>
                             <div class="space-y-2">
                                 <label for="editPhone" class="block text-text-primary font-semibold text-sm">
                                     <i class="fas fa-phone-alt text-accent mr-2"></i>Phone Number
                                 </label>
-                                <input type="tel" id="editPhone" name="phone"
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
-                                    placeholder="e.g., 9876543210" pattern="[0-9]{10}"
-                                    oninvalid="this.setCustomValidity('Please enter a 10-digit phone number (e.g., 9876543210)')"
-                                    oninput="this.setCustomValidity('')">
+                                <div class="flex">
+                                    <span class="inline-flex items-center px-3 rounded-l-xl border-2 border-gray-200 bg-gray-100 text-gray-700">+91</span>
+                                    <input type="tel" id="editPhone" name="phone"
+                                        class="w-full p-4 border-2 border-gray-200 border-l-0 rounded-r-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                        placeholder="9876543210" pattern="[0-9]{10}"
+                                       >
+                                </div>
                                 <p class="text-text-secondary text-xs mt-1">Enter exactly 10 digits</p>
                             </div>
                         </div>
@@ -571,15 +546,9 @@
                             <label for="editCountry" class="block text-text-primary font-semibold text-sm">
                                 <i class="fas fa-globe text-accent mr-2"></i>Country
                             </label>
-                            <select id="editCountry" name="country"
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus">
-                                <option value="">Select country</option>
-                                <option value="India">India</option>
-                                <option value="United States">United States</option>
-                                <option value="Canada">Canada</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                                <option value="Australia">Australia</option>
-                            </select>
+                            <input id="editCountry" name="country"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
+                                value="India" readonly>
                         </div>
                         <div class="flex space-x-3 pt-4">
                             <button type="button" onclick="closeEditAddressModal()" class="flex-1 btn-secondary">
@@ -594,15 +563,12 @@
             </div>
 
             <script>
-                // Enhanced Toast notification functionality
                 function showToast(message, type = 'success') {
                     const toast = document.createElement('div');
                     toast.className = `toast ${type}`;
                     toast.textContent = message;
                     document.getElementById('toastContainer').appendChild(toast);
-
                     setTimeout(() => toast.classList.add('show'), 10);
-
                     setTimeout(() => {
                         toast.classList.remove('show');
                         setTimeout(() => {
@@ -646,12 +612,25 @@
                     document.querySelector('input[name="type"][value="home"]').closest('label').classList.add('border-accent', 'bg-accent/10');
                 }
 
+                function handleEditClick(btn) {
+                    openEditAddressModal(
+                        btn.dataset.id,
+                        btn.dataset.street,
+                        btn.dataset.city,
+                        btn.dataset.state,
+                        btn.dataset.pin,
+                        btn.dataset.country,
+                        btn.dataset.type,
+                        btn.dataset.phone
+                    );
+                }
+
                 function openEditAddressModal(id, street, city, state, pin, country, type, phone) {
                     document.getElementById('editAddressId').value = id;
                     document.getElementById('editStreet').value = street;
                     document.getElementById('editCity').value = city;
                     document.getElementById('editState').value = state;
-                    document.getElementById('editpin').value = pin;
+                    document.getElementById('editPin').value = pin;
                     document.getElementById('editCountry').value = country;
                     document.getElementById('editPhone').value = phone;
 
@@ -688,24 +667,23 @@
 
                 document.getElementById('addAddressForm').addEventListener('submit', async function (event) {
                     event.preventDefault();
-                    if (!this.checkValidity()) {
-                        this.reportValidity();
+                    const form = event.target;
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData);
+
+                    // Check if all fields are empty
+                    if (!data.type && !data.street && !data.city && !data.state && !data.pin && !data.phone) {
+                        showToast('Please fill at least one field', 'error');
                         return;
                     }
 
                     const addBtn = document.getElementById('addAddressBtn');
                     const originalText = addBtn.innerHTML;
-                    
-                    // Show loading state
                     addBtn.disabled = true;
                     addBtn.innerHTML = '<div class="loading-spinner mr-2"></div>Saving...';
 
                     try {
-                        const form = event.target;
-                        const formData = new FormData(form);
-                        const data = Object.fromEntries(formData);
                         console.log('Sending form data:', data);
-
                         const response = await fetch('/add-address', {
                             method: 'POST',
                             headers: {
@@ -727,7 +705,6 @@
                     } catch (error) {
                         showToast(error.message, 'error');
                     } finally {
-                        // Restore button state
                         addBtn.disabled = false;
                         addBtn.innerHTML = originalText;
                     }
@@ -735,24 +712,23 @@
 
                 document.getElementById('editAddressForm').addEventListener('submit', async function (event) {
                     event.preventDefault();
-                    if (!this.checkValidity()) {
-                        this.reportValidity();
+                    const form = event.target;
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData);
+
+                    // Check if all fields are empty
+                    if (!data.editType && !data.street && !data.city && !data.state && !data.pin && !data.phone) {
+                        showToast('Please fill at least one field', 'error');
                         return;
                     }
 
                     const editBtn = document.getElementById('editAddressBtn');
                     const originalText = editBtn.innerHTML;
-                    
-                    // Show loading state
                     editBtn.disabled = true;
                     editBtn.innerHTML = '<div class="loading-spinner mr-2"></div>Updating...';
 
                     try {
-                        const form = event.target;
-                        const formData = new FormData(form);
-                        const data = Object.fromEntries(formData);
                         console.log('Sending form data:', data);
-
                         const response = await fetch('/update-address', {
                             method: 'PUT',
                             headers: {
@@ -774,7 +750,6 @@
                     } catch (error) {
                         showToast(error.message, 'error');
                     } finally {
-                        // Restore button state
                         editBtn.disabled = false;
                         editBtn.innerHTML = originalText;
                     }
@@ -806,7 +781,6 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             showToast('Deleting address...', 'info');
-
                             fetch('/delete-address', {
                                 method: 'DELETE',
                                 headers: {
@@ -836,18 +810,89 @@
                     });
                 }
 
-                // Show welcome toast on page load
                 document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         showToast('Manage your delivery addresses here!', 'info');
                     }, 1000);
                 });
 
-                // View on map functionality
                 function viewOnMap(street, city, state, pin) {
                     showToast('Map view feature coming soon!', 'info');
                 }
+
+                (function () {
+                    const API_BASE = 'https://photon.komoot.io/api/?q=';
+                    const DEBOUNCE_MS = 300;
+                    let currentTimeout = null;
+
+                    function setupAutocomplete(input, suggestionBox) {
+                        if (!input || !suggestionBox) return;
+
+                        input.addEventListener('input', () => {
+                            const query = input.value.trim();
+                            if (query.length < 2) {
+                                suggestionBox.classList.add('hidden');
+                                return;
+                            }
+
+                            if (currentTimeout) clearTimeout(currentTimeout);
+                            currentTimeout = setTimeout(async () => {
+                                try {
+                                    const res = await fetch(`${API_BASE}${encodeURIComponent(query)}&limit=5`);
+                                    const data = await res.json();
+                                    const features = data.features || [];
+                                    suggestionBox.innerHTML = '';
+
+                                    if (!features.length) {
+                                        suggestionBox.classList.add('hidden');
+                                        return;
+                                    }
+
+                                    features.forEach((f) => {
+                                        const props = f.properties || {};
+                                        const text = [props.name, props.city, props.state, props.country].filter(Boolean).join(', ');
+                                        const li = document.createElement('li');
+                                        li.textContent = text;
+                                        li.className = 'p-2 hover:bg-gray-100 cursor-pointer';
+                                        li.addEventListener('click', () => {
+                                            input.value = text;
+                                            suggestionBox.classList.add('hidden');
+
+                                            const isEdit = input.id.startsWith('edit');
+                                            document.getElementById(isEdit ? 'editCity' : 'city').value = props.city || '';
+                                            document.getElementById(isEdit ? 'editState' : 'state').value = props.state || '';
+                                            document.getElementById(isEdit ? 'editCountry' : 'country').value = props.country || '';
+                                            if (props.postcode)
+                                                document.getElementById(isEdit ? 'editPin' : 'pin').value = props.postcode;
+                                        });
+                                        suggestionBox.appendChild(li);
+                                    });
+
+                                    suggestionBox.classList.remove('hidden');
+                                } catch (err) {
+                                    console.error('Error fetching suggestions:', err);
+                                }
+                            }, DEBOUNCE_MS);
+                        });
+
+                        document.addEventListener('click', (e) => {
+                            if (!input.contains(e.target) && !suggestionBox.contains(e.target)) {
+                                suggestionBox.classList.add('hidden');
+                            }
+                        });
+                    }
+
+                    document.addEventListener('DOMContentLoaded', () => {
+                        setupAutocomplete(
+                            document.getElementById('street'),
+                            document.getElementById('photonSuggestionContainerAdd')
+                        );
+                        setupAutocomplete(
+                            document.getElementById('editStreet'),
+                            document.getElementById('photonSuggestionContainerEdit')
+                        );
+                    });
+                })();
             </script>
 </body>
-
 </html>

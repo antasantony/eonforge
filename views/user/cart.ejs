@@ -356,11 +356,7 @@
               </div>
 
               <div class="flex flex-col gap-2">
-                <button class="text-text-secondary hover:text-accent transition-colors text-sm font-medium flex items-center space-x-1 group"
-                        <%= item.status === 'Blocked' ? 'disabled opacity-40 cursor-not-allowed' : '' %>>
-                  <i class="fas fa-heart group-hover:text-red-500 transition-colors"></i>
-                  <span>Save</span>
-                </button>
+                
                 <button onclick="removeFromCart('<%= item.id %>')" 
                         class="text-red-500 hover:text-red-600 transition-colors text-sm font-medium flex items-center space-x-1">
                   <i class="fas fa-trash"></i>
@@ -520,10 +516,12 @@
                 showEmptyCart();
                 return;
             }
+            
 
             const subtotal = cartItems.reduce((sum, item) => sum + item.total, 0);
             const total = subtotal;
-            const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            const totalItems =cartItems.filter(item => item.status !== 'Blocked')
+                     .reduce((sum, item) => sum + item.quantity, 0);
 
             document.getElementById('subtotal').textContent = `₹${subtotal.toLocaleString()}`;
             document.getElementById('total').textContent = `₹${total.toLocaleString()}`;
@@ -605,12 +603,19 @@
                 showToast('Quantity cannot be less than 1', 'warning');
                 return;
             }
-
-            if (item.stock !== undefined && newQty > item.stock) {
-                showToast(`Only ${item.stock} units available`, 'error');
+            if (newQty > 3) {
+                showToast('You can only purchase up to 3 of this item', 'warning');
                 return;
             }
 
+           if (item.stock !== undefined && newQty > item.stock) {
+    showToast(`Only ${item.stock} units available — quantity adjusted`, 'warning');
+    item.quantity = item.stock; // ✅ automatically set to available stock
+}
+
+
+
+            //stock cart quantity more than stock 
             qtyElement.innerHTML = '<div class="loading-spinner mx-auto"></div>';
 
             const buttons = document.querySelectorAll(`[onclick*="${productId}"][onclick*="${variantId}"]`);
@@ -650,7 +655,7 @@
 
                     if (decrementBtn) decrementBtn.disabled = newQty <= 1;
                     if (incrementBtn) incrementBtn.disabled = item.stock !== undefined && newQty >= item.stock;
-
+                    
                     updateCartSummary();
                     showToast('Quantity updated', 'success');
                 } else {
@@ -675,6 +680,7 @@
                 showToast('Your cart is empty. Add some luxury timepieces to proceed.', 'warning');
                 return;
             }
+           
 
             // Show loading state
             checkoutBtn.innerHTML = `

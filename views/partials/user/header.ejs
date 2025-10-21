@@ -114,10 +114,19 @@
                 </a>
 
                 <!-- Cart -->
-                <a href="/cart" class="flex flex-col items-center text-black transition-colors hover:text-accent">
-                    <i class="fas fa-shopping-bag text-lg mb-1"></i>
-                    <span class="text-xs">Cart</span>
-                </a>
+                <a href="/cart" class="relative flex flex-col items-center text-black transition-colors hover:text-accent">
+    <div class="relative">
+        <i class="fas fa-shopping-bag text-lg mb-1"></i>
+        <% if (cartCount && cartCount > 0) { %>
+            <span id="cartCountBadge"
+                class="absolute -top-2 -right-3 bg-red-600 text-white text-[10px] font-semibold rounded-full px-1.5 py-0.5">
+                <%= cartCount %>
+            </span>
+        <% } %>
+    </div>
+    <span class="text-xs">Cart</span>
+</a>
+
             </div>
         </div>
     </div>

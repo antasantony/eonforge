@@ -99,7 +99,10 @@ const addToCart = async (req, res) => {
         }
       }
     );
-    res.status(200).json({ message: 'Added to cart', redirectUrl: '/cart' });
+
+    console.log('cart count',cart.items.length)
+    const cartCount=cart.items.length;
+    res.status(200).json({ message: 'Added to cart',cartCount, redirectUrl: '/cart' });
   } catch (error) {
     console.error('Add to cart error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -110,7 +113,6 @@ const loadCart = async (req, res) => {
   try {
     const userId = req.session.userId;
     if (!userId) return res.redirect('/login');
-
 
     const cartData = await Cart.findOne({ userId })
       .populate({
@@ -126,66 +128,81 @@ const loadCart = async (req, res) => {
       return res.render('cart', { cartItems: [] });
     }
 
-    const cartItems = cartData.items.map(item => {
-  const product = item.productId;
-  const variant = product?.colorVariants.find(
-    v => v._id.toString() === item.variantId.toString()
-  );
+    const updatedCartItems = await Promise.all(
+      cartData.items.map(async (item) => {
+        const product = item.productId;
+        const variant = product?.colorVariants.find(
+          v => v._id.toString() === item.variantId.toString()
+        );
 
-  if (!product || !variant) {
-    console.error(`Invalid product or variant for item: ${item._id}`);
-    return null;
-  }
+        if (!product || !variant) {
+          console.error(`Invalid product or variant for item: ${item._id}`);
+          return null;
+        }
 
-  
-  const isBlocked = product.isBlocked || variant.isBlocked;
+        const isBlocked = product.isBlocked || variant.isBlocked;
 
- 
-  let variantPrice = variant.regularPrice;
+        // Determine price
+        let variantPrice = variant.regularPrice;
+        if (variant.hasOffer && !isBlocked && variant.offerPrice !== null) {
+          variantPrice = variant.offerPrice;
+        }
 
-  if (variant.hasOffer && !isBlocked) {
-    if (variant.offerPrice !== null) {
-      variantPrice = variant.offerPrice;
-    }
-  }
+        let categoryDiscountPrice = null;
+        if (product.category?.hasOffer && product.category?.isListed && !isBlocked) {
+          const discountPercent = product.category.offerPrice;
+          categoryDiscountPrice = variant.regularPrice - (variant.regularPrice * discountPercent / 100);
+        }
 
-  let categoryDiscountPrice = null;
-  if (product.category?.hasOffer && product.category?.isListed && !isBlocked) {
-    const discountPercent = product.category.offerPrice;
-    categoryDiscountPrice = variant.regularPrice - (variant.regularPrice * discountPercent / 100);
-  }
-
-  const latestPrice = categoryDiscountPrice
-    ? Math.min(categoryDiscountPrice, variantPrice)
-    : variantPrice;
-
-  const quantity = item.quantity ?? item.stock ?? 1;
+        const latestPrice = categoryDiscountPrice
+          ? Math.min(categoryDiscountPrice, variantPrice)
+          : variantPrice;
 
         
-  return {
-    id: item._id.toString(),
-    productId: product._id.toString(),
-    variantId: item.variantId.toString(),
-    productName: product.productName || 'N/A',
-    productImage: variant.productImage?.[0] || '/placeholder.svg',
-    color: variant.colorName || 'N/A',
-    price: latestPrice,
-    quantity,
-    total: (product.isBlocked || variant.isBlocked) ? 0 : latestPrice * quantity, 
-    brandName: product.brand?.brandName || 'N/A',
-    categoryName: product.category?.name || 'N/A',
-    stock: variant.stock,
-    status: isBlocked
-      ? 'Blocked'
-      : variant.stock > 0
-        ? 'Available'
-        : 'Out of Stock'
-  };
-}).filter(Boolean);
-const deliveryFee = 50;
+        let quantity = item.stock ?? 1;
+    
+
+        if (variant.stock < quantity) {
+          quantity = variant.stock > 0 ? variant.stock : 0;
+
+          // Update cart DB to match stock
+          await Cart.updateOne(
+            { userId, 'items._id': item._id },
+            { $set: { 'items.$.quantity': quantity } }
+          );
+
+          console.warn(
+            `Adjusted quantity for ${product.productName} (${variant.colorName}) — available stock: ${variant.stock}`
+          );
+        }
+
+        return {
+          id: item._id.toString(),
+          productId: product._id.toString(),
+          variantId: item.variantId.toString(),
+          productName: product.productName || 'N/A',
+          productImage: variant.productImage?.[0] || '/placeholder.svg',
+          color: variant.colorName || 'N/A',
+          price: latestPrice,
+          quantity,
+          total: (product.isBlocked || variant.isBlocked) ? 0 : latestPrice * quantity,
+          brandName: product.brand?.brandName || 'N/A',
+          categoryName: product.category?.name || 'N/A',
+          stock: variant.stock,
+          status: isBlocked
+            ? 'Blocked'
+            : variant.stock > 0
+              ? 'Available'
+              : 'Out of Stock'
+        };
+      })
+    );
+
+    const cartItems = updatedCartItems.filter(Boolean);
+    const deliveryFee = 50;
 
     console.log('Final cartItems:', JSON.stringify(cartItems, null, 2));
-    res.render('cart', { cartItems,deliveryFee });
+    res.render('cart', { cartItems, deliveryFee });
 
   } catch (error) {
     console.error('Cart page error:', error);
@@ -216,6 +233,13 @@ const updateCart = async (req, res) => {
 
     const stock = variant.stock; 
     console.log('update cart in stock:', stock);
+    const cartLimit=3;
+    if (quantity>cartLimit){
+      return res.status(400).json({
+        success:false,
+        message:`You can only purchase up to 3 of this item`
+      })
+    }
 
     if (quantity > stock) {
       return res.status(400).json({
@@ -237,7 +261,7 @@ const updateCart = async (req, res) => {
     item.stock = quantity;
     item.totalPrice = item.price * quantity;
     cart.cartTotal = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
-
+  console.log('stok in cart',item.stock)
     await cart.save();
 
     res.json({
@@ -344,7 +368,11 @@ const addWishlist = async (req, res) => {
 const loadWishlist = async (req, res) => {
   try {
     
-    const userId = req.session.userId;
+     const userId = req.session.userId;
+    const isLoggedIn = !!userId;
+    let user = null;
+    if (isLoggedIn) user = await User.findById(userId).lean();
+
     if (!userId) return res.redirect('/login');
 
     const wishlist = await Wishlist.findOne({ userId })
@@ -364,9 +392,19 @@ const loadWishlist = async (req, res) => {
   }
 
 const wishlistItems= wishlist ? wishlist.products : []
+//cart count
+const cart=await Cart.findOne({userId})
+let cartCount = 0;
+     
+     if (cart && cart.items) {
+     cartCount = cart.items.length;
+         }
+
 
     res.render('wishlist', {
-      wishlistItems
+      wishlistItems,
+      user,
+      cartCount
     });
 
   } catch (error) {
@@ -461,8 +499,14 @@ const addToCartFromWishlist = async (req, res) => {
       { userId },
       { $pull: { products: { variantId } } }
     );
+   
+     let cartCount = 0;
+     
+     if (cart && cart.items) {
+     cartCount = cart.items.length;
+         }
 
-    return res.json({ success: true, message: 'Moved to cart and removed from wishlist' });
+    return res.json({ success: true, cartCount,message: 'Moved to cart and removed from wishlist' });
 
   } catch (error) {
     console.error('Add to cart from wishlist error:', error);

@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         submitBTn.disabled=true;
-        submitBTn.textContent="...Creating";
+        submitBTn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
 
         const formData = new URLSearchParams(new FormData(form));
 

@@ -44,11 +44,33 @@
       const downloadPdfBtn = document.getElementById('download-pdf');
       const downloadExcelBtn = document.getElementById('download-excel');
       const salesTableBody = document.getElementById('sales-table-body');
+      // Set max attribute for start and end date inputs to today
+  const today = new Date().toISOString().split('T')[0];
+  startDate.setAttribute('max', today);
+  endDate.setAttribute('max', today);
 
-      // Toggle custom date range visibility
-      reportPeriod.addEventListener('change', () => {
-        customDateRange.classList.toggle('hidden', reportPeriod.value !== 'custom');
-      });
+  // Set initial min attribute for end-date based on start-date
+  if (startDate.value) {
+    endDate.setAttribute('min', startDate.value);
+  }
+
+  // Update end-date's min attribute when start-date changes
+  startDate.addEventListener('change', () => {
+    endDate.setAttribute('min', startDate.value);
+    // If end-date is before start-date, reset it to start-date
+    if (endDate.value && new Date(endDate.value) < new Date(startDate.value)) {
+      endDate.value = startDate.value;
+    }
+  });
+
+  // Toggle custom date range visibility
+  reportPeriod.addEventListener('change', () => {
+    customDateRange.classList.toggle('hidden', reportPeriod.value !== 'custom');
+    // Ensure end-date min is updated when custom range is selected
+    if (reportPeriod.value === 'custom' && startDate.value) {
+      endDate.setAttribute('min', startDate.value);
+    }
+  });
 
       // Generate report on button click
       generateReportBtn.addEventListener('click', async () => {
@@ -126,9 +148,10 @@
                 <td class="px-4 py-3 text-gray-700 whitespace-nowrap">${sale.customerName}</td>
                 <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹${sale.orderAmount.toFixed(2)}</td>
                 <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹${sale.discount.toFixed(2)}</td>
-                <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹${sale.couponDiscount || 'N/A'}</td>
+                <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹${sale.couponDiscount || '0.00'}</td>
                 <td class="px-4 py-3 text-gray-700 whitespace-nowrap">₹${sale.finalAmount || 'N/A'}</td>
                 <td class="px-4 py-3 text-gray-700 whitespace-nowrap">${sale.paymentMethod || 'N/A'}</td>
+                <td class="px-4 py-3 text-gray-700 whitespace-nowrap">${sale.status || 'N/A'}</td>
               `;
               salesTableBody.appendChild(row);
             });

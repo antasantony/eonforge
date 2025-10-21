@@ -184,6 +184,11 @@ const verifyReturnRequest = async (req, res) => {
   // Update order status
   order.status = 'Returned';
   order.returnStatus = 'Approved';
+  order.orderItems.forEach(item => {
+            item.status='Returned'
+            item.returnStatus = 'Approved';
+            
+        });
   order.refunded = true;
 
   // Find or create user wallet
@@ -247,6 +252,11 @@ const verifyReturnRequest = async (req, res) => {
 } else {
       order.returnStatus = 'Rejected';
       order.status = 'Rejected';
+       order.orderItems.forEach(item => {
+            item.status='Rejected'
+            item.returnStatus = 'Rejected';
+            
+        });
       order.returnReason = req.body.returnReason || 'Return request rejected by admin';
       await order.save();
       res.json({ success: true, message: 'Return rejected' });

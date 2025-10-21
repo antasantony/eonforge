@@ -1,7 +1,7 @@
 const User = require("../../models/userSchema");
 const Address = require("../../models/addressSchema");
 const Order=require("../../models/orderSchema");
-
+const Cart = require('../../models/cartSchema');
 const nodemailer = require('nodemailer');
 const bcrypt = require("bcrypt");
 const session = require('express-session');
@@ -202,6 +202,15 @@ const userProfile = async (req, res) => {
   .limit(3); 
  const orderCount = await Order.countDocuments({ userId });
  const totalSpent = order.reduce((sum, order) => sum + order.finalAmount, 0);
+ const cart=await Cart.findOne({userId})
+ // cart count
+ let cartCount = 0;
+
+if (cart && cart.items) {
+  cartCount = cart.items.length;
+}
+console.log('cart count', cartCount);
+ 
 console.log('totalspent', totalSpent);
 
 console.log('user order count:', orderCount);
@@ -211,6 +220,7 @@ console.log('user order count:', orderCount);
     res.render('profile', {
       user,
       isLoggedIn,
+      cartCount,
       userAddress: addressData,
       order,
       orderCount,
@@ -245,8 +255,20 @@ const loadEditProfile = async (req, res) => {
     if (!user) {
       return res.redirect('/login');
     }
+
+     //cart count
+         const cart=await Cart.findOne({userId})
+         // cart count
+         let cartCount = 0;
+        
+        if (cart && cart.items) {
+          cartCount = cart.items.length;
+        }
+
+
     res.render('editProfile', {
       user,
+      cartCount,
       isLoggedIn: true,
       showchangepassword:!isGoogle,
     });
@@ -316,6 +338,8 @@ const editProfile = async (req, res) => {
       };
       await transporter.sendMail(mailOptions);
     }
+
+   
 
     return res.status(200).json({
       success: true,
@@ -553,7 +577,17 @@ const addAddress = async (req, res) => {
 
 
     const address = await Address.findOne({ userId })
-    res.render('add-address', { user, isLoggedIn, address })
+
+     //cart count
+         const cart=await Cart.findOne({userId})
+         // cart count
+         let cartCount = 0;
+        
+        if (cart && cart.items) {
+          cartCount = cart.items.length;
+        }
+
+    res.render('add-address', { user, isLoggedIn, address ,cartCount})
 
   } catch (error) {
     console.log('address management error', error)

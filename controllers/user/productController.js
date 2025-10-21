@@ -92,10 +92,19 @@ console.log('product detail page offer  setting',product)
       .limit(5);
 
       console.log('brand detail page offer  setting',sameBrandProducts)
+      
+      console.log('cart detail', cart);
+      
+      let cartCount = 0;
+      
+      if (cart && cart.items) {
+        cartCount = cart.items.length;
+      }
 
     res.render('product-detail', {
       user,
       isLoggedIn,
+      cartCount,
       product,
       categories,
       brands,
@@ -180,6 +189,15 @@ const loadWallet = async (req, res) => {
       .reduce((sum, tx) => sum + tx.amount, 0);
 
     const transactionCount = wallet.transactions.length;
+    
+    //cart count
+     const cart=await Cart.findOne({userId})
+     // cart count
+     let cartCount = 0;
+    
+    if (cart && cart.items) {
+      cartCount = cart.items.length;
+    }
 
     // Bonus amount and withdrawal logic
     const bonusAmount = 0; // Adjust if applicable
@@ -190,6 +208,7 @@ console.log('kyc verified with load wallet',isKycVerified)
     res.render('wallet', {
       user,
       isLoggedIn,
+      cartCount,
       walletBalance,
       totalDeposits,
       totalWithdrawals,
