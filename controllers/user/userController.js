@@ -367,13 +367,6 @@ const login = async (req, res) => {
 
 //==========  FORGOT PASSWORD  ==========//
 
-
-
-
-
-
-
-
 const logout = async (req, res) => {
   try {
     console.log("Before destroy:", req.session);
@@ -442,7 +435,7 @@ const loadShopPage = async (req, res) => {
     if (selectedBrands.length > 0) {
       const brandIds = await Brand.find({ brandName: { $in: selectedBrands }, isBlocked: false }).distinct('_id');
       if (brandIds.length > 0) {
-        query.brand = { $in: brandIds, isBlocked: false };
+        query.brand = { $in: brandIds };
       }
     }
     if (selectedCategories.length > 0) {

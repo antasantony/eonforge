@@ -141,6 +141,16 @@ const loadCart = async (req, res) => {
         }
 
         const isBlocked = product.isBlocked || variant.isBlocked;
+           
+      if (isBlocked) {
+        await Cart.updateOne(
+          { userId },
+          { $pull: { items: { _id: item._id } } }
+        );
+       return null;
+      }
+             
+ 
 
         // Determine price
         let variantPrice = variant.regularPrice;

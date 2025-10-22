@@ -83,6 +83,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return true;
     }
+nameid.addEventListener("input", nameValidate);
+  lnameid.addEventListener("input", lnameValidate);
+  emailid.addEventListener("input", emailValidate);
+  passid.addEventListener("input", passValidate);
+  cpassid.addEventListener("input", passValidate);
 
     form.addEventListener("submit", async function (e) {
         e.preventDefault();

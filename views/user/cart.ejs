@@ -666,7 +666,7 @@
             .catch(err => {
                 console.error('Update error:', err);
                 qtyElement.textContent = currentQty;
-                showToast('Something went wrong', 'error');
+                
             })
             .finally(() => {
                 buttons.forEach(btn => btn.disabled = false);
