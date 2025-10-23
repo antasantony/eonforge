@@ -513,12 +513,12 @@
                             <i class="fas <%= paymentMethod === 'cod' ? 'fa-money-bill-wave text-green-600' : 
                                               paymentMethod === 'upi' ? 'fa-mobile-alt text-blue-600' : 
                                               paymentMethod === 'netbanking' ? 'fa-university text-teal-600' : 
-                                              'fa-credit-card text-purple-600' %> text-lg"></i>
+                                              'fa-wallet text-purple-600' %> text-lg"></i>
                         </div>
                         <div>
                             <p class="text-primary font-semibold">
                                 <%= paymentMethod==='cod' ? 'Cash on Delivery' : paymentMethod==='upi' ? 'UPI Payment' :
-                                    paymentMethod==='netbanking' ? 'Net Banking' : 'Card Payment' %>
+                                    paymentMethod==='netbanking' ? 'Net Banking' : 'Wallet Payment' %>
                             </p>
                             <p class="text-text-secondary text-sm">
                                 <%= paymentMethod==='cod' ? 'Pay on delivery' : 'Payment completed' %>

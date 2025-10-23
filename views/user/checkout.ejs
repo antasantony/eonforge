@@ -65,28 +65,24 @@
             transform: translateY(0);
         }
 
-        /* Success toast */
         .toast.success {
             background-color: #333333;
-            border-left-color: #10b981; /* Emerald green */
+            border-left-color: #10b981;
         }
 
-        /* Error toast */
         .toast.error {
             background-color: #333333;
-            border-left-color: #ef4444; /* Red */
+            border-left-color: #ef4444;
         }
 
-        /* Warning toast */
         .toast.warning {
             background-color: #333333;
-            border-left-color: #f59e0b; /* Amber */
+            border-left-color: #f59e0b;
         }
 
-        /* Info toast */
         .toast.info {
             background-color: #333333;
-            border-left-color: #3b82f6; /* Blue */
+            border-left-color: #3b82f6;
         }
 
         @keyframes fadeIn {
@@ -257,6 +253,26 @@
             transform: translateY(-1px);
         }
 
+        .btn-remove {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #fee2e2;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-remove:hover {
+            background: #fee2e2;
+            border-color: #f87171;
+            transform: translateY(-1px);
+        }
+
         .address-form-container {
             max-height: 80vh;
             overflow-y: auto;
@@ -310,7 +326,6 @@
             box-shadow: 0 8px 20px -5px rgba(212, 175, 55, 0.4);
         }
 
-        /* Added styles for coupon modal */
         #couponList {
             scroll-behavior: smooth;
         }
@@ -416,34 +431,35 @@
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                        <!-- Credit/Debit Card -->
-                        <div class="payment-method border-2 border-gray-200 rounded-xl p-4 selected" onclick="selectPaymentMethod('card',event)">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-12 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-credit-card text-white text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-semibold text-primary text-sm">Card Payment</h3>
-                                        <p class="text-xs text-text-secondary">Credit/Debit Card</p>
-                                    </div>
-                                </div>
-                                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center">
-                                    <div class="w-2.5 h-2.5 bg-accent rounded-full opacity-100 transition-opacity duration-200" id="card-indicator"></div>
-                                </div>
-                            </div>
-                            <div class="flex space-x-2">
-                                <div class="w-8 h-5 bg-blue-600 rounded flex items-center justify-center">
-                                    <i class="fab fa-cc-visa text-white text-xs"></i>
-                                </div>
-                                <div class="w-8 h-5 bg-red-600 rounded flex items-center justify-center">
-                                    <i class="fab fa-cc-mastercard text-white text-xs"></i>
-                                </div>
-                                <div class="w-8 h-5 bg-blue-500 rounded flex items-center justify-center">
-                                    <i class="fab fa-cc-amex text-white text-xs"></i>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Credit/Debit Card/wallet -->
+                        <div class="payment-method border-2 border-gray-200 rounded-xl p-4 selected" onclick="selectPaymentMethod('wallet', event)">
+    <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-3">
+            <div class="w-12 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                <i class="fas fa-wallet text-white text-sm"></i>
+            </div>
+            <div>
+                <h3 class="font-semibold text-primary text-sm">Wallet Payment</h3>
+                <p class="text-xs text-text-secondary">Pay using your wallet balance</p>
+            </div>
+        </div>
+        <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center">
+            <div class="w-2.5 h-2.5 bg-accent rounded-full opacity-100 transition-opacity duration-200" id="wallet-indicator"></div>
+        </div>
+    </div>
+    <div class="flex space-x-2">
+        <div class="w-8 h-5 bg-green-500 rounded flex items-center justify-center">
+            <i class="fas fa-coins text-white text-xs"></i>
+        </div>
+        <div class="w-8 h-5 bg-amber-500 rounded flex items-center justify-center">
+            <i class="fas fa-piggy-bank text-white text-xs"></i>
+        </div>
+        <div class="w-8 h-5 bg-lime-500 rounded flex items-center justify-center">
+            <i class="fas fa-money-bill-wave text-white text-xs"></i>
+        </div>
+    </div>
+</div>
+
 
                         <!-- UPI Payment -->
                         <div class="payment-method border-2 border-gray-200 rounded-xl p-4" onclick="selectPaymentMethod('upi',event)">
@@ -540,13 +556,11 @@
                     </div>
                     
                     <div class="flex space-x-2 mb-4">
-                        
-                        <input type="text" id="couponCode" class="w-full p-3 border-2 border-gray-200 rounded-xl input-focus" placeholder="Enter coupon code" readonly ondblclick="this.value=''">
-                        <button onclick="openCouponModal()" class="btn-primary text-sm">
+                        <input type="text" id="couponCode" class="w-full p-3 border-2 border-gray-200 rounded-xl input-focus" placeholder="Enter coupon code" readonly>
+                        <button id="couponButton" onclick="openCouponModal()" class="btn-primary text-sm">
                             <i class="fas fa-ticket-alt"></i>
                             <span>Apply Coupon</span>
                         </button>
-                        
                     </div>
                     
                     <div id="cartSummary" class="space-y-3 border-t border-gray-100 pt-4 mb-6">
@@ -687,26 +701,20 @@
                                 <span>Please enter a valid 6-digit PIN code</span>
                             </div>
                         </div>
-                  <div class="space-y-2">
-                      <label for="phone" class="block text-text-primary font-semibold text-sm">
-                        <i class="fas fa-phone-alt text-accent mr-2"></i>Phone Number
-                      </label>
-                        <div class="flex">
-                        <span class="inline-flex items-center px-3 rounded-l-xl border-2 border-gray-200 bg-gray-100 text-gray-700">+91</span>
-                        <input  type="tel" id="phone" name="phone" class="w-full p-3 border-2 border-gray-200 border-l-0 rounded-r-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300"
-                        placeholder="e.g., 9876543210"
-                        pattern="[0-9]{10}"
-                        oninvalid="this.setCustomValidity('Please enter a 10-digit phone number (e.g., 9876543210)')"
-                        oninput="this.setCustomValidity('')">
-                      </div>                    
-                      <p class="text-text-secondary text-xs mt-1">Enter exactly 10 digits</p>
-                    
-                      <div id="phoneError" class="form-error hidden">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <span>Please enter a valid 10-digit phone number</span>
-                      </div>
-                     </div>
-
+                        <div class="space-y-2">
+                            <label for="phone" class="block text-text-primary font-semibold text-sm">
+                                <i class="fas fa-phone-alt text-accent mr-2"></i>Phone Number
+                            </label>
+                            <div class="flex">
+                                <span class="inline-flex items-center px-3 rounded-l-xl border-2 border-gray-200 bg-gray-100 text-gray-700">+91</span>
+                                <input type="tel" id="phone" name="phone" class="w-full p-3 border-2 border-gray-200 border-l-0 rounded-r-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300" placeholder="e.g., 9876543210" pattern="[0-9]{10}" oninvalid="this.setCustomValidity('Please enter a 10-digit phone number (e.g., 9876543210)')" oninput="this.setCustomValidity('')">
+                            </div>
+                            <p class="text-text-secondary text-xs mt-1">Enter exactly 10 digits</p>
+                            <div id="phoneError" class="form-error hidden">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Please enter a valid 10-digit phone number</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Country -->
@@ -714,9 +722,7 @@
                         <label for="country" class="block text-text-primary font-semibold text-sm">
                             <i class="fas fa-globe text-accent mr-2"></i>Country
                         </label>
-                        <input id="country" name="country"
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus"
-                                value="India" readonly>
+                        <input id="country" name="country" class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-light transition duration-300 input-focus" value="India" readonly>
                         <div id="countryError" class="form-error hidden">
                             <i class="fas fa-exclamation-circle"></i>
                             <span>Please select a country</span>
@@ -795,7 +801,7 @@ const razorpayKeyId = "<%= razorpayKeyId %>";
 const coupons = <%- JSON.stringify(coupons || []) %>;
 
 // Global variables
-let selectedPaymentMethod = 'card';
+let selectedPaymentMethod = 'wallet';
 let selectedAddressId = null;
 let isEditMode = false;
 let editingAddressId = null;
@@ -981,29 +987,28 @@ function selectAddress(addressId, cardElement) {
 
 async function removeAddress(id) {
     const result = await Swal.fire({
-  title: 'Remove Address?',
-  toast:true,
-  text: 'This action cannot be undone.',
-  icon: 'warning',
-  iconColor: 'rgb(215, 175, 45)',
-  showCancelButton: true,
-   timer: 5000,
-  timerProgressBar: true,
-  confirmButtonText: 'Yes, remove it',
-  cancelButtonText: 'Cancel',
-  confirmButtonColor: 'rgb(215, 175, 45)',
-  cancelButtonColor: '#6b7280',
-  width: '380px',
-  allowOutsideClick: false,
-  customClass: {
-    popup: 'rounded-2xl p-4',
-    title: 'text-3xl font-bold',
-    htmlContainer: 'text-xl',
-    confirmButton: 'rounded-lg px-4 py-1 text-sm font-medium',
-    cancelButton: 'rounded-lg px-4 py-1 text-sm font-medium'
-  }
-});
-
+        title: 'Remove Address?',
+        toast: true,
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        iconColor: 'rgb(215, 175, 45)',
+        showCancelButton: true,
+        timer: 5000,
+        timerProgressBar: true,
+        confirmButtonText: 'Yes, remove it',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: 'rgb(215, 175, 45)',
+        cancelButtonColor: '#6b7280',
+        width: '380px',
+        allowOutsideClick: false,
+        customClass: {
+            popup: 'rounded-2xl p-4',
+            title: 'text-3xl font-bold',
+            htmlContainer: 'text-xl',
+            confirmButton: 'rounded-lg px-4 py-1 text-sm font-medium',
+            cancelButton: 'rounded-lg px-4 py-1 text-sm font-medium'
+        }
+    });
 
     if (result.isConfirmed) {
         try {
@@ -1043,15 +1048,13 @@ function renderCoupons() {
     const subtotal = <%= subtotal || 0 %>;
     const currentDate = new Date();
 
-    
     coupons.forEach((coupon, index) => {
-         const currentUserId = "<%= userId %>";
-         console.log('userId',currentUserId)
-        const useBlock=coupon.usedBy.some(u=>u.user.toString() ==currentUserId&& u.count>=coupon.usageLimit);
+        const currentUserId = "<%= userId %>";
+        const useBlock = coupon.usedBy.some(u => u.user.toString() == currentUserId && u.count >= coupon.usageLimit);
         const isExpired = new Date(coupon.expiryDate) < currentDate;
         const isBelowMinAmount = subtotal < coupon.minimumPurchaseAmount;
         const accessible = coupon.isActive && !isExpired && !isBelowMinAmount && !useBlock;
-  console.log('useblock',useBlock)
+
         const couponCard = document.createElement('div');
         couponCard.className = `coupon-card border-2 rounded-xl p-4 ${
             accessible ? 'border-accent bg-accent/10 cursor-pointer' : 'border-gray-300 bg-gray-100 opacity-70 cursor-not-allowed'
@@ -1073,7 +1076,7 @@ function renderCoupons() {
             </div>
             ${accessible ? '' : `
                 <span class="text-xs text-red-500">
-                    ${isExpired ? 'Expired' :  isBelowMinAmount ? `Minimum ₹${coupon.minimumPurchaseAmount.toLocaleString()} required`  :useBlock ? 'Reached your limit': 'Inactive'}
+                    ${isExpired ? 'Expired' : isBelowMinAmount ? `Minimum ₹${coupon.minimumPurchaseAmount.toLocaleString()} required` : useBlock ? 'Reached your limit' : 'Inactive'}
                 </span>
             `}
         `;
@@ -1094,11 +1097,31 @@ function applyCoupon(coupon) {
 
     selectedCoupon = coupon;
     document.getElementById('couponCode').value = coupon.code;
-   
+    
+    // Update button to "Remove Coupon"
+    const couponButton = document.getElementById('couponButton');
+    couponButton.className = 'btn-remove text-sm';
+    couponButton.innerHTML = '<i class="fas fa-times"></i><span>Remove Coupon</span>';
+    couponButton.onclick = removeCoupon;
+
     closeCouponModal();
     renderCartSummary();
 
     showToast(`Coupon ${coupon.code} applied successfully`, 'success');
+}
+
+function removeCoupon() {
+    const couponButton = document.getElementById('couponButton');
+    selectedCoupon = null;
+    document.getElementById('couponCode').value = '';
+
+    // Revert button to "Apply Coupon"
+    couponButton.className = 'btn-primary text-sm';
+    couponButton.innerHTML = '<i class="fas fa-ticket-alt"></i><span>Apply Coupon</span>';
+    couponButton.onclick = openCouponModal;
+
+    renderCartSummary();
+    showToast('Coupon removed successfully', 'success');
 }
 
 // Modal functions
@@ -1345,6 +1368,7 @@ async function submitCheckout() {
         return;
     }
 
+
     const result = await Swal.fire({
         title: 'Confirm Your Order',
         html: `
@@ -1388,7 +1412,7 @@ async function submitCheckout() {
             const allAddresses = [defaultAddress, ...otherAddresses].filter(Boolean);
             const selectedAddress = allAddresses.find(addr => addr._id === selectedAddressId);
             
-            if (selectedPaymentMethod === 'cod') {
+            if (selectedPaymentMethod === 'cod' || selectedPaymentMethod === 'wallet') {
                 const response = await fetch('/place-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1559,7 +1583,7 @@ function showEmptyCart() {
 document.addEventListener('DOMContentLoaded', () => {
     renderAddresses();
     renderCartItems();
-    selectPaymentMethod('card');
+    selectPaymentMethod('wallet');
     
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {

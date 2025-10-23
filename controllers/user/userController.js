@@ -409,7 +409,15 @@ const loadShopPage = async (req, res) => {
       if (wishlist) {
         wishlistProductIds = wishlist.products.map(item => item.productId.toString());
       }
-    }
+    };
+    let cartProduct=[];
+    if(isLoggedIn){
+      const existCart = await Cart.findOne({userId}).lean();
+      if(existCart){
+        cartProduct = existCart.items.map(item => item.productId.toString());
+      }
+    };
+    console.log('adding cart',cartProduct)
 
     // Ensure brands and categories are arrays
     if (!Array.isArray(selectedBrands)) selectedBrands = selectedBrands ? [selectedBrands] : [];
@@ -503,6 +511,7 @@ if (cart && cart.items) {
       currentPage: page,
       totalProducts,
        wishlistProductIds,
+       cartProduct,
       noResults: products.length === 0 && (search || selectedBrands.length > 0 || selectedCategories.length > 0 || minPrice || maxPrice) ? `No products found.` : null
     });
   } catch (error) {
@@ -523,8 +532,15 @@ const filterProducts = async (req, res) => {
       if (wishlist) {
         wishlistProductIds = wishlist.products.map(item => item.productId.toString());
       }
-    }
-
+    };
+    let cartProduct=[];
+    if(isLoggedIn){
+      const existCart = await Cart.findOne({userId}).lean();
+      if(existCart){
+        cartProduct = existCart.items.map(item=> item.productId.toString());
+      }
+    };
+    
     // Query parameters
     const search = req.query.search || '';
     let selectedBrands = req.query.brand || [];
@@ -655,7 +671,7 @@ products.forEach(product => {
       currentPage: page,
       totalProducts,
        wishlistProductIds,
-      
+       cartProduct,
       noResults: products.length === 0 && (search || selectedCategories.length > 0 || selectedBrands.length > 0 || minPrice || maxPrice) ? `No products found.` : null
     });
   } catch (error) {

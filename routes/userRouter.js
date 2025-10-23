@@ -102,7 +102,7 @@ router.get('/checkout',userAuth,checkoutController.loadCheckout);
 router.post('/checkout-address',userAuth, checkoutController.addAddress);
 router.put('/checkout-edit-address', checkoutController.editAddress);
 router.post('/checkout-delete-address', checkoutController.deleteAddress);
-// Online payment  //
+//  payment  //
 router.post('/place-order',userAuth,checkoutController.placeOrder);
 router.get('/place-order',userAuth,checkoutController.loadPlaceOrder);
 

@@ -59,7 +59,11 @@ const loadCheckout = async (req, res) => {
             const variant = product?.colorVariants.find(
                 v => v._id.toString() === item.variantId.toString()
             );
-
+            const liveStock=variant.stock
+          if(liveStock<=0){
+            console.error('order is out of stock')
+             return null;  
+          }
             if (!product || !variant) {
                 console.error(`Invalid product or variant for item: ${item._id}`);
                 return null;
@@ -306,12 +310,13 @@ const placeOrder = async (req, res) => {
             })
         )
         console.log('antas what is this', product.regularPrice)
+   
         let codLimit=25000;
 
-    if(totalAmount>codLimit){
+    if(totalAmount>codLimit && paymentMethod=='cod'){
         return res.status(400).json({ success: false, message: 'Order above Rs 25000 should not be allowed for COD.' })
     }
-
+    
 
         let couponApplied = false;
         let couponDiscount = 0;
@@ -401,12 +406,56 @@ const placeOrder = async (req, res) => {
                 regularPrice,
                 discount
             });
-        }
+        };
 
+        let paymentStatus = 'Pending';
+        //wallet checking
+         if(paymentMethod==='wallet'){
+            
+        const wallet = await Wallet.findOne({ userId });
+
+        if (!wallet) {
+            return res.status(400).json({
+              success: false,
+              message: 'Wallet not found!',
+            });
+          }
+        
+          console.log('Wallet user ID:', wallet.userId);
+          console.log('Wallet balance:', wallet.balance);
+        
+          const walletBalance = wallet.balance;
+        
+         
+          if (walletBalance < totalAmount) {
+            return res.status(400).json({
+              success: false,
+              message: `Insufficient balance! You only have ₹${walletBalance.toLocaleString()}.`,
+            });
+          }
+        
+          // Deduct wallet amount
+          wallet.balance -= totalAmount;
+        
+          //  Add transaction entry
+          wallet.transactions.push({
+            type: 'debit',
+            amount: totalAmount,
+            reason: 'Order payment',
+            status: 'success',
+            date: new Date(),
+          });
+        
+          await wallet.save();
+
+          paymentStatus = 'Paid';
+        
+            };
 
         const newOrder = new Order({
             userId,
             paymentMethod,
+            paymentStatus,
             orderItems,
             totalPrice: subtotal,
             finalAmount: totalAmount,
@@ -421,7 +470,8 @@ const placeOrder = async (req, res) => {
         console.log('new order to save:', newOrder);
 
         await newOrder.save();
-
+        
+        
 
         for (const item of cartItems) {
             await Product.updateOne(
