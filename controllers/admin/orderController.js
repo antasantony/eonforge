@@ -310,13 +310,13 @@ const verifyItemReturnRequest = async (req, res) => {
         i => i.status === 'Returned' || i.status === 'Cancelled'
       );
 
-      if (allReturnedOrCancelled && order.couponCode) {
-        await Coupon.updateOne(
-          { code: order.couponCode },
-          { $pull: { usedBy: { user: order.userId } } }
-        );
-        order.couponApplied = false;
-      }
+      // if (allReturnedOrCancelled && order.couponCode) {
+      //   await Coupon.updateOne(
+      //     { code: order.couponCode },
+      //     { $pull: { usedBy: { user: order.userId } } }
+      //   );
+      //   order.couponApplied = false;
+      // }
 
     } else {
       item.status = 'Rejected';

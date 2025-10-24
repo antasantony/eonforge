@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         tailwind.config = {
@@ -540,7 +541,31 @@
             document.querySelector('.progress-bar').style.width = '5%';
         }
 
-        function removeFromCart(itemId) {
+        async function removeFromCart(itemId) {
+            const confirmResult = await Swal.fire({
+        title: 'Remove from Cart?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        iconColor: 'rgb(215, 175, 45)',
+        showCancelButton: true,
+        timer: 5000,
+        timerProgressBar: true,
+        confirmButtonText: 'Yes, remove it',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: 'rgb(215, 175, 45)',
+        cancelButtonColor: '#6b7280',
+        width: '380px',
+        allowOutsideClick: false,
+        customClass: {
+            popup: 'rounded-2xl p-4',
+            title: 'text-3xl font-bold',
+            htmlContainer: 'text-xl',
+            confirmButton: 'rounded-lg px-4 py-1 text-sm font-medium',
+            cancelButton: 'rounded-lg px-4 py-1 text-sm font-medium'
+        }
+    });
+
+    if (!confirmResult.isConfirmed) return; // Stop if user cancels
             const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
             if (!itemElement) return;
 

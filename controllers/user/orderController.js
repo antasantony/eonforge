@@ -267,14 +267,14 @@ const cancelOrderItem = async (req, res) => {
 const allCancelled = order.orderItems.every(i => i.status === 'Cancelled');
 
 // Coupon handling
-if (order.couponApplied && order.couponCode && allCancelled) {
-  await Coupon.updateOne(
-      { code: order.couponCode },
-      { $pull: { usedBy: { user: order.userId } } }
-  );
-  order.couponApplied = false;
-  order.couponDiscount = 0;
-}
+// if (order.couponApplied && order.couponCode && allCancelled) {
+//   await Coupon.updateOne(
+//       { code: order.couponCode },
+//       { $pull: { usedBy: { user: order.userId } } }
+//   );
+//   order.couponApplied = false;
+//   order.couponDiscount = 0;
+// }
 
 // Update order status
 if (allCancelled) {

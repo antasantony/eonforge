@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,18 +7,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <!-- Load jQuery first -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Toastr CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-    <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-
-
     <script>
         tailwind.config = {
             theme: {
@@ -38,100 +29,92 @@
         }
     </script>
 </head>
-<header class="bg-white shadow-sm py-4">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="flex items-center justify-between flex-wrap">
+<body>
+<header class="bg-white shadow-sm py-4 relative z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
             <!-- Logo -->
-            <div class="flex-shrink-0 mr-5">
+            <div class="flex-shrink-0">
                 <a href="/">
                     <h1 class="text-2xl font-bold tracking-widest text-black">EON FORGE</h1>
                 </a>
             </div>
 
-            <!-- Navigation Links (Home, Shop, About, Contact) -->
-            <nav class="flex-1 flex justify-center gap-8">
-                <a href="/" class="text-sm font-medium uppercase transition-colors hover:text-accent">HOME</a>
-                <a href="/shop" class="text-sm font-medium uppercase transition-colors hover:text-accent">SHOP</a>
-                <a href="/about" class="text-sm font-medium uppercase transition-colors hover:text-accent">ABOUT</a>
-                <a href="/contact"
-                    class="text-sm font-medium uppercase transition-colors hover:text-accent">CONTACT</a>
+            <!-- Navigation Links (Centered) -->
+            <nav id="nav-menu" class="hidden lg:flex flex-1 justify-center gap-8 bg-white lg:bg-transparent z-40 flex-col lg:flex-row items-center py-4 lg:py-0 shadow-md lg:shadow-none absolute lg:static top-full left-0 w-full">
+                <a href="/" class="block lg:inline-block text-sm font-medium uppercase text-black hover:text-accent py-2 lg:py-0 px-4 lg:px-0">HOME</a>
+                <a href="/shop" class="block lg:inline-block text-sm font-medium uppercase text-black hover:text-accent py-2 lg:py-0 px-4 lg:px-0">SHOP</a>
+                <a href="/about" class="block lg:inline-block text-sm font-medium uppercase text-black hover:text-accent py-2 lg:py-0 px-4 lg:px-0">ABOUT</a>
+                <a href="/contact" class="block lg:inline-block text-sm font-medium uppercase text-black hover:text-accent py-2 lg:py-0 px-4 lg:px-0">CONTACT</a>
             </nav>
 
-            <!-- Right Section (Search, Account, Wishlist, Cart) -->
-            <div class="flex gap-5 items-center">
+            <!-- Right Section (Search, Account, Wishlist, Cart, Hamburger) -->
+            <div class="flex items-center gap-4">
                 <!-- Search Icon and Hidden Search Bar -->
                 <div class="relative">
-                    <div class="flex flex-col items-center text-black transition-colors hover:text-accent cursor-pointer"
-                        id="search-toggle">
+                    <div class="flex flex-col items-center text-black hover:text-accent cursor-pointer" id="search-toggle">
                         <i class="fas fa-search text-lg mb-1"></i>
-                        <span class="text-xs">Search</span>
+                        <span class="text-xs hidden sm:block">Search</span>
                     </div>
-                    <div id="search-bar" class="absolute right-0 top-full bg-white border border-medium-gray rounded shadow-lg transition-all duration-300 z-50 min-w-[300px] hidden">
-                <form id="search-form" action="/search" method="GET" class="flex items-center">
-                    <i class="fas fa-search text-dark-gray px-4"></i>
-                    <input id="search-input" name="query" type="text" placeholder="Search analog slim" class="flex-1 py-2.5 pr-0 border-none outline-none font-montserrat text-sm">
-                    <button type="submit" class="text-dark-gray px-4 opacity-70 hover:opacity-100 transition-opacity">
-                        <i class="fas fa-search text-sm"></i>
-                    </button>
-                    <button type="button" class="text-dark-gray px-4 opacity-70 hover:opacity-100 transition-opacity" id="search-close">
-                        <i class="fas fa-times text-sm"></i>
-                    </button>
-                </form>
-             </div>
+                    <div id="search-bar" class="absolute right-0 top-full bg-white border border-medium-gray rounded shadow-lg transition-all duration-300 z-50 min-w-[250px] sm:min-w-[300px] hidden">
+                        <form id="search-form" action="/search" method="GET" class="flex items-center">
+                            <i class="fas fa-search text-dark-gray px-4"></i>
+                            <input id="search-input" name="query" type="text" placeholder="Search analog slim" class="flex-1 py-2.5 pr-0 border-none outline-none font-montserrat text-sm">
+                            <button type="submit" class="text-dark-gray px-4 opacity-70 hover:opacity-100 transition-opacity">
+                                <i class="fas fa-search text-sm"></i>
+                            </button>
+                            <button type="button" class="text-dark-gray px-4 opacity-70 hover:opacity-100 transition-opacity" id="search-close">
+                                <i class="fas fa-times text-sm"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Account -->
                 <div class="relative group">
                     <% if (user) { %>
-                        <div id="accountBtn"
-                            class="flex flex-col items-center text-black transition-colors hover:text-accent cursor-pointer">
+                        <div id="accountBtn" class="flex flex-col items-center text-black hover:text-accent cursor-pointer">
                             <i class="fas fa-user text-lg mb-1"></i>
-                            <span class="text-xs">Account</span>
+                            <span class="text-xs hidden sm:block">Account</span>
                         </div>
-                        <div id="accountDropdown"
-                            class="absolute right-0 top-full bg-white border border-gray-200 min-w-40 z-50 rounded shadow-lg hidden transition-all duration-300">
-
-                            <a href="/profile" class="block px-4 py-2.5 text-gray-700 hover:bg-gray-100"><i
-                                    class="fas fa-user mr-2"></i>
-                                <%= user.firstName %>'s Profile
-                            </a>
-                            <a href="/logout" class="block px-4 py-2.5 text-gray-700 hover:bg-gray-100"><i
-                                    class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+                        <div id="accountDropdown" class="absolute right-0 top-full bg-white border border-gray-200 min-w-40 z-50 rounded shadow-lg hidden transition-all duration-300">
+                            <a href="/profile" class="block px-4 py-2.5 text-gray-700 hover:bg-gray-100"><i class="fas fa-user mr-2"></i><%= user.firstName %>'s Profile</a>
+                            <a href="/logout" class="block px-4 py-2.5 text-gray-700 hover:bg-gray-100"><i class="fas fa-sign-out-alt mr-2"></i>Logout</a>
                         </div>
-                        <% } else { %>
-                            <a href="/login"
-                                class="flex flex-col items-center text-black transition-colors hover:text-accent">
-                                <i class="fas fa-user text-lg mb-1"></i>
-                                <span class="text-xs">Account</span>
-                            </a>
-                            <% } %>
+                    <% } else { %>
+                        <a href="/login" class="flex flex-col items-center text-black hover:text-accent">
+                            <i class="fas fa-user text-lg mb-1"></i>
+                            <span class="text-xs hidden sm:block">Account</span>
+                        </a>
+                    <% } %>
                 </div>
 
                 <!-- Wishlist -->
-                <a href="/wishlist" class="flex flex-col items-center text-black transition-colors hover:text-accent">
+                <a href="/wishlist" class="flex flex-col items-center text-black hover:text-accent">
                     <i class="fas fa-heart text-lg mb-1"></i>
-                    <span class="text-xs">Wishlist</span>
+                    <span class="text-xs hidden sm:block">Wishlist</span>
                 </a>
 
                 <!-- Cart -->
-                <a href="/cart" class="relative flex flex-col items-center text-black transition-colors hover:text-accent">
-    <div class="relative">
-        <i class="fas fa-shopping-bag text-lg mb-1"></i>
-        <% if (cartCount && cartCount > 0) { %>
-            <span id="cartCountBadge"
-                class="absolute -top-2 -right-3 bg-red-600 text-white text-[10px] font-semibold rounded-full px-1.5 py-0.5">
-                <%= cartCount %>
-            </span>
-        <% } %>
-    </div>
-    <span class="text-xs">Cart</span>
-</a>
+                <a href="/cart" class="relative flex flex-col items-center text-black hover:text-accent">
+                    <div class="relative">
+                        <i class="fas fa-shopping-bag text-lg mb-1"></i>
+                        <% if (cartCount && cartCount > 0) { %>
+                            <span id="cartCountBadge" class="absolute -top-2 -right-3 bg-red-600 text-white text-[10px] font-semibold rounded-full px-1.5 py-0.5"><%= cartCount %></span>
+                        <% } %>
+                    </div>
+                    <span class="text-xs hidden sm:block">Cart</span>
+                </a>
 
+                <!-- Hamburger Menu Toggle (visible on mobile and tablet, after cart) -->
+                <button id="menu-toggle" class="lg:hidden text-black hover:text-accent focus:outline-none">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
             </div>
         </div>
     </div>
-
 </header>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const searchToggle = document.getElementById('search-toggle');
@@ -139,6 +122,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchClose = document.getElementById('search-close');
     const searchInput = document.getElementById('search-input');
     const searchForm = document.getElementById('search-form');
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.getElementById('nav-menu');
+
+    // Debug: Check if elements are found
+    if (!menuToggle || !navMenu) {
+        console.error('Menu toggle or nav menu not found');
+        return;
+    }
 
     // Toggle search bar visibility
     searchToggle.addEventListener('click', () => {
@@ -154,16 +145,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle form submission
     searchForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // Prevent default form submission for now
+        event.preventDefault();
         const query = searchInput.value.trim();
         if (query) {
             console.log('Search query:', query);
-            // Example: Redirect to search results page
             window.location.href = `/filter?page=1&minPrice=&maxPrice=680000&search=${encodeURIComponent(query)}`;
             searchBar.classList.add('hidden');
             searchInput.value = '';
         } else {
-            // Notify user if search is empty
             toastr.warning('Please enter a search term.');
         }
     });
@@ -176,7 +165,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Account dropdown toggle (unchanged)
+    // Toggle navigation menu on mobile and tablet
+    menuToggle.addEventListener('click', (event) => {
+        event.stopPropagation();
+        navMenu.classList.toggle('hidden');
+        console.log('Menu toggled:', !navMenu.classList.contains('hidden'));
+    });
+
+    // Close nav menu when clicking outside on mobile and tablet
+    document.addEventListener('click', (event) => {
+        if (!navMenu.contains(event.target) && !menuToggle.contains(event.target) && !navMenu.classList.contains('hidden')) {
+            navMenu.classList.add('hidden');
+        }
+    });
+
+    // Account dropdown toggle
     const accountBtn = document.getElementById('accountBtn');
     const accountDropdown = document.getElementById('accountDropdown');
     if (accountBtn && accountDropdown) {
@@ -191,3 +194,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+</body>
+</html>
