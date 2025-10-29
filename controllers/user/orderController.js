@@ -353,18 +353,61 @@ const returnOrderItem = async (req, res) => {
 const cancelOrder = async (req, res) => {
     try {
         const { orderId, reason } = req.body;
-
+        
         const order = await Order.findOne({ orderId });
+        console.log('cancel order',order)
 
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
+        if (!order.finalAmount || isNaN(order.finalAmount)) {
+          return res.status(400).json({ success: false, message: 'Invalid order amount' });
+        }
+        
+        if (order.paymentMethod !== 'cod' && order.paymentMethod !== 'wallet' && !order.razorpayPaymentId) {
+          return res.status(400).json({ success: false, message: 'No Razorpay payment found for online order' });
+        }
+
         if (order.status === 'Cancelled') {
             return res.json({ success: false, message: 'Order is already cancelled' });
         }
+    
+        // Refund logic
+          const refundedPrice=[]
 
-        for (const item of order.orderItems) {
+        const canceledItems = order.orderItems.filter((item)=>item.status=="Cancelled");
+        const nonCanceledItems = order.orderItems.filter((item)=>item.status!=="Cancelled");
+         console.log('non cancel the order with single and total',nonCanceledItems)
+
+        if (canceledItems && canceledItems.length > 0){
+            for(const item of canceledItems){
+               
+                const refunded=calculateItemRefund(item,order.totalPrice,order.couponDiscount)
+                refundedPrice.push(refunded)
+            }
+        }
+        console.log('refundedPrice',refundedPrice)
+         const itemRefund=refundedPrice.reduce((a,b)=>a+b,0)
+         console.log('itemrefund',itemRefund)
+        let refundAmount=0;
+          if (canceledItems && canceledItems.length > 0){
+
+         refundAmount = order.finalAmount-itemRefund; 
+         
+         }else{
+          refundAmount = order.finalAmount; 
+
+         }
+      console.log('refundAmount',refundAmount)
+
+        if (!refundAmount || isNaN(refundAmount) || refundAmount <= 0) {
+           return res.status(400).json({ success: false, message: 'Invalid refund amount calculated' });
+         }
+
+         let refundStatus = 'success';
+    
+        for (const item of nonCanceledItems) {
             item.status = 'Cancelled';
             item.cancelReason = reason || null;
 
@@ -374,7 +417,7 @@ const cancelOrder = async (req, res) => {
                 { $inc: { 'colorVariants.$.stock': item.stock } }
             );
         }
-
+     
         // Update order-level status
         order.status = 'Cancelled';
         order.cancelReason = reason || null;
@@ -384,15 +427,13 @@ const cancelOrder = async (req, res) => {
           if (!wallet) {
             wallet = new Wallet({ userId: order.userId, balance: 0, transactions: [] });
           }
-        
-          // Refund logic
-          const refundAmount = order.finalAmount; // Amount to refund
-          let refundStatus = 'success';
 
-          console.log("Razorpay refund debug:");
-console.log("razorpayPaymentId:", order.razorpayPaymentId);
-console.log("refundAmount:", refundAmount);
-console.log("amount in paise:", Math.round(refundAmount * 100));
+         console.log("Razorpay refund debug:");
+         console.log("razorpayPaymentId:", order.razorpayPaymentId);
+         console.log("refundAmount:", refundAmount);
+         console.log("amount in paise:", Math.round(refundAmount * 100));
+        
+
 
         
           if (order.paymentMethod !== 'cod' && order.razorpayPaymentId) {
@@ -548,7 +589,7 @@ const loadInvoice = async (req, res) => {
         const userFullName = order.userId?.name || 'Customer'; // Adjust based on User schema
 
         // Define deliveryFee (customize based on business logic)
-        const deliveryFee = order.finalAmount > 50000 ? 0 : 100; // Example: Free delivery for orders above ₹50,000
+        const deliveryFee = 50; // Example: Free delivery for orders above ₹50,000
 
         // Enhance orderItems with product details (if not already included)
         order.orderItems = order.orderItems.map(item => {
@@ -612,7 +653,7 @@ const downloadInvoice = async (req, res) => {
         }
 
         const userFullName = (order.userId?.firstName || "") + " " + (order.userId?.lastName || "");
-        const deliveryFee = order.finalAmount > 50000 ? 0 : 100;
+        const deliveryFee =50;
 
         // Build invoice definition
         const docDefinition = {

@@ -417,12 +417,12 @@
   <!-- Shipping -->
   <div class="flex justify-between items-center">
     <div class="flex items-center space-x-2">
-      <span class="text-text-secondary">Shipping</span>
+      <span class="text-text-secondary">Delivery Fee</span>
       <i class="fas fa-info-circle text-gray-400 text-xs" title="Free shipping on all orders"></i>
     </div>
     <span class="text-green-600 font-semibold flex items-center space-x-1">
       <i class="fas fa-check text-sm"></i>
-      <span><%=50%></span>
+      <span><%=deliveryFee%></span>
     </span>
   </div>
 </div>
@@ -432,8 +432,8 @@
   <div class="flex justify-between items-center">
     <span class="text-xl font-bold text-primary">Total</span>
     <span id="total" class="text-xl font-bold text-primary">
-      ₹<%= cartItems.filter(item => item.status !== 'Blocked')
-                    .reduce((sum, item) => sum + item.total, 0)
+      ₹<%= (cartItems.filter(item => item.status !== 'Blocked')
+                    .reduce((sum, item) => sum + item.total, 0)+deliveryFee)
                     .toLocaleString() %>
     </span>
   </div>
@@ -520,7 +520,7 @@
             
 
             const subtotal = cartItems.reduce((sum, item) => sum + item.total, 0);
-            const total = subtotal;
+            const total = subtotal+delivery;
             const totalItems =cartItems.filter(item => item.status !== 'Blocked')
                      .reduce((sum, item) => sum + item.quantity, 0);
 

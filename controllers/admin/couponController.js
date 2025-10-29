@@ -32,7 +32,8 @@ const loadCoupon = async (req, res) => {
     // Stats
     const totalCoupons = await Coupon.countDocuments(searchFilter);
     const activeCoupons = await Coupon.countDocuments({ isActive: true });
-    const redeemedCoupons = await Coupon.countDocuments({ redeemed: true });
+    const redeemedCouponsCount = await Coupon.aggregate([{$unwind:'$usedBy'},{$group:{_id:null,redeemedCount:{$sum:'$usedBy.count'}}}]);
+    const redeemedCoupons = redeemedCouponsCount[0].redeemedCount ||0;
     const totalSavings = await Coupon.aggregate([
       {
         $group: {

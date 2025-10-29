@@ -433,11 +433,11 @@
                                 class="btn-danger flex items-center gap-1 px-4 py-2" aria-label="Retry Payment">
                                 <i class="fas fa-redo"></i> Retry Payment
                             </button>
-                            <% } else { %>
-                            <p class="text-sm text-red-500 flex items-center gap-1 px-4 py-2">
-                                <i class="fas fa-exclamation-triangle"></i> You can't retry payment now
+                             <p class="text-sm text-red-500 flex items-center gap-1 px-4 py-2">
+                                <i class="fas fa-exclamation-triangle"></i> You can't retry payment after 24 hours
                             </p>
-                            <% } %>
+                            <% }%>
+                            
                             <% } %>
                         </div>
                     </div>
@@ -926,6 +926,7 @@
             })
                 .then(response => response.json())
                 .then(data => {
+                     console.log('Cancel response:', data);
                     if (data.success) {
                         showToast('Order cancelled successfully!', 'success');
                         setTimeout(() => location.reload(), 1500);

@@ -70,7 +70,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (!isComplete) {
-      alert("Please enter all 6 digits.");
+    Swal.fire({
+  toast: true,
+  position: 'top-end',
+  icon: 'warning',
+  title: 'Please enter all 6 digits.',
+  showConfirmButton: false,
+  timer: 2500,
+  timerProgressBar: true
+});
+
       return;
     }
 

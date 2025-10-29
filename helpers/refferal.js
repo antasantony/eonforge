@@ -5,7 +5,7 @@ const Wallet = require('../models/walletSchema');
 const generateReferralCode = (firstName, lastName) => {
   const base = (firstName + lastName).toLowerCase().replace(/\s+/g, "");
   const randomPart = Math.random().toString(36).substr(2, 6).toUpperCase();
-  return base.slice(0, 4) + randomPart;
+  return base.slice(0, 2) + randomPart;
 };
 
 // Apply referral code

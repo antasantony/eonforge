@@ -262,7 +262,7 @@ const retryRazorpayOrder = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    // ✅ Create a new Razorpay order
+    // Create a new Razorpay order
     const options = {
       amount: Math.round(order.finalAmount * 100), // in paise
       currency: 'INR',
@@ -312,8 +312,8 @@ const retryRazorpayOrder = async (req, res) => {
 
 
 module.exports = {
-    createRazorpayOrder,
-    verifyAndPlaceOrder,
+     createRazorpayOrder,
+     verifyAndPlaceOrder,
      paymentFailure,
      retryRazorpayOrder
 };

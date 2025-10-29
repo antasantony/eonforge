@@ -91,9 +91,6 @@ const adminLogout = async (req, res) => {
 const loadDashboard = async (req, res) => {
   try {
     if (!req.session.admin) return res.redirect('/admin/login');
-
-    console.log("Loading dashboard...");
-
     const metrics = await getDashboardMetrics('monthly');
 
     const topProducts = await Order.aggregate([
@@ -256,7 +253,32 @@ const loadDashboard = async (req, res) => {
     ]);
 
     const ledgerEntries = [];
+     // === 1. Overall Totals ===
+    const revenueResult = await Order.aggregate([
+      { $match: {status:{$in:['Delivered','Return Request','Rejected']} } }, { $unwind: '$orderItems' },
+      {
+        $group: {
+          _id: null, totalOrderAmount:
+          {
+            $sum: { $multiply: [{ $add: ['$orderItems.price', '$orderItems.discount'] }, '$orderItems.stock'] }
+          },
+          discountResult:{
+            $sum:{$multiply:['$orderItems.discount','$orderItems.stock']}
+          },
+          itemsSold:{$sum:'$orderItems.stock'}
+        }
+      }
 
+    ]);
+    const totalDiscount = revenueResult[0]?.discountResult || 0;
+    const orderList = await Order.find({ status:{$in:['Delivered','Return Request','Rejected']}})
+      .populate("userId", "firstName lastName email ")
+      .sort({ createdOn: -1 })
+      .select("orderId userId createdOn totalPrice totalAmount finalAmount status couponCode couponDiscount paymentMethod orderItems");
+
+    const grossSales = orderList.reduce((sum, order) => sum + order.orderItems.reduce((a, b) => a + b.price * b.stock, 0), 0);   
+    const netRevenue = orderList.reduce((sum, order) => sum + order.orderItems.reduce((a, b) => a + (b.price - b.discount) * b.stock, 0), 0);
+   
     res.render('adminDashboard', {
       ...metrics,
       currentPage: 'dashboard',
@@ -264,8 +286,8 @@ const loadDashboard = async (req, res) => {
       topProducts,
       topCategories,
       topBrands,
-      revenueLabels: ['Products', 'Services', 'Subscriptions', 'Other'],
-      revenueData: [45, 25, 20, 10],
+      revenueLabels: ['Net Revenue', 'Gross Sales', 'Discount'],
+      revenueData: [netRevenue, grossSales, totalDiscount],
       period: 'monthly'
     });
   } catch (error) {
