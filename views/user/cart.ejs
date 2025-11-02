@@ -511,16 +511,17 @@
         }
 
         let cartItems = <%- JSON.stringify(cartItems) %>;
-
+        let deliveryFee = <%- JSON.stringify(deliveryFee) %>;
+       
         function updateCartSummary() {
             if (cartItems.length === 0) {
                 showEmptyCart();
                 return;
             }
             
-
+   console.log('delivery fee',deliveryFee)
             const subtotal = cartItems.reduce((sum, item) => sum + item.total, 0);
-            const total = subtotal+delivery;
+            const total = subtotal+deliveryFee;
             const totalItems =cartItems.filter(item => item.status !== 'Blocked')
                      .reduce((sum, item) => sum + item.quantity, 0);
 
@@ -635,7 +636,7 @@
 
            if (item.stock !== undefined && newQty > item.stock) {
     showToast(`Only ${item.stock} units available — quantity adjusted`, 'warning');
-    item.quantity = item.stock; // ✅ automatically set to available stock
+    item.quantity = item.stock;
 }
 
 

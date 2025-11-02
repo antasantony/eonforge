@@ -180,6 +180,37 @@ const verifyReturnRequest = async (req, res) => {
   if (order.paymentStatus !== 'Paid') {
     return res.status(400).json({ success: false, message: 'Order payment not completed' });
   }
+  // Refund logic
+          const refundedPrice=[]
+
+        const returnedItems = order.orderItems.filter((item)=>item.status=="Returned");
+        const nonReturnedItems = order.orderItems.filter((item)=>item.status!=="Returned");
+         console.log('non cancel the order with single and total',nonReturnedItems)
+
+        if (returnedItems && returnedItems.length > 0){
+            for(const item of returnedItems){
+               
+                const refunded=calculateItemRefund(item,order.totalPrice,order.couponDiscount)
+                refundedPrice.push(refunded)
+            }
+        }
+        console.log('refundedPrice',refundedPrice)
+         const itemRefund=refundedPrice.reduce((a,b)=>a+b,0)
+         console.log('itemrefund',itemRefund)
+        let refundAmount=0;
+          if (returnedItems && returnedItems.length > 0){
+
+         refundAmount = order.finalAmount-itemRefund; 
+         
+         }else{
+          refundAmount = order.finalAmount; 
+
+         }
+      console.log('refundAmount',refundAmount)
+
+        if (!refundAmount || isNaN(refundAmount) || refundAmount <= 0) {
+           return res.status(400).json({ success: false, message: 'Invalid refund amount calculated' });
+         }
 
   // Update order status
   order.status = 'Returned';
@@ -197,8 +228,8 @@ const verifyReturnRequest = async (req, res) => {
     wallet = new Wallet({ userId: order.userId, balance: 0, transactions: [] });
   }
 
-  // Refund logic
-  const refundAmount = order.finalAmount; // Amount to refund
+  
+    
   let refundStatus = 'success';
 
   if (order.paymentMethod !== 'cod' && order.razorpayPaymentId) {
@@ -310,13 +341,7 @@ const verifyItemReturnRequest = async (req, res) => {
         i => i.status === 'Returned' || i.status === 'Cancelled'
       );
 
-      // if (allReturnedOrCancelled && order.couponCode) {
-      //   await Coupon.updateOne(
-      //     { code: order.couponCode },
-      //     { $pull: { usedBy: { user: order.userId } } }
-      //   );
-      //   order.couponApplied = false;
-      // }
+ 
 
     } else {
       item.status = 'Rejected';

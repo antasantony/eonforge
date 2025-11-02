@@ -68,7 +68,7 @@ router.get('/orders',adminAuth, orderController.loadOrders);
 router.get('/orders/:id', adminAuth,orderController.loadOrderDetail)
 router.patch('/orders/:orderId/status',adminAuth, orderController.updateOrderStatus);
 router.patch('/orders/:orderId/return',adminAuth, orderController.verifyReturnRequest);
-router.post('/orders/:orderId/:itemId/return',adminAuth, orderController.verifyItemReturnRequest);
+router.patch('/orders/:orderId/:itemId/return',adminAuth, orderController.verifyItemReturnRequest);
 
 
 

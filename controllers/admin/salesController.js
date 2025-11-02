@@ -176,15 +176,14 @@ if (period === 'custom' && startDate && endDate) {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch sales data' });
-  }
-  
+  }  
 }
 
 const downloadSalesReport = async (req, res) => {
   try {
     const { type } = req.params;   
     const { period, startDate, endDate } = req.query;
-    const matchQuery = { status: 'Delivered' };
+    const matchQuery = { status: {$in:['Delivered','Return Request','Rejected']} };
 
     const now = new Date();
 

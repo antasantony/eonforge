@@ -339,10 +339,11 @@ const getChartData = async (req, res) => {
 
 const generateLedger = async (req, res) => {
   try {
-    const { startDate, endDate, period: reqPeriod } = req.body.startDate ? req.body : req.query;
-
+    const { startDate, endDate, period:reqPeriod } = req.body;
+ console.log(req.body)
+ console.log("period",reqPeriod)
    
-    const period = reqPeriod || 'monthly';
+    const period = reqPeriod ;
     console.log('Ledger Request - Period:', period, 'StartDate:', startDate, 'EndDate:', endDate);
 
  
@@ -354,7 +355,7 @@ const generateLedger = async (req, res) => {
 
     const periodLabel = startDate && endDate
       ? 'CUSTOM'
-      : period.toUpperCase();
+      : period;
 
     console.log('Using periodLabel:', periodLabel, 'Date Range:', metrics.startDate, 'to', metrics.endDate);
 
@@ -366,64 +367,92 @@ const generateLedger = async (req, res) => {
         year: 'numeric',
       });
 
-  
-    const orders = await Order.aggregate([
-      { $match: { createdOn: { $gte: metrics.startDate, $lte: metrics.endDate } } },
-      { $unwind: { path: '$orderItems', preserveNullAndEmptyArrays: true } },
-      {
-        $lookup: {
-          from: 'products',
-          localField: 'orderItems.product',
-          foreignField: '_id',
-          as: 'productDetails'
+   const orders = await Order.aggregate([
+  { 
+    $match: { 
+      createdOn: { 
+        $gte: metrics.startDate, 
+        $lte: metrics.endDate 
+      } 
+    } 
+  },
+  { $unwind: { path: '$orderItems', preserveNullAndEmptyArrays: true } },
+ //  Lookup Product Details
+  {
+    $lookup: {
+      from: 'products',
+      localField: 'orderItems.product',
+      foreignField: '_id',
+      as: 'productDetails'
+    }
+  },
+  { $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true } },
+  //  Lookup User Details (this was missing)
+  {
+    $lookup: {
+      from: 'users',          
+      localField: 'userId', 
+      foreignField: '_id',
+      as: 'userDetails'
+    }
+  },
+  { $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true } },
+  // Group back order data
+  {
+    $group: {
+      _id: '$_id',
+      orderId: { $first: '$orderId' },
+      createdOn: { $first: '$createdOn' },
+      totalPrice: { $first: '$totalPrice' },
+      finalAmount: { $first: '$finalAmount' },
+      paymentMethod: { $first: '$paymentMethod' },
+      status: { $first: '$status' },
+      // Customer name (first + last)
+      customerName: { 
+        $first: { 
+          $concat: [
+            { $ifNull: ['$userDetails.firstName', ''] },
+            ' ',
+            { $ifNull: ['$userDetails.lastName', ''] }
+          ]
         }
       },
-      { $unwind: { path: '$productDetails', preserveNullAndEmptyArrays: true } },
-      {
-        $group: {
-          _id: '$_id',
-          orderId: { $first: '$orderId' },
-          createdOn: { $first: '$createdOn' },
-          totalPrice: { $first: '$totalPrice' },
-          finalAmount: { $first: '$finalAmount' },
-          paymentMethod: { $first: '$paymentMethod' },
-          status: { $first: '$status' },
-          items: {
-            $push: {
-              productName: '$productDetails.productName',
-              price: '$orderItems.price',
-              discount: '$orderItems.discount',
-              stock: { $ifNull: ['$orderItems.stock', 1] },
-              itemTotal: {
-                $multiply: [
-                  { $max: [{ $subtract: ['$orderItems.price', '$orderItems.discount'] }, 0] },
-                  { $ifNull: ['$orderItems.stock', 1] }
-                ]
-              }
-            }
+      items: {
+        $push: {
+          productName: '$productDetails.productName',
+          price: '$orderItems.price',
+          discount: '$orderItems.discount',
+          stock: { $ifNull: ['$orderItems.stock', 1] },
+          itemTotal: {
+            $multiply: [
+              { $max: [{ $subtract: ['$orderItems.price', '$orderItems.discount'] }, 0] },
+              { $ifNull: ['$orderItems.stock', 1] }
+            ]
           }
         }
-      },
-      {
-        $project: {
-          orderId: 1,
-          createdOn: 1,
-          totalPrice: 1,
-          finalAmount: 1,
-          paymentMethod: 1,
-          status: 1,
-          items: 1
-        }
       }
-    ]);
-
+    }
+  },
+  {
+    $project: {
+      orderId: 1,
+      createdOn: 1,
+      totalPrice: 1,
+      finalAmount: 1,
+      paymentMethod: 1,
+      status: 1,
+      customerName: 1, 
+      items: 1
+    }
+  }
+]);
 
     let groupByFormat;
     switch (period) {
       case 'yearly': groupByFormat = '%Y'; break;
       case 'monthly': groupByFormat = '%m-%Y'; break;
       case 'weekly': groupByFormat = '%Y-%U'; break;
-      default: groupByFormat = '%d-%m-%Y'; // daily/custom
+      default: groupByFormat = '%d-%m-%Y'; 
     }
 
     const summaryData = await Order.aggregate([
@@ -447,7 +476,6 @@ const generateLedger = async (req, res) => {
       { $sort: { _id: -1 } }
     ]);
 
-   
     const pdfConfig = {
       title: 'ORDER LEDGER REPORT',
       period: periodLabel,
@@ -477,11 +505,11 @@ const generateLedger = async (req, res) => {
           table: {
             headers: ['Order ID', 'Customer', 'Product', 'Qty', 'Payment', 'Status', 'Order Date'],
             headerBackgroundColor: '#565966ff',
-            headerTextColor: '#ffffffff',
+            headerTextColor: '#2b2828ff',
             rows: orders.flatMap(order =>
               order.items.map(item => [
                 order.orderId,
-                'Gaudam S',
+                order.customerName,
                 item.productName || 'N/A',
                 item.stock.toString(),
                 order.paymentMethod,
@@ -500,7 +528,7 @@ const generateLedger = async (req, res) => {
 
    
     const pdfBuffer = await generatePDFReport(pdfConfig);
-    const filename = `ledger-${periodLabel.toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`;
+    const filename = `ledger-${periodLabel}-${new Date().toISOString().split('T')[0]}.pdf`;
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`);

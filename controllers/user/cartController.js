@@ -122,10 +122,12 @@ const loadCart = async (req, res) => {
           { path: 'category', select: 'name offerPrice hasOffer isListed' }
         ]
       });
+      // delivery fee
+       const deliveryFee = 50;
 
     if (!cartData || !cartData.items.length) {
       console.log('No cart found or cart is empty for user:', userId);
-      return res.render('cart', { cartItems: [] });
+      return res.render('cart', { cartItems: [],deliveryFee });
     }
 
     const updatedCartItems = await Promise.all(
@@ -209,7 +211,7 @@ const loadCart = async (req, res) => {
     );
 
     const cartItems = updatedCartItems.filter(Boolean);
-    const deliveryFee = 50;
+   
 
     console.log('Final cartItems:', JSON.stringify(cartItems, null, 2));
     res.render('cart', { cartItems, deliveryFee });
@@ -231,7 +233,9 @@ const updateCart = async (req, res) => {
     if (!productId || !variantId || !Number.isInteger(quantity) || quantity < 1) {
       return res.status(400).json({ success: false, message: 'Invalid input' });
     }
-
+     // delivery fee
+       const deliveryFee = 50;
+       
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
     console.log('update cart in product:', product);
@@ -266,6 +270,7 @@ const updateCart = async (req, res) => {
     );
     if (!item) return res.status(404).json({ success: false, message: 'Item not in cart' });
 
+   
     // Update cart item quantity and totalPrice
           // stock//
     item.stock = quantity;
@@ -277,7 +282,8 @@ const updateCart = async (req, res) => {
     res.json({
       success: true,
       message: 'Cart updated',
-      stock: variant.stock 
+      stock: variant.stock ,
+      deliveryFee
     });
   } catch (error) {
     console.error('Error updating cart:', error);

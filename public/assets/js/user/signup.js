@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const emailid = document.getElementById("email");
     const passid = document.getElementById("password");
     const cpassid = document.getElementById("confirmPassword");
+    const referralCodeInput = document.getElementById("referralCode");
     const submitBTn = document.getElementById("btn-submit");
    
     const text = document.getElementById("btn-text");
@@ -15,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const error3 = document.getElementById("error3");
     const error4 = document.getElementById("error4");
     const error5 = document.getElementById("error5");
+    const error6 = document.getElementById("error6");
 
     function nameValidate() {
         const nameval = nameid.value.trim();
@@ -83,7 +85,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return true;
     }
-nameid.addEventListener("input", nameValidate);
+
+    function referralValidate() {
+  const code = referralCodeInput.value.trim();
+
+  // ✅ If user leaves it empty → no validation error
+  if (!code) {
+    error6.textContent = "";
+    error6.style.display = "none";
+    return true;
+  }
+
+  // Validate only if user typed something (A–Z, 0–9, 6–10 chars)
+   const pattern = /^[A-Za-z0-9]{6,10}$/;
+
+  if (!pattern.test(code)) {
+    error6.textContent = "Invalid referral code format";
+    error6.style.display = "block";
+    return false;
+  }
+
+  error6.textContent = "";
+  error6.style.display = "none";
+  return true;
+}
+
+// Live validation on typing
+referralCodeInput.addEventListener("input", () => {
+  referralCodeInput.value = referralCodeInput.value; 
+  referralValidate();
+});
+
+  nameid.addEventListener("input", nameValidate);
   lnameid.addEventListener("input", lnameValidate);
   emailid.addEventListener("input", emailValidate);
   passid.addEventListener("input", passValidate);
@@ -96,12 +129,13 @@ nameid.addEventListener("input", nameValidate);
         const isLNameValid = lnameValidate();
         const isEmailValid = emailValidate();
         const isPassValid = passValidate();
+        const isReferralValid = referralValidate()
         //Button disable
        
        
 
 
-        if (!isNameValid || !isLNameValid || !isEmailValid || !isPassValid) {
+        if (!isNameValid || !isLNameValid || !isEmailValid || !isPassValid || !isReferralValid) {
             return;
         }
         submitBTn.disabled=true;
@@ -120,6 +154,11 @@ nameid.addEventListener("input", nameValidate);
 
             const data = await res.json();
             const msgElem = document.getElementById("message");
+            [nameid, lnameid, emailid, passid, cpassid, referralCodeInput].forEach((input) => {
+              input.addEventListener("input", () => {
+                msgElem.textContent = "";
+              });
+            });
 
             if (data.success) {
                 msgElem.style.color = "green";
@@ -127,6 +166,8 @@ nameid.addEventListener("input", nameValidate);
                 form.reset();
                 window.location.href = "/verify-otp"; 
             } else {
+                 submitBTn.disabled = false;
+                 submitBTn.innerHTML = '<span id="btn-text">Sign Up</span>';
                 msgElem.style.color = "red";
                 msgElem.textContent = data.message;
             }

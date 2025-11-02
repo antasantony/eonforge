@@ -434,6 +434,7 @@
         return sendVerify(orderId, itemId, true);
       }
       if (result.dismiss === Swal.DismissReason.cancel) {
+        console.log('result rej:',result)
         console.log('Reject clicked');
         return sendVerify(orderId, itemId, false);
       }

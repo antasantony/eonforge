@@ -1,4 +1,3 @@
-// helpers/generatePDFReport.js
 const PDFTable = require('pdfkit-table');
 
 const generatePDFReport = (config) => {
@@ -19,100 +18,96 @@ const generatePDFReport = (config) => {
 
     const chunks = [];
     doc.on('data', (chunk) => chunks.push(chunk));
-    doc.on('end', () => {
-      const pdfBuffer = Buffer.concat(chunks);
-      resolve(pdfBuffer);
-    });
-    doc.on('error', (error) => reject(error));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
 
-    // Header with specified color #7a7c83ff
+    // ====== HEADER ======
     doc.rect(0, 0, doc.page.width, 100).fill('#374151');
     doc.fillColor('#ffffff');
-    doc.fontSize(20).font('Helvetica-Bold').text(title.toUpperCase(), { 
-      align: 'center',
-      y: 30
-    });
+    doc.fontSize(20).font('Helvetica-Bold').text(title.toUpperCase(), { align: 'center', y: 30 });
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').text(`Report Period: ${period.toUpperCase()}`, { align: 'center' });
-    
+
     if (dateRange.start && dateRange.end) {
-      const startDate = new Date(dateRange.start);
-      const endDate = new Date(dateRange.end);
-      doc.text(`Date Range: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`, { align: 'center' });
+      const startDate = new Date(dateRange.start).toLocaleDateString();
+      const endDate = new Date(dateRange.end).toLocaleDateString();
+      doc.text(`Date Range: ${startDate} - ${endDate}`, { align: 'center' });
     }
-    
+
     doc.text(`Generated on: ${generatedOn.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`, { align: 'center' });
-    
-    // Reset to normal content area
+
     doc.y = 120;
     doc.fillColor('#2b2d42');
 
-    // Process sections
+    // ====== SECTION PROCESSOR ======
     const processSection = async (section, index) => {
-  if (index > 0) doc.addPage(); // only once per section
+      // ✅ Add page only if previous content reached near bottom
+      if (doc.y > 500) doc.addPage();
 
-  doc.fontSize(14).font('Helvetica-Bold').text(section.title, { underline: true });
-  doc.moveDown(0.5);
-
-  if (section.type === 'content' && Array.isArray(section.content)) {
-    section.content.forEach((summary) => {
-      doc.rect(30, doc.y, doc.page.width - 60, 70)
-         .fillOpacity(0.1)
-         .fill('#f8f9fa')
-         .fillOpacity(1);
-
-      doc.fontSize(10).font('Helvetica-Bold').fillColor('#7a7c83ff').text(`Period: ${summary.period}`);
-      doc.fontSize(9).font('Helvetica').fillColor('#2b2d42')
-         .text(`Total Orders: ${summary.totalOrders}`)
-         .text(`Paid Orders: ${summary.paidOrders}`)
-         .text(`COD Orders: ${summary.codOrders}`)
-         .text(`Refunded Orders: ${summary.refundedOrders}`)
-         .text(`Total Revenue: ₹${summary.totalRevenue.toLocaleString('en-IN')}.00`)
-         .text(`Success Rate: ${summary.successRate}%`);
+      doc.fontSize(14).font('Helvetica-Bold').text(section.title, { underline: true });
       doc.moveDown(0.5);
-    });
-  } else if (section.table) {
-    await doc.table(section.table, {
-      prepareHeader: () => {
-        doc.font('Helvetica-Bold').fontSize(section.headerFontSize || 9).fillColor('#ffffff');
-      },
-      prepareRow: (row, i) => {
-        doc.font('Helvetica').fontSize(section.rowFontSize || 8).fillColor('#2b2d42');
-      },
-      divider: {
-        header: { width: 1, opacity: 0.8 },
-        horizontal: { width: 0.5, opacity: 0.3 },
-      },
-      columnsSize: [90, 70, 130, 30, 60, 60, 60],
-    });
-  }
-};
 
+      if (section.type === 'content' && Array.isArray(section.content)) {
+        section.content.forEach((summary) => {
+          doc.rect(30, doc.y, doc.page.width - 60, 70)
+            .fillOpacity(0.1)
+            .fill('#f8f9fa')
+            .fillOpacity(1);
 
-    // Process all sections sequentially
+          doc.fontSize(10).font('Helvetica-Bold').fillColor('#7a7c83ff').text(`Period: ${summary.period}`);
+          doc.fontSize(9).font('Helvetica').fillColor('#2b2d42')
+            .text(`Total Orders: ${summary.totalOrders}`)
+            .text(`Paid Orders: ${summary.paidOrders}`)
+            .text(`COD Orders: ${summary.codOrders}`)
+            .text(`Refunded Orders: ${summary.refundedOrders}`)
+            .text(`Total Revenue: ₹${summary.totalRevenue.toLocaleString('en-IN')}.00`)
+            .text(`Success Rate: ${summary.successRate}%`);
+          doc.moveDown(1);
+        });
+      } else if (section.table) {
+        await doc.table(section.table, {
+          prepareHeader: () => {
+            doc.font('Helvetica-Bold')
+              .fontSize(section.headerFontSize || 9)
+              .fillColor('#2b2525ff');
+          },
+          prepareRow: (row, i) => {
+            doc.font('Helvetica')
+              .fontSize(section.rowFontSize || 8)
+              .fillColor('#2b2d42');
+          },
+          divider: {
+            header: { width: 1, opacity: 0.8 },
+            horizontal: { width: 0.5, opacity: 0.3 }
+          },
+          columnsSize: [90, 70, 130, 30, 60, 60, 60],
+        });
+      }
+    };
+
+    // ====== MAIN FLOW ======
     const processAllSections = async () => {
       for (let i = 0; i < sections.length; i++) {
         await processSection(sections[i], i);
       }
 
-      // Add page numbers only on actual pages
+      doc.flushPages();
       const totalPages = doc.bufferedPageRange().count;
-for (let i = 0; i < totalPages; i++) {
-  doc.switchToPage(i);
-  doc.fillColor('#2b2d42')
-     .fontSize(8)
-     .text(`Page ${i + 1} of ${totalPages}`, 30, doc.page.height - 30, {
-       align: 'center',
-       width: doc.page.width - 60
-     });
-  doc.fontSize(8)
-     .text('Generated by Order Management System', 30, doc.page.height - 20, {
-       align: 'center',
-       width: doc.page.width - 60
-     });
-}
-doc.end(); // ✅ after footer
 
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(i);
+        doc.fillColor('#2b2d42').fontSize(8)
+          .text(`Page ${i + 1} of ${totalPages}`, 30, doc.page.height - 30, {
+            align: 'center',
+            width: doc.page.width - 60
+          })
+          .text('Generated by Order Management System', 30, doc.page.height - 20, {
+            align: 'center',
+            width: doc.page.width - 60
+          });
+      }
+
+      doc.end();
     };
 
     processAllSections().catch(reject);

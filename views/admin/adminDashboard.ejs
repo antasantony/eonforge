@@ -282,17 +282,7 @@
         </div>
         
         <!-- Ledger Book -->
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div class="p-4 lg:p-6 border-b border-gray-200">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h2 class="text-xl font-semibold text-gray-800">Ledger Book</h2>
-              <button id="download-ledger" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors w-full sm:w-auto">
-                <i class="fas fa-download mr-2"></i>Download Ledger
-              </button>
-            </div>
-          </div>
-          
-        </div>
+       
       </main>
     </div>
   </div>
@@ -504,65 +494,66 @@
 
     // Download ledger function
     function downloadLedger() {
-      const period = document.getElementById('chart-period').value;
-      const date = document.getElementById('dashboard-date').value;
-      
-      // Set form values based on current chart selection
-      document.getElementById('ledger-period').value = period;
-      
-      if (period === 'daily') {
-        // For daily, use the selected date as both start and end
-        document.getElementById('ledger-startDate').value = date;
-        document.getElementById('ledger-endDate').value = date;
-      } else {
-        // For other periods, let the server calculate the date range
-        document.getElementById('ledger-startDate').value = '';
-        document.getElementById('ledger-endDate').value = '';
+  const period = document.getElementById('chart-period').value;
+  const date = document.getElementById('dashboard-date').value;
+
+  const form = document.getElementById('ledger-form');
+
+  // Always set the period
+  document.getElementById('ledger-period').value = period;
+
+  // Handle date values depending on the period
+  if (period === 'daily') {
+    document.getElementById('ledger-startDate').value = date;
+    document.getElementById('ledger-endDate').value = date;
+  } else {
+    // Clear any old date values completely
+    document.getElementById('ledger-startDate').removeAttribute('value');
+    document.getElementById('ledger-endDate').removeAttribute('value');
+  }
+
+  const formData = new FormData(form);
+  const data = {
+    period: formData.get('period'),
+  };
+
+  // Only add start/endDate if they exist
+  if (formData.get('startDate')) data.startDate = formData.get('startDate');
+  if (formData.get('endDate')) data.endDate = formData.get('endDate');
+
+  console.log('data ledger', data);
+
+  fetch('/admin/ledger', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+    .then(response => {
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      return response.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      let filename = `ledger-${period}`;
+      if (period === 'daily' && data.startDate) {
+        filename += `-${data.startDate}`;
       }
+      a.download = `${filename}.pdf`;
 
-      const form = document.getElementById('ledger-form');
-      const formData = new FormData(form);
-      const data = {
-        period: formData.get('period'),
-        startDate: formData.get('startDate'),
-        endDate: formData.get('endDate')
-      };
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+      console.error('Error downloading ledger:', error);
+      alert('Failed to download ledger. Please try again.');
+    });
+}
 
-      fetch('/admin/ledger', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.blob();
-        })
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          
-          // Generate appropriate filename based on period
-          let filename = `ledger-${period}`;
-          if (period === 'daily' && data.startDate) {
-            filename += `-${data.startDate}`;
-          }
-          a.download = `${filename}.pdf`;
-          
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          window.URL.revokeObjectURL(url);
-        })
-        .catch(error => {
-          console.error('Error downloading ledger:', error);
-          alert('Failed to download ledger. Please try again.');
-        });
-    }
   </script>
 </body>
 </html>
