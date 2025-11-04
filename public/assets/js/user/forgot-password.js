@@ -2,7 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('forgotForm');
     const messageEl = document.getElementById('messageElement');
     const emailInput = document.getElementById('email');
-
+    
+     emailInput.addEventListener('input', () => {
+    messageEl.textContent = ''; 
+  });
     form.addEventListener('submit', async (e) => {
     e.preventDefault();
 

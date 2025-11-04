@@ -507,6 +507,10 @@
                 showToast('Please enter a valid amount', 'warning');
                 return;
             }
+            if(amount>10000){
+                 showToast('Maximum limit is ₹10,000', 'warning');
+                 return;
+            }
 
             // Show loading state
             submitBtn.disabled = true;

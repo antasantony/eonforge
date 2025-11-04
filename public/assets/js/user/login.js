@@ -1,6 +1,17 @@
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("loginForm");
     const errorMessage = document.getElementById("error-message");
+    const emailInput = form.email;
+    const passwordInput = form.password;
+
+
+  emailInput.addEventListener("input", () => {
+    errorMessage.textContent = "";
+  });
+
+  passwordInput.addEventListener("input", () => {
+    errorMessage.textContent = "";
+  });
 
     form.addEventListener("submit", async function (e) {
         e.preventDefault();

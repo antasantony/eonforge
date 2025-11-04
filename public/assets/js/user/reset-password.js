@@ -7,12 +7,31 @@ form.addEventListener('submit', async (e) => {
   const newPassword = document.getElementById('newPassword').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
 
-  if (newPassword !== confirmPassword) {
-    messageBox.textContent = "Passwords don't match!";
-    messageBox.classList.remove('hidden');
-    messageBox.classList.add('text-red-300');
-    return;
-  }
+   const hasLetter = /[a-zA-Z]/.test(newPassword);
+    const hasDigit = /\d/.test(newPassword);
+
+ 
+    if (!newPassword || !confirmPassword) {
+      messageBox.textContent = 'Please fill in both fields.';
+      messageBox.classList.remove('hidden', 'text-green-500');
+      messageBox.classList.add('text-red-300');
+      return;
+    }
+
+    
+    if (!hasLetter || !hasDigit) {
+      messageBox.textContent = 'Password must include letters and numbers.';
+      messageBox.classList.remove('hidden', 'text-green-500');
+      messageBox.classList.add('text-red-300');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      messageBox.textContent = "Passwords don't match!";
+      messageBox.classList.remove('hidden', 'text-green-500');
+      messageBox.classList.add('text-red-300');
+      return;
+    }
 
   try {
     const response = await fetch('/reset-password', {
